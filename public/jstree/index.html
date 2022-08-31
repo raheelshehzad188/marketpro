@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>jstree basic demos</title>
+	<style>
+		html {
+			margin: 0;
+			padding: 0;
+			font-size: 62.5%;
+		}
+
+		body {
+			max-width: 800px;
+			min-width: 300px;
+			margin: 0 auto;
+			padding: 20px 10px;
+			font-size: 14px;
+			font-size: 1.4em;
+		}
+
+		h1 {
+			font-size: 1.8em;
+		}
+
+		.demo {
+			overflow: auto;
+			border: 1px solid silver;
+			min-height: 100px;
+		}
+	</style>
+	<link rel="stylesheet" href="jstree.bundle.css" />
+</head>
+
+<body>
+	<h1>AJAX demo</h1>
+	<div id="kt_docs_jstree_ajax"></div>
+
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="jstree.bundle.js"></script>
+	<script>
+		$("#kt_docs_jstree_ajax").jstree({
+			"core": {
+				"themes": {
+					"responsive": false
+				},
+				// so that create works
+				"check_callback": false,
+				'data': {
+					'url': function (node) {
+						return 'http://localhost/jstree/ajax_data.php'; // Demo API endpoint -- Replace this URL with your set endpoint
+					},
+					'data': function (node) {
+						return {
+							'parent': node.id
+						};
+					}
+				}
+			},
+			"types": {
+				"default": {
+					"icon": "fa fa-folder text-primary"
+				},
+				"file": {
+					"icon": "fa fa-file  text-primary"
+				}
+			},
+			"state": {
+				"key": "demo3"
+			},
+			"plugins": ["dnd", "state", "types"]
+		});
+	</script>
+
+</body>
+
+</html>
