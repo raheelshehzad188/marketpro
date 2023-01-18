@@ -231,6 +231,9 @@ class ProductController extends Controller
         $product->sku = $request->sku;
 
 
+        $product->created_at = date('Y-m-d h:i',strtotime($request->created_at));
+
+
         if ($request->has('addons')) {
             \DB::table('product_addon_pivot')->where('product_id', $id)->delete();
             foreach ($request->addons as  $addon) {

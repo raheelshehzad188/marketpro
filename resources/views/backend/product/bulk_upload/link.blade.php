@@ -35,9 +35,8 @@
 
                 <div class="form-group row" id="category">
                     <div class="col-lg-9">
-                        <select class="form-control aiz-selectpicker" data-placeholder="" name="product_id" id="category_id"
+                        <select class="form-control aiz-selectpicker" data-placeholder="Select multipe products" name="product_id[]" id="category_id" multiple
                             data-live-search="true" required>
-                            <option>Product</option>
                             @foreach ($products as $product)
                                 <option value="{{ $product->id }}">
                                     {{ $product->name }} - {{ $product->sku }}</option>

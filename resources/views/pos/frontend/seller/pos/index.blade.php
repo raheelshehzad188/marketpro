@@ -95,8 +95,11 @@
                                             $tax = 0;
                                             $shipping = 0;
                                         @endphp
-                                        @if (Session::has('posCart'))
-                                            @forelse (Session::get('posCart') as $key => $cartItem)
+                                        @if (\App\Models\Cart::where('user_id', Auth::user()->id)->first())
+                                            @php
+                                                 $carts = unserialize(\App\Models\Cart::where('user_id', Auth::user()->id)->first()->cart_data);
+                                            @endphp
+                                            @forelse ($carts as $key => $cartItem)
                                                 @php
                                                     $subtotal += $cartItem['price']*$cartItem['quantity'];
                                                     $tax += $cartItem['tax']*$cartItem['quantity'];

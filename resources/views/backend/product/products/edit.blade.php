@@ -31,8 +31,7 @@
                                 <label class="col-lg-3 col-from-label">{{ translate('Other Name') }}</label>
                                 <div class="col-lg-8">
                                     <input type="text" class="form-control" name="other_name"
-                                        placeholder="{{ translate('Other Name') }}"
-                                        value="{{ $product->other_name }}" >
+                                        placeholder="{{ translate('Other Name') }}" value="{{ $product->other_name }}">
                                 </div>
                             </div>
 
@@ -40,8 +39,7 @@
                                 <label class="col-lg-3 col-from-label">{{ translate('Short Name') }}</label>
                                 <div class="col-lg-8">
                                     <input type="text" class="form-control" name="short_name"
-                                        placeholder="{{ translate('Short Name') }}"
-                                        value="{{ $product->short_name }}" >
+                                        placeholder="{{ translate('Short Name') }}" value="{{ $product->short_name }}">
                                 </div>
                             </div>
 
@@ -52,7 +50,7 @@
                                 <div class="col-lg-8">
                                     <input type="text" class="form-control" name="article_group"
                                         placeholder="{{ translate('Article Group') }}"
-                                        value="{{ $product->article_group }}" >
+                                        value="{{ $product->article_group }}">
                                 </div>
                             </div>
 
@@ -72,6 +70,15 @@
                                             @endforeach
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-from-label">{{ translate('Create Date') }}</label>
+                                <div class="col-lg-8">
+                                    <input type="date" class="form-control" name="created_at"
+                                        placeholder="{{ translate('Create Date') }}"
+                                        value="{{ date('Y-m-d',strtotime($product->created_at)) }}">
                                 </div>
                             </div>
                         </div>
@@ -110,13 +117,14 @@
                         <div class="card-body">
                             <div class="form-group row gutters-5">
                                 <div class="col-lg-3">
-                                    <input type="text" class="form-control" value="{{ translate('Addons') }}" disabled>
+                                    <input type="text" class="form-control" value="{{ translate('Addons') }}"
+                                        disabled>
                                 </div>
                                 <div class="col-lg-8">
-                                    <select name="addons[]" id="" data-selected-text-format="count" data-live-search="true"
-                                        class="form-control aiz-selectpicker" multiple
-                                        data-placeholder="{{ translate('Choose Addons') }}" id="addons" data-selected="{{ json_encode($selected_addons) }}"
-                                        onchange=" update_sku()">
+                                    <select name="addons[]" id="" data-selected-text-format="count"
+                                        data-live-search="true" class="form-control aiz-selectpicker" multiple
+                                        data-placeholder="{{ translate('Choose Addons') }}" id="addons"
+                                        data-selected="{{ json_encode($selected_addons) }}" onchange=" update_sku()">
                                         @foreach (\App\ProductAddon::all() as $key => $addon)
                                             <option value="{{ $addon->id }}"
                                                 @if ($product->addons != null && in_array($addon->id, json_decode($product->addons, true))) selected @endif>
@@ -143,16 +151,16 @@
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-from-label">{{ translate('Unit price') }}</label>
                                     <div class="col-lg-6">
-                                        <input type="text" placeholder="{{ translate('Unit price') }}" name="unit_price"
-                                            class="form-control" value="{{ $product->unit_price }}">
+                                        <input type="text" placeholder="{{ translate('Unit price') }}"
+                                            name="unit_price" class="form-control" value="{{ $product->unit_price }}">
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <label class="col-lg-3 col-from-label">{{ translate('Fake price') }}</label>
                                     <div class="col-lg-6">
-                                        <input type="text" placeholder="{{ translate('Fake price') }}" name="fake_price"
-                                            class="form-control" value="{{ $product->fake_price }}">
+                                        <input type="text" placeholder="{{ translate('Fake price') }}"
+                                            name="fake_price" class="form-control" value="{{ $product->fake_price }}">
                                     </div>
                                 </div>
 
@@ -160,10 +168,9 @@
                                 <div class="form-group row" id="quantity">
                                     <label class="col-lg-3 col-from-label">{{ translate('Quantity') }}</label>
                                     <div class="col-lg-6">
-                                        <input type="number" lang="en"
-                                            value="{{ $product->current_stock }}" step="1"
-                                            placeholder="{{ translate('Quantity') }}" name="current_stock"
-                                            class="form-control">
+                                        <input type="number" lang="en" value="{{ $product->current_stock }}"
+                                            step="1" placeholder="{{ translate('Quantity') }}"
+                                            name="current_stock" class="form-control">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -172,8 +179,7 @@
                                     </label>
                                     <div class="col-md-6">
                                         <input type="text" placeholder="{{ translate('SKU') }}"
-                                            value="{{ $product->sku }}" name="sku"
-                                            class="form-control">
+                                            value="{{ $product->sku }}" name="sku" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -246,20 +252,21 @@
                 success: function(data) {
                     var obj = JSON.parse(data);
                     $('#customer_choice_options').append('\
-                                                <div class="form-group row">\
-                                                    <div class="col-md-3">\
-                                                        <input type="hidden" name="choice_no[]" value="' + i + '">\
-                                                        <input type="text" class="form-control" name="choice[]" value="' +
+                                                    <div class="form-group row">\
+                                                        <div class="col-md-3">\
+                                                            <input type="hidden" name="choice_no[]" value="' + i +
+                        '">\
+                                                            <input type="text" class="form-control" name="choice[]" value="' +
                         name +
                         '" placeholder="{{ translate('Choice Title') }}" readonly>\
-                                                    </div>\
-                                                    <div class="col-md-8">\
-                                                        <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_' +
+                                                        </div>\
+                                                        <div class="col-md-8">\
+                                                            <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_' +
                         i + '[]" multiple>\
-                                                            ' + obj + '\
-                                                        </select>\
-                                                    </div>\
-                                                </div>');
+                                                                ' + obj + '\
+                                                            </select>\
+                                                        </div>\
+                                                    </div>');
                     AIZ.plugins.bootstrapSelect('refresh');
                 }
             });
@@ -287,6 +294,5 @@
                 }
             });
         }
-
     </script>
 @endsection

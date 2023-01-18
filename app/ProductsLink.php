@@ -18,7 +18,7 @@ use Auth;
 class ProductsLink implements ToCollection, WithHeadingRow, WithValidation, ToModel, WithChunkReading
 {
     private $rows = 0;
-    private $product_id = '';
+    private $product_id = [];
     function __construct($pId)
     {
         $this->product_id = $pId;
@@ -26,47 +26,51 @@ class ProductsLink implements ToCollection, WithHeadingRow, WithValidation, ToMo
 
     public function collection(Collection $rows)
     {
-        \DB::table('product_addon_pivot')->where('product_id', $this->product_id)->delete();
-        foreach ($rows as $row) {
-            if (!empty($row['codice'])) {
-                $addon_first = ProductAddon::where('sku', $row['codice'])->get();
-                if (!$addon_first->isEmpty()){
-                    $addon = $addon_first->first();
-                    \DB::table('product_addon_pivot')->insert([
-                        'product_id' =>  $this->product_id,
-                        'product_addon_id' => $addon->id,
-                        'sort_order' => $row['pos']
-                    ]);
-                }
 
-                
-                // if ($addon == null) {
-                //     // $addonId =  ProductAddon::create([
-                //     //     'name' => $row['benamning'],
-                //     //     'other_name' => $row['annan_benamning'],
-                //     //     'short_name' => $row['kortnamn'],
-                //     //     'article_group' => $row['artikelgrupp'],
-                //     //     'fake_price' => $row['fake_pris'],
-                //     //     'qty' => $row['disponibelt'],
-                //     //     'sku' => $row['artikelnummer'],
-                //     //     'unit_price' => $row['pris'],
-                //     // ]);
-                //     //$addonId =   ProductAddon::create();
-                // } else {
-                //     // $addon->name = $row['benamning'];
-                //     // $addon->other_name = $row['annan_benamning'];
-                //     // $addon->short_name = $row['kortnamn'];
-                //     // $addon->article_group = $row['artikelgrupp'];
-                //     // $addon->fake_price = $row['fake_pris'];
-                //     // $addon->qty = $row['disponibelt'];
-                //     // $addon->sku = $row['artikelnummer'];
-                //     // $addon->unit_price = $row['pris'];
-                //     // $addon->save();
-                   
-                // }
+        if (!empty($this->product_id)) {
+            foreach ($this->product_id as $product_id) {
+                \DB::table('product_addon_pivot')->where('product_id', $product_id)->delete();
+                foreach ($rows as $row) {
+                    if (!empty($row['codice'])) {
+                        $addon_first = ProductAddon::where('sku', $row['codice'])->get();
+                        if (!$addon_first->isEmpty()) {
+                            $addon = $addon_first->first();
+                            \DB::table('product_addon_pivot')->insert([
+                                'product_id' =>  $product_id,
+                                'product_addon_id' => $addon->id,
+                                'sort_order' => $row['pos']
+                            ]);
+                        }
+
+
+                        // if ($addon == null) {
+                        //     // $addonId =  ProductAddon::create([
+                        //     //     'name' => $row['benamning'],
+                        //     //     'other_name' => $row['annan_benamning'],
+                        //     //     'short_name' => $row['kortnamn'],
+                        //     //     'article_group' => $row['artikelgrupp'],
+                        //     //     'fake_price' => $row['fake_pris'],
+                        //     //     'qty' => $row['disponibelt'],
+                        //     //     'sku' => $row['artikelnummer'],
+                        //     //     'unit_price' => $row['pris'],
+                        //     // ]);
+                        //     //$addonId =   ProductAddon::create();
+                        // } else {
+                        //     // $addon->name = $row['benamning'];
+                        //     // $addon->other_name = $row['annan_benamning'];
+                        //     // $addon->short_name = $row['kortnamn'];
+                        //     // $addon->article_group = $row['artikelgrupp'];
+                        //     // $addon->fake_price = $row['fake_pris'];
+                        //     // $addon->qty = $row['disponibelt'];
+                        //     // $addon->sku = $row['artikelnummer'];
+                        //     // $addon->unit_price = $row['pris'];
+                        //     // $addon->save();
+
+                        // }
+                    }
+                }
             }
         }
-
         flash(translate('Products linked successfully'))->success();
     }
 

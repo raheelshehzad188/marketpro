@@ -14,11 +14,18 @@
 
 Route::get('/admin', 'AdminController@admin_dashboard')->name('admin.dashboard')->middleware(['auth', 'admin']);
 Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function () {
+    Route::get('/categories/get-products-select', 'CategoryController@get_products')->name('categories.get_products');
+    Route::post('/categories/products-copy', 'CategoryController@copy_products')->name('categories.copy');
+    Route::post('/categories/categories-copy', 'CategoryController@copy_categories')->name('categories_all.copy');
+
+
+    
+
     Route::resource('categories', 'CategoryController');
     Route::get('/categories/edit/{id}', 'CategoryController@edit')->name('categories.edit');
     Route::get('/categories/destroy/{id}', 'CategoryController@destroy')->name('categories.destroy');
     Route::post('/categories/featured', 'CategoryController@updateFeatured')->name('categories.featured');
-
+   
 
     Route::resource('shippings', 'ShippingController');
     Route::get('/shippings/edit/{id}', 'ShippingController@edit')->name('shippings.edit');

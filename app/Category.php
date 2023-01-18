@@ -37,7 +37,12 @@ class Category extends Model
 
     public function childrenCategories()
     {
-        return $this->hasMany(Category::class, 'parent_id')->with('categories');
+        return $this->hasMany(Category::class, 'parent_id')->with('categories')->orderBy('name','desc');
+    }
+
+    public function childrenCategoriesCreatedOrder()
+    {
+        return $this->hasMany(Category::class, 'parent_id')->with('categories')->orderBy('created_at','desc');
     }
 
     public function parentCategory()

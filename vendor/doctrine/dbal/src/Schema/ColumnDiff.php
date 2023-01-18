@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\Deprecations\Deprecation;
+
 use function in_array;
 
 /**
@@ -31,6 +33,15 @@ class ColumnDiff
         array $changedProperties = [],
         ?Column $fromColumn = null
     ) {
+        if ($fromColumn === null) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4785',
+                'Not passing the $fromColumn to %s is deprecated.',
+                __METHOD__,
+            );
+        }
+
         $this->oldColumnName     = $oldColumnName;
         $this->column            = $column;
         $this->changedProperties = $changedProperties;
@@ -47,9 +58,7 @@ class ColumnDiff
         return in_array($propertyName, $this->changedProperties, true);
     }
 
-    /**
-     * @return Identifier
-     */
+    /** @return Identifier */
     public function getOldColumnName()
     {
         $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();

@@ -109,6 +109,14 @@
                             </select>
                         </div>
                     </div> --}}
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-from-label">{{ translate('Create Date') }}</label>
+                        <div class="col-lg-8">
+                            <input type="date" class="form-control" name="created_at"
+                                placeholder="{{ translate('Create Date') }}"
+                                value="{{ date('Y-m-d',strtotime($category->created_at)) }}">
+                        </div>
+                    </div>
                     <div class="form-group mb-0 text-right">
                         <button type="submit" class="btn btn-primary">{{translate('Save')}}</button>
                     </div>

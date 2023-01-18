@@ -1,3 +1,17 @@
+<style>
+    #wrap {
+        width: 100%;
+        height: 400px;
+        margin: auto;
+    }
+
+    #inner {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        cursor: pointer;
+    }
+</style>
 <section class="mb-4 pt-3">
     <div class="container">
         <div class="row">
@@ -7,17 +21,19 @@
                         $photos = explode(',', $detailedProduct->thumbnail_img);
                     @endphp
                     <div class="col order-1 order-md-2">
-                        <div class="product-gallery text-center" data-nav-for='.product-gallery-thumb' data-fade='true'
-                            data-auto-height='true'>
-                            @foreach ($photos as $key => $photo)
-                                <div class="carous img-zoom rounded">
-                                    <img class="img-fluid lazyload h-400px"
-                                        src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                        data-src="{{ uploaded_asset($photo) }}"
-                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                </div>
-                            @endforeach
+                        <div style="text-align: center; width: 90%; padding: 10px 0; margin: 0 auto;">
+                            <input type="button" value="Zoom +" id="zoom-in" class="btn btn-light btn-sm" />
+                            <input type="button" value="Zoom -" id="zoom-out" class="btn btn-light btn-sm" />
+                            <input type="button" value="Reset" id="reset" class="btn btn-light btn-sm" />
+                        </div>
+                        <div id="wrap">
+                            <div class="text-center" id="inner">
+                                @foreach ($photos as $key => $photo)
+                                    <img class="my-image h-400px" src="{{ uploaded_asset($photo) }}" draggable="false"
+                                        id="image" style="display: none">
+                                @endforeach
 
+                            </div>
                         </div>
                     </div>
 
@@ -67,7 +83,7 @@
                                             if ($product_addon_v->sku == $product_addon->sku) {
                                                 $sort_orders_exists = true;
                                                 break;
-                                            }else{
+                                            } else {
                                                 $sort_orders_exists = false;
                                             }
                                         }
@@ -106,7 +122,16 @@
                                     <th scope="row">
                                         {{ $key }}
                                     </th>
-                                    <td>{{ $product_addon->sku }}</td>
+                                    @if (!empty($keyword))
+                                        <td>{!! preg_replace(
+                                            '/\w*?' . preg_quote($keyword) . '\w*/i',
+                                            "<b style='color:#377dff;font-size:15px'>$0</b>",
+                                            $product_addon->sku,
+                                        ) !!}</td>
+                                    @else
+                                        <td>{{ $product_addon->sku }}</td>
+                                    @endif
+
                                     <td>{{ $product_addon->name }}</td>
                                     <td>
                                         <div class="product-quantity d-flex align-items-center">
@@ -232,6 +257,35 @@
 
 
 <script>
-    AIZ.plugins.zoom();
+    function initImage() {
+        $('#image').apImageZoom({
+            cssWrapperClass: 'custom-wrapper-class'
+                // , autoCenter: false
+                // , loadingAnimation: 'throbber'
+                ,
+            minZoom: false,
+            maxZoom: false
+            // , maxZoom: 1.0
+            // , hammerPluginEnabled: false
+            //, hardwareAcceleration: false
+        });
+    };
+    $(document).ready(function() {
+
+    });
+
+
+
+    $('#zoom-in').click(function() {
+        $('#image').apImageZoom('zoomIn');
+    });
+    $('#zoom-out').click(function() {
+        $('#image').apImageZoom('zoomOut');
+    });
+    $('#reset').click(function() {
+        $('#image').apImageZoom('reset');
+    });
+
+    initImage();
     AIZ.extra.plusMinus();
 </script>

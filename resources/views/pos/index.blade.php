@@ -1,56 +1,61 @@
 @extends('backend.layouts.app')
 
 @section('content')
+    <link rel="stylesheet" href="{{ static_asset('assets/simple-image-zoom/css/style.css?v=1') }} " type="text/css"
+        media="screen" />
+    <link rel="stylesheet" href="{{ static_asset('assets/simple-image-zoom/lib/css/ap-image-zoom.css') }} " type="text/css"
+        media="screen" />
     <section class="gry-bg py-4 profile">
         <div class="container-fluid">
-            <form class="" action="" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="row gutters-10">
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-header d-block">
-                                <h5>MOTO</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="aiz-pos-product-list c-scrollbar-light">
+
+            @csrf
+            <div class="row gutters-10">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header d-block">
+                            <h5>MOTO</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="aiz-pos-product-list c-scrollbar-light">
 
 
-                                    <div id="kt_docs_jstree_ajax"></div>
+                                <div id="kt_docs_jstree_ajax"></div>
 
-                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row gutters-5 mb-3">
-                                    <div class="col-md-8 mb-2 mb-md-0">
-                                        <div class="form-group mb-0">
-                                            <input class="form-control form-control-lg" type="text" name="keyword"
-                                                placeholder="Search by article number?">
-                                        </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row gutters-5 mb-3">
+                                <div class="col-md-8 mb-2 mb-md-0">
+                                    <div class="form-group mb-0">
+                                        <input class="form-control form-control-lg" type="text" name="keyword"
+                                            placeholder="Search by article number?">
                                     </div>
-                                    <div class="col-md-4">
-                                        <button class="btn btn-primary btn-block fs-18" type="button" onclick="filterProducts()">Search</button>
-                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary btn-block fs-18" type="button"
+                                        onclick="filterProducts()">Search</button>
+                                </div>
+
+                            </div>
+                            <div class="aiz-pos-product-list c-scrollbar-light">
+                                <div class="row gutters-5" id="product-list">
 
                                 </div>
-                                <div class="aiz-pos-product-list c-scrollbar-light">
-                                    <div class="row gutters-5" id="product-list">
-
-                                    </div>
-                                    {{-- <div id="load-more">
+                                {{-- <div id="load-more">
                                         <p class="text-center fs-14 fw-600 p-2 bg-soft-primary c-pointer"
                                             onclick="loadMoreProduct()">Load More</p>
                                     </div> --}}
-                                </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
-            </form>
+
+            </div>
+
         </div>
     </section>
 @endsection
@@ -186,12 +191,23 @@
 
 
 @section('script')
+    <script src="//code.jquery.com/jquery-migrate-1.4.1.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.11/jquery.mousewheel.min.js"></script>
+    <script src="{{ static_asset('assets/simple-image-zoom/lib/js/ap-image-zoom.js') }} "></script>
     <script type="text/javascript">
         var ajax_loader =
             ' <div class="text-center w-100"><div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"><span class="sr-only">Loading...</span></div></div>'
         var products = null;
 
+
         $(document).ready(function() {
+            $('input').keypress(function(e) {
+                if (e.which == 13) {
+                    filterProducts();
+                }
+            });
+
+
             $('#container').removeClass('mainnav-lg').addClass('mainnav-sm');
             $('#product-list').on('click', '.product-card', function() {
                 var id = $(this).data('id');
@@ -304,8 +320,10 @@
         }
 
         function loadProduct(id) {
+            var keyword = $('input[name=keyword]').val();
             $('#product-list').html(ajax_loader);
             $.get('{{ route('pos.get_product') }}', {
+                keyword: keyword,
                 id: id,
                 noCache: Math.random()
             }, function(data) {

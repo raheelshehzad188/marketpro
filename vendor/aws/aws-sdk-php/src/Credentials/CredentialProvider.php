@@ -7,7 +7,6 @@ use Aws\CacheInterface;
 use Aws\Exception\CredentialsException;
 use Aws\Sts\StsClient;
 use GuzzleHttp\Promise;
-
 /**
  * Credential providers are functions that accept no arguments and return a
  * promise that is fulfilled with an {@see \Aws\Credentials\CredentialsInterface}
@@ -85,6 +84,8 @@ class CredentialProvider
             'instance'
         ];
 
+        $profileName = getenv(self::ENV_PROFILE) ?: 'default';
+
         $defaultChain = [
             'env' => self::env(),
             'web_identity' => self::assumeRoleWithWebIdentityCredentialProvider($config),
@@ -94,31 +95,23 @@ class CredentialProvider
             || $config['use_aws_shared_config_files'] !== false
         ) {
             $defaultChain['sso'] = self::sso(
-                'profile default',
+                'profile '. $profileName,
                 self::getHomeDir() . '/.aws/config',
                 $config
             );
             $defaultChain['process_credentials'] = self::process();
             $defaultChain['ini'] = self::ini();
             $defaultChain['process_config'] = self::process(
-                'profile default',
+                'profile ' . $profileName,
                 self::getHomeDir() . '/.aws/config'
             );
             $defaultChain['ini_config'] = self::ini(
-                'profile default',
+                'profile '. $profileName,
                 self::getHomeDir() . '/.aws/config'
             );
         }
 
-        $shouldUseEcsCredentialsProvider = getenv(EcsCredentialProvider::ENV_URI);
-        // getenv() is not thread safe - fall back to $_SERVER
-        if ($shouldUseEcsCredentialsProvider === false) {
-            $shouldUseEcsCredentialsProvider = isset($_SERVER[EcsCredentialProvider::ENV_URI])
-                ? $_SERVER[EcsCredentialProvider::ENV_URI]
-                : false;
-        }
-
-        if (!empty($shouldUseEcsCredentialsProvider)) {
+        if (self::shouldUseEcs()) {
             $defaultChain['ecs'] = self::ecsCredentials($config);
         } else {
             $defaultChain['instance'] = self::instanceProfile($config);
@@ -176,12 +169,20 @@ class CredentialProvider
             throw new \InvalidArgumentException('No providers in chain');
         }
 
-        return function () use ($links) {
+        return function ($previousCreds = null) use ($links) {
             /** @var callable $parent */
             $parent = array_shift($links);
             $promise = $parent();
             while ($next = array_shift($links)) {
-                $promise = $promise->otherwise($next);
+                if ($next instanceof InstanceProfileProvider
+                    && $previousCreds instanceof Credentials
+                ) {
+                    $promise = $promise->otherwise(
+                        function () use ($next, $previousCreds) {return $next($previousCreds);}
+                    );
+                } else {
+                    $promise = $promise->otherwise($next);
+                }
             }
             return $promise;
         };
@@ -227,7 +228,7 @@ class CredentialProvider
                         return $creds;
                     }
                     // Refresh the result and forward the promise.
-                    return $result = $provider();
+                    return $result = $provider($creds);
                 })
                 ->otherwise(function($reason) use (&$result) {
                     // Cleanup rejected promise.
@@ -325,7 +326,7 @@ class CredentialProvider
         $filename = $filename ?: (self::getHomeDir() . '/.aws/config');
 
         return function () use ($ssoProfileName, $filename, $config) {
-            if (!is_readable($filename)) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read credentials from $filename");
             }
             $profiles = self::loadProfiles($filename);
@@ -349,7 +350,7 @@ class CredentialProvider
                 . utf8_encode(sha1($ssoProfile['sso_start_url']))
                 . ".json";
 
-            if (!is_readable($tokenLocation)) {
+            if (!@is_readable($tokenLocation)) {
                 return self::reject("Unable to read token file at $tokenLocation");
             }
 
@@ -528,7 +529,7 @@ class CredentialProvider
                 : false;
             $stsClient = isset($config['stsClient']) ? $config['stsClient'] : null;
 
-            if (!is_readable($filename)) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read credentials from $filename");
             }
             $data = self::loadProfiles($filename);
@@ -611,7 +612,7 @@ class CredentialProvider
         $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
 
         return function () use ($profile, $filename) {
-            if (!is_readable($filename)) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read process credentials from $filename");
             }
             $data = \Aws\parse_ini_file($filename, true, INI_SCANNER_RAW);
@@ -884,6 +885,19 @@ class CredentialProvider
                 (self::getHomeDir() . '/.aws/credentials');
         }
         return $filename;
+    }
+
+    /**
+     * @return boolean
+     */
+    public static function shouldUseEcs()
+    {
+        //Check for relative uri. if not, then full uri.
+        //fall back to server for each as getenv is not thread-safe.
+        return !empty(getenv(EcsCredentialProvider::ENV_URI))
+        || !empty($_SERVER[EcsCredentialProvider::ENV_URI])
+        || !empty(getenv(EcsCredentialProvider::ENV_FULL_URI))
+        || !empty($_SERVER[EcsCredentialProvider::ENV_FULL_URI]);
     }
 }
 

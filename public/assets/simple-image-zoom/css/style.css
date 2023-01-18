@@ -1,0 +1,6 @@
+.custom-wrapper-class {
+	width: 100% !important;
+	height: 100% !important;
+	margin: 10px auto;
+	/*transition: background-color 0.3s;*/
+}

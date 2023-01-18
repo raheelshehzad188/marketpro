@@ -65,6 +65,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                             'article_group' => $row['artikelgrupp'],
                             'fake_price' => $row['fake_pris'],
                             'current_stock' => $row['disponibelt'],
+                            'qty' => $row['disponibelt'],
                             'sku' => $row['artikelnummer'],
                             'unit_price' => $row['pris'],
                         ]);
@@ -75,6 +76,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                         $product->article_group = $row['artikelgrupp'];
                         $product->fake_price = $row['fake_pris'];
                         $product->current_stock = $row['disponibelt'];
+                        $product->qty = $row['disponibelt'];
                         $product->sku = $row['artikelnummer'];
                         $product->unit_price = $row['pris'];
                         $product->save();

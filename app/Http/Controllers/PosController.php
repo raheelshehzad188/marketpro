@@ -12,6 +12,8 @@ use App\BusinessSetting;
 use App\OrderDetail;
 use App\ProductStock;
 use App\Product;
+use App\Models\Cart;
+use App\Utility\SendGridUtility;
 use App\ProductAddon;
 use App\Order;
 use App\Color;
@@ -39,7 +41,7 @@ class PosController extends Controller
     public function cart()
     {
         $shippings = Shipping::all();
-        return view('pos.cart',compact('shippings'));
+        return view('pos.cart', compact('shippings'));
     }
 
 
@@ -64,9 +66,9 @@ class PosController extends Controller
             $parent  = explode('_', $parent);
 
             if ($parent[1] == 15) {
-                $categories = Category::with(['childrenCategories', 'products'])->where('parent_id',  $parent[1])->orderBy('name', 'desc')->get();
+                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('parent_id',  $parent[1])->orderBy('name', 'desc')->get();
             } else {
-                $categories = Category::with(['childrenCategories', 'products'])->where('parent_id',  $parent[1])->orderBy('id', 'desc')->get();
+                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('parent_id',  $parent[1])->orderBy('created_at', 'desc')->get();
             }
 
 
@@ -157,14 +159,14 @@ class PosController extends Controller
 
         $keywords = $request->keyword;
 
-       
-        $products = Product::where('published', '1')->where('sku', 'LIKE', '%'.$keywords.'%');
+
+        $products = Product::where('published', '1')->where('sku',  $keywords);
         $products->orWhereHas('product_addons', function ($q) use ($keywords) {
-            $q->where('sku', 'LIKE', '%'.$keywords.'%'); // '=' is optional
+            $q->where('sku',  $keywords); // '=' is optional
         })->limit(100);
         $products = $products->get();
 
-    
+
         echo  view('pos.product_listing', compact('products'))->render();
     }
 
@@ -172,6 +174,7 @@ class PosController extends Controller
     public function get_products(Request $request)
     {
         $category_id = $request->id;
+
         $search = null;
         $products = Product::where('published', '1');
         if ($request->has('id') && $request->id != null) {
@@ -179,26 +182,31 @@ class PosController extends Controller
                 $q->where('category_id', $category_id); // '=' is optional
             });
         }
+        //orderBy('created_at','desc')->
         $products = $products->get();
 
-       
         echo  view('pos.product_listing', compact('products'))->render();
     }
 
     public function get_product(Request $request)
     {
         $detailedProduct  = Product::with('product_addons')->where('id', $request->id)->where('approved', 1)->first();
-
+        $keyword = $request->keyword;
         // echo '<pre>';
         //   print_r($detailedProduct);
         // echo '</pre>';
         // exit();
-        echo  view('pos.product_detail', compact('detailedProduct'))->render();
+        echo  view('pos.product_detail', compact('detailedProduct', 'keyword'))->render();
     }
 
     public function get_categories(Request $request)
     {
-        $categories = Category::with('childrenCategories')->where('parent_id', $request->id)->where('id', '!=', 120)->orderBy('id', 'desc')->get();
+
+        if ($request->id == 15) {
+            $categories = Category::with('childrenCategoriesCreatedOrder')->where('parent_id', $request->id)->where('id', '!=', 120)->orderBy('id', 'desc')->get();
+        } else {
+            $categories = Category::with('childrenCategoriesCreatedOrder')->where('parent_id', $request->id)->where('id', '!=', 120)->orderBy('created_at', 'desc')->get();
+        }
 
         echo  view('pos.category_listing', compact('categories'))->render();
     }
@@ -287,11 +295,12 @@ class PosController extends Controller
         $data['tax'] = $tax;
         $data['shipping'] = 0;
 
-        if ($request->session()->has('posCart')) {
+        if (Cart::where('user_id', Auth::user()->id)->first()) {
+            $posCart = unserialize(Cart::where('user_id', Auth::user()->id)->first()->cart_data);
             $foundInCart = false;
             $cart = collect();
 
-            foreach ($request->session()->get('posCart') as $key => $cartItem) {
+            foreach ($posCart as $key => $cartItem) {
                 if ($cartItem['id'] == $productUniqueId) {
                     $total_qty =  $cartItem['quantity'] + $request->quantity;
                     $cartItem['quantity'] += $request->quantity;
@@ -309,10 +318,15 @@ class PosController extends Controller
             if (!$foundInCart) {
                 $cart->push($data);
             }
-            $request->session()->put('posCart', $cart);
+
+            Cart::where('user_id', Auth::user()->id)->delete();
+            Cart::create(['user_id' => Auth::user()->id, 'cart_data' => serialize($cart)]);
+            //$request->session()->put('posCart', $cart);
         } else {
             $cart = collect([$data]);
-            $request->session()->put('posCart', $cart);
+            Cart::where('user_id', Auth::user()->id)->delete();
+            Cart::create(['user_id' => Auth::user()->id, 'cart_data' => serialize($cart)]);
+            //$request->session()->put('posCart', $cart);
         }
 
         return;
@@ -321,7 +335,7 @@ class PosController extends Controller
     //updated the quantity for a cart item
     public function updateQuantity(Request $request)
     {
-        $cart = $request->session()->get('posCart', collect([]));
+        $cart = unserialize(Cart::where('user_id', Auth::user()->id)->first()->cart_data);
         $cart = $cart->map(function ($object, $key) use ($request) {
             if ($key == $request->key) {
 
@@ -334,25 +348,28 @@ class PosController extends Controller
 
                 $object['quantity'] = $request->quantity;
                 if ($product->qty >  $total_qty) {
-                 
                 } else {
                     //$object['quantity'] =  $object['quantity'];
                 }
             }
             return $object;
         });
-        $request->session()->put('posCart', $cart);
 
-        return view('pos.cart');
+        Cart::where('user_id', Auth::user()->id)->delete();
+        Cart::create(['user_id' => Auth::user()->id, 'cart_data' => serialize($cart)]);
+        // $request->session()->put('posCart', $cart);
+
+        return 1;
     }
 
     //removes from Cart
     public function removeFromCart(Request $request)
     {
-        if (Session::has('posCart')) {
-            $cart = Session::get('posCart', collect([]));
+        if (Cart::where('user_id', Auth::user()->id)->first()) {
+            $cart =  unserialize(Cart::where('user_id', Auth::user()->id)->first()->cart_data);
             $cart->forget($request->key);
-            Session::put('posCart', $cart);
+            Cart::where('user_id', Auth::user()->id)->delete();
+            Cart::create(['user_id' => Auth::user()->id, 'cart_data' => serialize($cart)]);
         }
 
         return 1;
@@ -396,15 +413,19 @@ class PosController extends Controller
 
 
         Session::put('shipping', $shipping->cost);
-        Session::put('shipping_method',$shipping->name);
+        Session::put('shipping_method', $shipping->name);
         Session::put('shipping_id', $shipping->id);
-       
     }
 
     //order place
     public function order_store(Request $request)
     {
-        if (Session::has('posCart') && count(Session::get('posCart')) > 0) {
+        $posCart = array();
+        if (Cart::where('user_id', Auth::user()->id)->first()) {
+            $posCart =  unserialize(Cart::where('user_id', Auth::user()->id)->first()->cart_data);
+        }
+
+        if (count($posCart) > 0) {
             $order = new Order;
             $name = '';
             $email = '';
@@ -431,7 +452,7 @@ class PosController extends Controller
             $data['city']           = $city;
             $data['postal_code']    = $postal_code;
             $data['phone']          = $phone;
-           
+
 
             $order->shipping_address = json_encode($data);
 
@@ -445,12 +466,12 @@ class PosController extends Controller
             $order->shipping_method = Session::get('shipping_method');
             $order->shipping_cost = Session::get('shipping');
             $order->comments = $request->comments;
-
+            $send_grid_items = array();
             if ($order->save()) {
                 $subtotal = 0;
                 $tax = 0;
                 $shipping = 0;
-                foreach (Session::get('posCart') as $key => $cartItem) {
+                foreach ($posCart as $key => $cartItem) {
                     if ($cartItem['type'] == 'simple') {
                         $product = Product::find($cartItem['item_id']);
                     } else {
@@ -496,6 +517,23 @@ class PosController extends Controller
 
                     $product->num_of_sale++;
                     $product->save();
+
+                    if ($order_detail->product_type == 'simple') {
+                        $product_name = strip_tags($order_detail->product->name);
+                        $article_numer = $order_detail->product->sku;
+                    } else {
+                        $product_name = \App\ProductAddon::findOrFail($order_detail->product_id)->name;
+                        $article_numer = \App\ProductAddon::findOrFail($order_detail->product_id)->sku;
+                    }
+
+
+
+                    $send_grid_items[] = array(
+                        'text' =>  $product_name,
+                        'art' => $article_numer,
+                        'qty' =>  $cartItem['quantity'],
+                        'price' => single_price($cartItem['price'])
+                    );
                 }
 
                 $order->grand_total = $subtotal + $tax + Session::get('shipping');
@@ -508,23 +546,23 @@ class PosController extends Controller
                 $order->save();
 
                 //stores the pdf for invoice
-                $pdf = PDF::setOptions([
-                    'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
-                    'logOutputFile' => storage_path('logs/log.htm'),
-                    'tempDir' => storage_path('logs/')
-                ])->loadView('invoices.customer_invoice', compact('order'));
-                $output = $pdf->output();
-                file_put_contents('public/invoices/' . 'Order#' . $order->code . '.pdf', $output);
+                // $pdf = PDF::setOptions([
+                //     'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
+                //     'logOutputFile' => storage_path('logs/log.htm'),
+                //     'tempDir' => storage_path('logs/')
+                // ])->loadView('invoices.customer_invoice', compact('order'));
+                // $output = $pdf->output();
+                // file_put_contents('public/invoices/' . 'Order#' . $order->code . '.pdf', $output);
 
-                $array['view'] = 'emails.invoice';
-                $array['subject'] = 'Order Placed - ' . $order->code;
-                $array['from'] = env('MAIL_USERNAME');
-                $array['content'] = 'Hi. A new order has been placed. Please check the attached invoice.';
-                $array['file'] = 'public/invoices/Order#' . $order->code . '.pdf';
-                $array['file_name'] = 'Order#' . $order->code . '.pdf';
+                // $array['view'] = 'emails.invoice';
+                // $array['subject'] = 'Order Placed - ' . $order->code;
+                // $array['from'] = env('MAIL_USERNAME');
+                // $array['content'] = 'Hi. A new order has been placed. Please check the attached invoice.';
+                // $array['file'] = 'public/invoices/Order#' . $order->code . '.pdf';
+                // $array['file_name'] = 'Order#' . $order->code . '.pdf';
 
-                $order->commission_calculated = 1;
-                $order->save();
+                // $order->commission_calculated = 1;
+                // $order->save();
 
                 //sends email to customer with the invoice pdf attached
                 // if (env('MAIL_USERNAME') != null) {
@@ -536,6 +574,45 @@ class PosController extends Controller
                 // }
                 //unlink($array['file']);
 
+
+                //send admin email
+                $send_grid = new SendGridUtility;
+                $template_id = "d-72e8f2de0c664b1e963728a03a8417c1";
+                $email_data = array(
+                    'email' =>  auth()->user()->email,
+                    'name' => 'Tm Racing Sweden',
+                    'variables' => array(
+                        'customer_name' => auth()->user()->name,
+                        'customer_email' => auth()->user()->email,
+                        'order_number' =>  $order->code,
+                        'order_date' => date('D m d Y', strtotime($order->created_at)),
+                        'items' => $send_grid_items,
+                        'sub_total' => single_price($subtotal),
+                        'shipping' => single_price(Session::get('shipping')),
+                        'total' => single_price($order->grand_total),
+                        'order_url' => route('all_orders.index')
+                    ),
+                );
+                $send_grid->do_send($template_id, $email_data);
+
+                //copy to admin
+                $email_data = array(
+                    'email' =>  'magnus@tmracingsweden.se',
+                    'name' => 'Tm Racing Sweden',
+                    'variables' => array(
+                        'customer_name' => auth()->user()->name,
+                        'customer_email' => auth()->user()->email,
+                        'order_number' =>  $order->code,
+                        'order_date' => date('D m d Y', strtotime($order->created_at)),
+                        'items' => $send_grid_items,
+                        'sub_total' => single_price($subtotal),
+                        'shipping' => single_price(Session::get('shipping')),
+                        'total' => single_price($order->grand_total),
+                        'order_url' => route('all_orders.index')
+                    ),
+                );
+                $send_grid->do_send($template_id, $email_data);
+
                 $request->session()->put('order_id', $order->id);
 
                 Session::forget('pos_shipping_info');
@@ -543,7 +620,7 @@ class PosController extends Controller
                 Session::forget('shipping_id');
                 Session::forget('shipping_method');
                 Session::forget('pos_discount');
-                Session::forget('posCart');
+                Cart::where('user_id', Auth::user()->id)->delete();
                 return 1;
             } else {
                 return 0;

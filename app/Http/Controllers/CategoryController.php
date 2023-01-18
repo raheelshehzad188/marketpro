@@ -19,11 +19,11 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $sort_search =null;
+        $sort_search = null;
         $categories = Category::orderBy('id', 'desc');
-        if ($request->has('search')){
+        if ($request->has('search')) {
             $sort_search = $request->search;
-            $categories = $categories->where('name', 'like', '%'.$sort_search.'%');
+            $categories = $categories->where('name', 'like', '%' . $sort_search . '%');
         }
         $categories = $categories->paginate(15);
         return view('backend.product.categories.index', compact('categories', 'sort_search'));
@@ -49,12 +49,14 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+
     public function store(Request $request)
     {
         $category = new Category;
         $category->name = $request->name;
         $category->order_level = 0;
-        if($request->order_level != null) {
+        if ($request->order_level != null) {
             $category->order_level = $request->order_level;
         }
         $category->digital = 0;
@@ -67,14 +69,13 @@ class CategoryController extends Controller
             $category->parent_id = $request->parent_id;
 
             $parent = Category::find($request->parent_id);
-            $category->level = $parent->level + 1 ;
+            $category->level = $parent->level + 1;
         }
 
         if ($request->slug != null) {
             $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
-        }
-        else {
-            $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
+        } else {
+            $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)) . '-' . Str::random(5);
         }
         if ($request->commision_rate != null) {
             $category->commision_rate = $request->commision_rate;
@@ -115,8 +116,8 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $categories = Category::where('parent_id', 0)
             ->with('childrenCategories')
-            ->whereNotIn('id', CategoryUtility::children_ids($category->id, true))->where('id', '!=' , $category->id)
-            ->orderBy('name','asc')
+            ->whereNotIn('id', CategoryUtility::children_ids($category->id, true))->where('id', '!=', $category->id)
+            ->orderBy('name', 'asc')
             ->get();
 
         return view('backend.product.categories.edit', compact('category', 'categories', 'lang'));
@@ -132,10 +133,10 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $category = Category::findOrFail($id);
-        if($request->lang == env("DEFAULT_LANGUAGE")){
+        if ($request->lang == env("DEFAULT_LANGUAGE")) {
             $category->name = $request->name;
         }
-        if($request->order_level != null) {
+        if ($request->order_level != null) {
             $category->order_level = $request->order_level;
         }
         $category->digital = $request->digital;
@@ -150,35 +151,35 @@ class CategoryController extends Controller
             $category->parent_id = $request->parent_id;
 
             $parent = Category::find($request->parent_id);
-            $category->level = $parent->level + 1 ;
-        }
-        else{
+            $category->level = $parent->level + 1;
+        } else {
             $category->parent_id = 0;
             $category->level = 0;
         }
 
-        if($category->level > $previous_level){
+        if ($category->level > $previous_level) {
             CategoryUtility::move_level_down($category->id);
-        }
-        elseif ($category->level < $previous_level) {
+        } elseif ($category->level < $previous_level) {
             CategoryUtility::move_level_up($category->id);
         }
 
         if ($request->slug != null) {
             $category->slug = strtolower($request->slug);
-        }
-        else {
-            $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
+        } else {
+            $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)) . '-' . Str::random(5);
         }
 
 
         if ($request->commision_rate != null) {
             $category->commision_rate = $request->commision_rate;
         }
+        $category->created_at = date('Y-m-d h:i',strtotime($request->created_at));
 
         $category->save();
 
         $category->attributes()->sync($request->filtering_attributes);
+
+        
 
         $category_translation = CategoryTranslation::firstOrNew(['lang' => $request->lang, 'category_id' => $category->id]);
         $category_translation->name = $request->name;
@@ -224,5 +225,131 @@ class CategoryController extends Controller
         $category->save();
         Cache::forget('featured_categories');
         return 1;
+    }
+
+
+    public function get_products(Request $request)
+    {
+        $category_id = $request->id;
+        $target = $request->target;
+        $search = null;
+        $products = Product::where('published', '1');
+        if ($request->has('id') && $request->id != null) {
+            $products->whereHas('categories', function ($q) use ($category_id) {
+                $q->where('category_id', $category_id); // '=' is optional
+            });
+        }
+        $products = $products->get();
+
+        echo  view('backend.product.categories.product_select', compact('products', 'target'))->render();
+    }
+
+    public function copy_products(Request $request)
+    {
+        $source_product_id = $request->source_products;
+        $target_product_id = $request->target_products;
+
+
+        $detailedProduct  = \DB::table('product_addon_pivot')->where('product_id', $source_product_id)->get();
+
+        if (!$detailedProduct->isEmpty()) {
+            \DB::table('product_addon_pivot')->where('product_id', $target_product_id)->delete();
+            foreach ($detailedProduct as $key => $product_addon) {
+                \DB::table('product_addon_pivot')->insert([
+                    'product_id' =>  $target_product_id,
+                    'product_addon_id' => $product_addon->product_addon_id,
+                    'sort_order' => $product_addon->sort_order
+                ]);
+            }
+        }
+
+        flash(translate('Product parts has been copied successfully'))->success();
+        return back();
+    }
+
+
+    public function category_store($name, $order_level, $banner, $icon, $parent_id, $cID = 0)
+    {
+        $category = new Category;
+        $category->name = $name;
+        $category->order_level = $order_level;
+        $category->banner = $banner;
+        $category->icon = $icon;
+        if ($parent_id != "0") {
+            $category->parent_id = $parent_id;
+
+            $parent = Category::find($parent_id);
+            $category->level = $parent->level + 1;
+        }
+        $category->save();
+
+        //fetch relevant products
+        $category_id = $cID;
+        $q_products = Product::where('published', '1');
+        $q_products->whereHas('categories', function ($q) use ($category_id) {
+            $q->where('category_id', $category_id); // '=' is optional
+        });
+
+        $q_products = $q_products->get();
+        if(!empty($q_products)){
+            foreach($q_products as $product){
+                $category->products()->attach($product->id);
+            }
+        }
+
+        return $category->id;
+    }
+
+
+    public function child_cat_recuring($child_category, $parent_cat)
+    {
+        $re_parent_id =  $this->category_store($child_category->name, 0, $child_category->banner, $child_category->icon, $parent_cat, $child_category->id);
+        if ($child_category->categories) {
+            foreach ($child_category->categories as $childCategory) {
+                $this->child_cat_recuring($childCategory, $re_parent_id);
+            }
+        }
+    }
+
+    public function child_cat_delete_recuring($child_category)
+    {
+        Category::destroy($child_category->id);
+
+        if ($child_category->categories) {
+            foreach ($child_category->categories as $childCategory) {
+                $this->child_cat_delete_recuring($childCategory);
+            }
+        }
+    }
+
+    public function copy_categories(Request $request)
+    {
+        $source_category_id = $request->source_category;
+        $target_category_id = $request->target_category;
+
+
+        $parentcategories = Category::where('parent_id', $source_category_id)
+            ->with('childrenCategories')
+            ->get();
+
+        $delete_categories = Category::where('parent_id', $target_category_id)
+            ->with('childrenCategories')
+            ->get();
+
+        foreach ($delete_categories as $category) {
+            Category::destroy($category->id);
+            foreach ($category->childrenCategories as $childCategory) {
+                $this->child_cat_delete_recuring($childCategory);
+            }
+        }
+
+        foreach ($parentcategories as $category) {
+            $re_parent_id =  $this->category_store($category->name, 0, $category->banner, $category->icon, $target_category_id, $category->id);
+            foreach ($category->childrenCategories as $childCategory) {
+                $this->child_cat_recuring($childCategory, $re_parent_id);
+            }
+        }
+        flash(translate('Categories has been copied successfully'))->success();
+        return back();
     }
 }

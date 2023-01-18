@@ -45,23 +45,25 @@
                     </thead>
                     <tbody>
                         @php
-                           $selected_shipping_id = $selected_shipping_cost = 0;
+                            $selected_shipping_id = $selected_shipping_cost = 0;
                             $subtotal = 0;
                             $tax = 0;
                             $shipping = 0;
+
+
                         @endphp
-                        @if (Session::has('posCart'))
+                        @if (\App\Models\Cart::where('user_id', Auth::user()->id)->first())
                             @php
 
-                                $carts = Session::get('posCart');
+                                $carts = unserialize(\App\Models\Cart::where('user_id', Auth::user()->id)->first()->cart_data);
                                 $selected_shipping_id = @Session::get('shipping_id');
                                 $selected_shipping_cost = @Session::get('shipping');
                                 //     echo '<pre>';
-                            // print_r($selected_shipping_cost);
-                            // echo '</pre>';
+                                // print_r($selected_shipping_cost);
+                                // echo '</pre>';
                                 //     exit();
                             @endphp
-                            @forelse (Session::get('posCart') as $key => $cartItem)
+                            @forelse ($carts as $key => $cartItem)
                                 @php
                                     $subtotal += $cartItem['price'] * $cartItem['quantity'];
                                     $tax += $cartItem['tax'] * $cartItem['quantity'];
@@ -121,7 +123,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
                         @foreach ($shippings as $shipping_method)
                             <tr>
                                 <td class="">
@@ -142,9 +143,9 @@
                         <tr>
                             <td class="">
 
-                              <div class="form-group">
-                                <textarea class="form-control comments" name="comments" placeholder="Write comments for this order.."></textarea>
-                              </div>
+                                <div class="form-group">
+                                    <textarea class="form-control comments" name="comments" placeholder="Write comments for this order.."></textarea>
+                                </div>
                             </td>
                         </tr>
 
@@ -353,7 +354,7 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     <style>
-        th{
+        th {
             border-top: 0px !important;
         }
     </style>
