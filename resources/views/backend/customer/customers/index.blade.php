@@ -55,6 +55,7 @@
                             </th>
                             <th>{{ translate('Name') }}</th>
                             <th data-breakpoints="sm">{{ translate('Email Address') }}</th>
+                            <th data-breakpoints="sm">{{ translate('Company') }}</th>
                             <th data-breakpoints="sm">{{ translate('Phone') }}</th>
 
 
@@ -83,6 +84,7 @@
                                         @endif {{ $customer->user->name }}
                                     </td>
                                     <td>{{ $customer->user->email }}</td>
+                                    <td>{{ $customer->user->company }}</td>
                                     <td>{{ $customer->user->phone }}</td>
 
 

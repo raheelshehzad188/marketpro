@@ -41,7 +41,7 @@
                                 </div>
 
                             </div>
-                            <div class="aiz-pos-product-list c-scrollbar-light">
+                            <div class="aiz-pos-product-list right">
                                 <div class="row gutters-5" id="product-list">
 
                                 </div>
@@ -200,15 +200,19 @@
         var products = null;
 
 
+
         $(document).ready(function() {
-            $('input').keypress(function(e) {
-                if (e.which == 13) {
+            // Input keypress event for triggering filterProducts on Enter key press
+            $(document).on('keypress', 'input', function(e) {
+                if (e.which === 13) {
                     filterProducts();
                 }
             });
 
-
+            // Toggling classes on the container
             $('#container').removeClass('mainnav-lg').addClass('mainnav-sm');
+
+            // Click event delegation for product cards
             $('#product-list').on('click', '.product-card', function() {
                 var id = $(this).data('id');
                 $.get('{{ route('variants') }}', {
@@ -223,117 +227,114 @@
                 });
             });
 
-
+            // Initial category loading
             loadCategories(0);
 
-
-            $("#kt_docs_jstree_ajax")
-                .on("changed.jstree", function(e, data) {
-                    if (data.selected.length) {
-                        // data.instance.get_node(data.selected[0]).text);
-                        if (data.node.a_attr.type == 'category') {
-                            $('input[name=keyword]').val('');
-                            loadCategories(data.node.a_attr.id);
-                        } else if (data.node.a_attr.type == 'product') {
-                            $('input[name=keyword]').val('');
-                            loadProducts(data.node.a_attr.id);
-                        } else {
-                            $('input[name=keyword]').val('');
-                            loadProduct(data.node.a_attr.id);
-                        }
-
+            // jsTree initialization and event handling
+            $("#kt_docs_jstree_ajax").on("changed.jstree", function(e, data) {
+                if (data.selected.length) {
+                    var type = data.node.a_attr.type;
+                    var id = data.node.a_attr.id;
+                    $('input[name=keyword]').val('');
+                    switch (type) {
+                        case 'category':
+                            loadCategories(id);
+                            break;
+                        case 'product':
+                            loadProducts(id);
+                            break;
+                        default:
+                            loadProduct(id);
                     }
-                })
-                .jstree({
-                    "core": {
-                        "themes": {
-                            "responsive": true
-                        },
-                        // so that create works
-                        "check_callback": false,
-                        'data': {
-                            'url': function(node) {
-                                return '{{ route('pos.get_tree') }}'; // Demo API endpoint -- Replace this URL with your set endpoint
-                            },
-                            'data': function(node) {
-                                return {
-                                    'parent': node.id
-                                };
-
-                            }
-                        }
+                }
+            }).jstree({
+                "core": {
+                    "themes": {
+                        "responsive": true
                     },
-                    "types": {
-                        "default": {
-                            "icon": "fa fa-folder text-primary"
+                    "check_callback": false,
+                    "data": {
+                        "url": function(node) {
+                            return '{{ route('pos.get_tree') }}';
                         },
-                        "file": {
-                            "icon": "fa fa-file  text-primary"
+                        "data": function(node) {
+                            return {
+                                'parent': node.id
+                            };
                         }
+                    }
+                },
+                "types": {
+                    "default": {
+                        "icon": "fa fa-folder text-primary"
                     },
-                    "plugins": ["dnd", "types"]
-                });
+                    "file": {
+                        "icon": "fa fa-file text-primary"
+                    }
+                },
+                "plugins": ["dnd", "types"]
+            });
         });
 
 
+        //end
+        // Function to simulate opening of jsTree
         function open_jstree(id) {
             $('#cat_' + id + ' > i').click();
-            //console.log(id)
         }
 
-        function loadProducts(id) {
-
-            open_jstree(id);
+        // Common function to perform AJAX requests
+        function loadContent(url, params, successCallback) {
             $('#product-list').html(ajax_loader);
-            $.get('{{ route('pos.get_products') }}', {
+            $.get(url, params, successCallback);
+        }
+
+        // Function to load products
+        function loadProducts(id) {
+            open_jstree(id);
+            loadContent('{{ route('pos.get_products') }}', {
                 id: id,
                 noCache: Math.random()
             }, function(data) {
-                $('#product-list').html('');
                 $('#product-list').html(data);
             });
         }
 
+        // Function to filter products
         function filterProducts() {
             var keyword = $('input[name=keyword]').val();
-            $('#product-list').html(ajax_loader);
-            $.get('{{ route('pos.search_product') }}', {
+            loadContent('{{ route('pos.search_product') }}', {
                 keyword: keyword,
                 noCache: Math.random()
             }, function(data) {
-                $('#product-list').html('');
                 $('#product-list').html(data);
-
             });
         }
 
+        // Function to load categories
         function loadCategories(id) {
             open_jstree(id);
-            $('#product-list').html(ajax_loader);
-            $.get('{{ route('pos.get_categories') }}', {
+            loadContent('{{ route('pos.get_categories') }}', {
                 id: id,
                 noCache: Math.random()
             }, function(data) {
-                $('#product-list').html('');
                 $('#product-list').html(data);
             });
         }
 
+        // Function to load a specific product
         function loadProduct(id) {
             var keyword = $('input[name=keyword]').val();
-            $('#product-list').html(ajax_loader);
-            $.get('{{ route('pos.get_product') }}', {
+            loadContent('{{ route('pos.get_product') }}', {
                 keyword: keyword,
                 id: id,
                 noCache: Math.random()
             }, function(data) {
-                $('#product-list').html('');
                 $('#product-list').html(data);
             });
         }
 
-
-
+        // Function to load more products
         function loadMoreProduct() {
             if (products != null && products.links.next != null) {
                 $.get(products.links.next, {}, function(data) {
@@ -343,26 +344,30 @@
             }
         }
 
+        // Function to set the product list
         function setProductList(data) {
-            for (var i = 0; i < data.data.length; i++) {
-                $('#product-list').append('<div class="col-3">' +
-                    '<div class="card bg-light c-pointer mb-2 product-card" data-id="' + data.data[i].id + '" >' +
-                    '<span class="absolute-top-left bg-dark text-white px-1">' + data.data[i].price + '</span>' +
-                    '<img src="' + data.data[i].thumbnail_image +
-                    '" class="card-img-top img-fit h-100px mw-100 mx-auto" >' +
-                    '<div class="card-body p-2">' +
-                    '<div class="text-truncate-2 small">' + data.data[i].name + '</div>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>');
-            }
-            if (data.links.next != null) {
-                $('#load-more').find('.text-center').html('Load More');
-            } else {
-                $('#load-more').find('.text-center').html('Nothing more found');
-            }
+            data.data.forEach(product => {
+                $('#product-list').append(`
+                        <div class="col-3">
+                            <div class="card bg-light c-pointer mb-2 product-card" data-id="${product.id}">
+                                <span class="absolute-top-left bg-dark text-white px-1">${product.price}</span>
+                                <img src="${product.thumbnail_image}" class="card-img-top img-fit h-100px mw-100 mx-auto" >
+                                <div class="card-body p-2">
+                                    <div class="text-truncate-2 small">${product.name}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+            });
+
+            $('#load-more').find('.text-center').html(data.links.next ? 'Load More' : 'Nothing more found');
             $('[data-toggle="tooltip"]').tooltip();
         }
+
+
+
+
+
 
         function removeFromCart(key) {
             $.post('{{ route('pos.removeFromCart') }}', {

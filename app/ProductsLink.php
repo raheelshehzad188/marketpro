@@ -12,10 +12,16 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Illuminate\Support\Str;
+
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\IValueBinder;
 use Auth;
 
 //class ProductsImport implements ToModel, WithHeadingRow, WithValidation
-class ProductsLink implements ToCollection, WithHeadingRow, WithValidation, ToModel, WithChunkReading
+class ProductsLink implements ToCollection, WithHeadingRow, WithValidation, ToModel, WithChunkReading, WithCustomValueBinder
 {
     private $rows = 0;
     private $product_id = [];
@@ -26,7 +32,6 @@ class ProductsLink implements ToCollection, WithHeadingRow, WithValidation, ToMo
 
     public function collection(Collection $rows)
     {
-
         if (!empty($this->product_id)) {
             foreach ($this->product_id as $product_id) {
                 \DB::table('product_addon_pivot')->where('product_id', $product_id)->delete();
@@ -74,6 +79,18 @@ class ProductsLink implements ToCollection, WithHeadingRow, WithValidation, ToMo
         flash(translate('Products linked successfully'))->success();
     }
 
+    public function bindValue(Cell $cell, $value)
+    {
+        if ($cell == 'codice') {
+        }
+
+        $cell->setValueExplicit($value, DataType::TYPE_STRING);
+        return true;
+
+        // else return default behavior
+        // return parent::bindValue($cell, $value);
+    }
+
     public function model(array $row)
     {
         ++$this->rows;
@@ -88,7 +105,7 @@ class ProductsLink implements ToCollection, WithHeadingRow, WithValidation, ToMo
     {
         return [
             // Can also use callback validation rules
-            'unit_price' => function ($attribute, $value, $onFailure) {
+            'price' => function ($attribute, $value, $onFailure) {
                 if (!is_numeric($value)) {
                     $onFailure('Unit price is not numeric');
                 }

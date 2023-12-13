@@ -31,6 +31,8 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::post('/pos-order', 'PosController@order_store')->name('pos.order_place');
 
 	Route::get('/cart', 'PosController@cart')->name('cart');
+
+	Route::get('/cart/order-complete/{id}', 'PosController@thanks')->name('thanks');
 });
 
 //Admin

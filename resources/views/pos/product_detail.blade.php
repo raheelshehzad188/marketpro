@@ -1,7 +1,7 @@
 <style>
     #wrap {
         width: 100%;
-        height: 400px;
+        height: 300px;
         margin: auto;
     }
 
@@ -10,6 +10,18 @@
         height: 100%;
         overflow: hidden;
         cursor: pointer;
+    }
+
+    .aiz-pos-product-list.right {
+        overflow: hidden;
+        max-height: 100% !important;
+        height: auto !important;
+    }
+
+    .addon-scroll {
+        overflow-x: hidden;
+        height: calc(100vh - 630px);
+        overflow-y: scroll !important;
     }
 </style>
 <section class="mb-4 pt-3">
@@ -21,7 +33,7 @@
                         $photos = explode(',', $detailedProduct->thumbnail_img);
                     @endphp
                     <div class="col order-1 order-md-2">
-                        <div style="text-align: center; width: 90%; padding: 10px 0; margin: 0 auto;">
+                        <div style="text-align: center; width: 90%; padding: 0px 0; margin: 0 auto;">
                             <input type="button" value="Zoom +" id="zoom-in" class="btn btn-light btn-sm" />
                             <input type="button" value="Zoom -" id="zoom-out" class="btn btn-light btn-sm" />
                             <input type="button" value="Reset" id="reset" class="btn btn-light btn-sm" />
@@ -29,7 +41,7 @@
                         <div id="wrap">
                             <div class="text-center" id="inner">
                                 @foreach ($photos as $key => $photo)
-                                    <img class="my-image h-400px" src="{{ uploaded_asset($photo) }}" draggable="false"
+                                    <img class="my-image h-300px" src="{{ uploaded_asset($photo) }}" draggable="false"
                                         id="image" style="display: none">
                                 @endforeach
 
@@ -42,7 +54,7 @@
 
 
 
-            <div class="col-12">
+            <div class="col-12 addon-scroll">
                 <div class="text-left">
                     <h1 class="mb-2 fs-20 fw-600">
                         {{ $detailedProduct->name }}
@@ -50,10 +62,10 @@
                     <hr>
                 </div>
                 @if (count($detailedProduct->product_addons) > 0 &&
-                    (empty($detailedProduct->unit_price) ||
-                        $detailedProduct->unit_price == 0 ||
-                        $detailedProduct->unit_price == '0.0' ||
-                        $detailedProduct->unit_price == '0.00'))
+                        (empty($detailedProduct->unit_price) ||
+                            $detailedProduct->unit_price == 0 ||
+                            $detailedProduct->unit_price == '0.0' ||
+                            $detailedProduct->unit_price == '0.00'))
                     <table class="table">
                         <thead>
                             <tr>

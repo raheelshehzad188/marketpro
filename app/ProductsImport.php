@@ -12,15 +12,24 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Illuminate\Support\Str;
+
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\IValueBinder;
+
 use Auth;
 
 //class ProductsImport implements ToModel, WithHeadingRow, WithValidation
-class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, ToModel, WithChunkReading
+class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, ToModel, WithChunkReading,WithCustomValueBinder
 {
     private $rows = 0;
 
     public function collection(Collection $rows)
     {
+
+       
 
         foreach ($rows as $row) {
 
@@ -88,6 +97,18 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
         flash(translate('Products imported successfully'))->success();
     }
 
+    public function bindValue(Cell $cell, $value)
+    {
+        if ($cell == 'codice') {
+        }
+
+        $cell->setValueExplicit($value, DataType::TYPE_STRING);
+        return true;
+
+        // else return default behavior
+        // return parent::bindValue($cell, $value);
+    }
+    
     public function model(array $row)
     {
         ++$this->rows;

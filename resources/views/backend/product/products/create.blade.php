@@ -122,7 +122,7 @@
                                         onchange=" update_sku()">
                                         @foreach (\App\ProductAddon::all() as $key => $addon)
                                             <option value="{{ $addon->id }}">
-                                                {{ $addon->name }}</option>
+                                                {{ $addon->name }} - {{ $addon->sku }}</option>
                                         @endforeach
                                     </select>
                                 </div>

@@ -19,8 +19,10 @@
             <form class="" id="sort_categories" action="" method="GET">
                 <div class="box-inline pad-rgt pull-left">
                     <div class="" style="min-width: 200px;">
-                        <input type="text" class="form-control" id="search" name="search" @isset($sort_search)
-                            value="{{ $sort_search }}" @endisset placeholder="{{ translate('Type name & Enter') }}">
+                        <input type="text" class="form-control" id="search" name="search"
+                            @isset($sort_search)
+                            value="{{ $sort_search }}" @endisset
+                            placeholder="{{ translate('Type name & Enter') }}">
                     </div>
                 </div>
             </form>
@@ -38,6 +40,7 @@
                         <th data-breakpoints="sm">{{ translate('Icon') }}</th>
                         {{-- <th data-breakpoints="lg">{{translate('Featured')}}</th>
                     <th data-breakpoints="lg">{{translate('Commission')}}</th> --}}
+                        <th data-breakpoints="sm">{{ translate('Published') }}</th>
                         <th width="10%" class="text-right">{{ translate('Options') }}</th>
                     </tr>
                 </thead>
@@ -69,8 +72,7 @@
                             <td>
                                 @if ($category->icon != null)
                                     <span class="avatar avatar-square avatar-xs">
-                                        <img src="{{ uploaded_asset($category->icon) }}"
-                                            alt="{{ translate('icon') }}">
+                                        <img src="{{ uploaded_asset($category->icon) }}" alt="{{ translate('icon') }}">
                                     </span>
                                 @else
                                     —
@@ -83,6 +85,15 @@
                                 </label>
                             </td> --}}
                             {{-- <td>{{ $category->commision_rate }} %</td> --}}
+                            <td>
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input onchange="update_published(this)" value="{{ $category->id }}" type="checkbox"
+                                        <?php if ($category->published == 1) {
+                                            echo 'checked';
+                                        } ?>>
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
                             <td class="text-right">
                                 <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
                                     href="{{ route('categories.edit', ['id' => $category->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
@@ -128,6 +139,23 @@
                 if (data == 1) {
                     AIZ.plugins.notify('success', '{{ translate('Featured categories updated successfully') }}');
                 } else {
+                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
+                }
+            });
+        }
+
+        function update_published(el){
+            if(el.checked){
+                var status = 1;
+            }
+            else{
+                var status = 0;
+            }
+            $.post('{{ route('categories.published') }}', {_token:'{{ csrf_token() }}', id:el.value, status:status}, function(data){
+                if(data == 1){
+                    AIZ.plugins.notify('success', '{{ translate('Published category updated successfully') }}');
+                }
+                else{
                     AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                 }
             });

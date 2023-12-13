@@ -50,7 +50,6 @@
                             $tax = 0;
                             $shipping = 0;
 
-
                         @endphp
                         @if (\App\Models\Cart::where('user_id', Auth::user()->id)->first())
                             @php
@@ -74,15 +73,17 @@
 
                                     if ($cartItem['type'] == 'simple') {
                                         $product_name = \App\Product::find($cartItem['item_id'])->name;
+                                        $article_number = \App\Product::find($cartItem['item_id'])->sku;
                                     } else {
                                         $product_name = \App\ProductAddon::find($cartItem['item_id'])->name;
+                                        $article_number = \App\ProductAddon::find($cartItem['item_id'])->sku;
                                     }
                                 @endphp
                                 <tr>
                                     <td>
                                         <span class="media">
                                             <div class="media-body">
-                                                {{ $product_name }}
+                                                {{ $article_number }} - {{ $product_name }}
                                             </div>
                                         </span>
                                     </td>
@@ -347,7 +348,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-styled btn-base-3"
                         data-dismiss="modal">{{ translate('Close') }}</button>
-                    <button type="button" onclick="submitOrder('cash')"
+                    <button type="button" id="confirmOrderButton" onclick="submitOrder('cash')"
                         class="btn btn-styled btn-base-1 btn-primary">{{ translate('Comfirm Order') }}</button>
                 </div>
             </div>
@@ -365,101 +366,120 @@
         var ajax_loader =
             '<div class="text-center w-100"><div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"><span class="sr-only">Loading...</span></div></div>'
         var products = null;
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
         $(document).ready(function() {
-            $('#container').removeClass('mainnav-lg').addClass('mainnav-sm');
-            $('#product-list').on('click', '.product-card', function() {
-                var id = $(this).data('id');
+            const $container = $('#container');
+            const $productList = $('#product-list');
+
+
+            $container.removeClass('mainnav-lg').addClass('mainnav-sm');
+
+            $productList.on('click', '.product-card', function() {
+                const id = $(this).data('id');
                 $.get('{{ route('variants') }}', {
-                    id: id
-                }, function(data) {
-                    if (data == 0) {
+                    id
+                }, data => {
+                    if (data === 0) {
                         addToCart(id, null, 1);
                     } else {
                         $('#variants').html(data);
                         $('#product-variation').modal('show');
                     }
+                }).fail(() => {
+                    console.error('Error fetching variants');
                 });
             });
-
         });
 
         function removeFromCart(key) {
-            $.post('{{ route('pos.removeFromCart') }}', {
-                _token: '{{ csrf_token() }}',
-                key: key
-            }, function(data) {
-                location.reload();
-            });
+            ajaxPost('{{ route('pos.removeFromCart') }}', {
+                key
+            }, () => location.reload());
         }
 
-
-
-
         function addVariantProductToCart(id) {
-            var variant = $('input[name=variant]:checked').val();
+            const variant = $('input[name=variant]:checked').val();
             addToCart(id, variant, 1);
         }
 
         function updateQuantity(key) {
-            $.post('{{ route('pos.updateQuantity') }}', {
-                _token: '{{ csrf_token() }}',
-                key: key,
-                quantity: $('#qty-' + key).val()
-            }, function(data) {
-                location.reload();
-            });
+            const quantity = $('#qty-' + key).val();
+            ajaxPost('{{ route('pos.updateQuantity') }}', {
+                key,
+                quantity
+            }, () => location.reload());
         }
 
         function setDiscount() {
-            var discount = $('input[name=discount]').val();
-            $.post('{{ route('pos.setDiscount') }}', {
-                _token: '{{ csrf_token() }}',
-                discount: discount
-            }, function(data) {
+            const discount = $('input[name=discount]').val();
+            ajaxPost('{{ route('pos.setDiscount') }}', {
+                discount
+            }, data => {
                 $('#cart-details').html(data);
                 $('#product-variation').modal('hide');
             });
         }
 
         function setShipping() {
-            var shipping = $('input[name=shipping]:checked').val();
-            $.post('{{ route('pos.setShipping') }}', {
-                _token: '{{ csrf_token() }}',
-                shipping: shipping
-            }, function(data) {
-                location.reload();
-            });
+            const shipping = $('input[name=shipping]:checked').val();
+            ajaxPost('{{ route('pos.setShipping') }}', {
+                shipping
+            }, () => location.reload());
         }
 
         function getShippingAddress() {
-
-            $.post('{{ route('pos.getShippingAddress') }}', {
-                _token: '{{ csrf_token() }}',
-                id: $('select[name=user_id]').val()
-            }, function(data) {
+            const id = $('select[name=user_id]').val();
+            ajaxPost('{{ route('pos.getShippingAddress') }}', {
+                id
+            }, data => {
                 $('#shipping_address').html(data);
             });
         }
 
         function add_new_address() {
-            var customer_id = $('#customer_id').val();
+            const customer_id = $('#customer_id').val();
             $('#set_customer_id').val(customer_id);
             $('#new-address-modal').modal('show');
             $("#close-button").click();
         }
 
+
+        function ajaxPost(url, data, callback) {
+            $.post(url, {
+                    ...data,
+                    _token: csrfToken
+                })
+                .done(callback)
+                .fail(() => console.error('AJAX request failed'));
+        }
+
+
         function submitOrder(payment_type) {
+            // Disable the confirm order button to prevent multiple submissions
+            $('#confirmOrderButton').prop('disabled', true);
+
             $.post('{{ route('pos.order_place') }}', {
                 _token: '{{ csrf_token() }}',
                 comments: $('.comments').val()
             }, function(data) {
-                if (data == 1) {
-                    AIZ.plugins.notify('success', '{{ translate('Order Completed Successfully.') }}');
-                    location.reload();
+                if (data > 0) {
+                    // Create a template URL with a placeholder
+                    var thankYouUrlTemplate = '{{ route('thanks', ['id' => '__PLACEHOLDER__']) }}';
+                    // Replace the placeholder with the actual data (order ID)
+                    var thankYouUrl = thankYouUrlTemplate.replace('__PLACEHOLDER__', data);
+
+                    // Redirect to the thank you page on successful order submission
+                    window.location.href = thankYouUrl;
                 } else {
                     AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
+                    // Re-enable the confirm order button if there's an error
+                    $('#confirmOrderButton').prop('disabled', false);
                 }
+            }).fail(function() {
+                // Re-enable the confirm order button if the request fails
+                $('#confirmOrderButton').prop('disabled', false);
+                AIZ.plugins.notify('danger', '{{ translate('Request failed. Please try again.') }}');
             });
         }
     </script>

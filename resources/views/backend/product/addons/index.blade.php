@@ -30,6 +30,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>{{ translate('Name') }}</th>
+                                <th>{{ translate('Article Number') }}</th>
                                 <th>{{ translate('Amount') }}</th>
                                 <th class="text-right">{{ translate('Options') }}</th>
                             </tr>
@@ -40,6 +41,8 @@
                                     <td>{{ $key + 1 + ($product_addons->currentPage() - 1) * $product_addons->perPage() }}
                                     </td>
                                     <td>{{ $product_addon->name }}</td>
+                                    <td>{{ $product_addon->sku }}</td>
+
                                     <td>
                                         {{ single_price($product_addon->unit_price) }}
                                     </td>

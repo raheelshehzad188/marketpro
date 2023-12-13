@@ -204,7 +204,7 @@
         <div class="col-lg-8 mx-auto">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0 h6">{{ translate('Sync Categories') }}</h5>
+                    <h5 class="mb-0 h6">{{ translate('Sync Categories') }} with (Product Link)</h5>
                 </div>
                 <div class="card-body">
                     <form class="form-horizontal" action="{{route('categories_all.copy')}}" method="POST"
@@ -257,6 +257,72 @@
 
                         <div class="form-group mb-0 text-right">
                             <button type="submit" class="btn btn-primary">{{ translate('Copy Categories') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row mt-5 pt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6">{{ translate('Sync Categories') }} with (Product Version)</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{route('categories_all.copy.product_version')}}" method="POST"
+                        enctype="multipart/form-data" name="copy_data">
+                        @csrf
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label fw-500">{{ translate('Source') }}</label>
+                            <div class="col-md-9">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <select class="select2 form-control aiz-selectpicker" name="source_category"
+                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true">
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @foreach ($category->childrenCategories as $childCategory)
+                                                    @include('categories.child_category', [
+                                                        'child_category' => $childCategory,
+                                                    ])
+                                                @endforeach
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label fw-500">{{ translate('Target') }}</label>
+                            <div class="col-md-9">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <select class="select2 form-control aiz-selectpicker" name="target_category"
+                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true">
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @foreach ($category->childrenCategories as $childCategory)
+                                                    @include('categories.child_category', [
+                                                        'child_category' => $childCategory,
+                                                    ])
+                                                @endforeach
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Copy Categories and Products') }}</button>
                         </div>
                     </form>
                 </div>

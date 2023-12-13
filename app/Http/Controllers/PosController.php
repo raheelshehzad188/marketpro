@@ -44,6 +44,20 @@ class PosController extends Controller
         return view('pos.cart', compact('shippings'));
     }
 
+    public function thanks($id)
+    {
+        $order = Order::find($id);
+
+        // Check if the order exists and belongs to the current user
+        if ($order && $order->user_id == auth()->user()->id) {
+            return view('pos.thank', compact('order'));
+        }
+
+        // Handle the case where the order is not found or doesn't belong to the user
+        abort(404); // Or return a different response
+    }
+
+
 
     public function get_tree(Request $request)
     {
@@ -51,7 +65,8 @@ class PosController extends Controller
         $data = array();
 
         if ($parent == "#") {
-            $categories = Category::with('childrenCategories')->where('parent_id', 0)->where('id', '!=', 120)->orderBy('id', 'desc')->get();
+            //->where('id', '!=', 120)
+            $categories = Category::with('childrenCategories')->where('parent_id', 0)->where('published', 1)->orderBy('created_at', 'desc')->get();
             foreach ($categories as $cat) {
                 $data[] = array(
                     "id" => "cat_" . $cat->id,
@@ -66,9 +81,9 @@ class PosController extends Controller
             $parent  = explode('_', $parent);
 
             if ($parent[1] == 15) {
-                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('parent_id',  $parent[1])->orderBy('name', 'desc')->get();
+                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('published', 1)->where('parent_id',  $parent[1])->orderBy('created_at', 'desc')->get();
             } else {
-                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('parent_id',  $parent[1])->orderBy('created_at', 'desc')->get();
+                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('published', 1)->where('parent_id',  $parent[1])->orderBy('created_at', 'desc')->get();
             }
 
 
@@ -157,17 +172,26 @@ class PosController extends Controller
         // }
 
 
-        $keywords = $request->keyword;
+        $keyword = $request->keyword;
 
 
-        $products = Product::where('published', '1')->where('sku',  $keywords);
-        $products->orWhereHas('product_addons', function ($q) use ($keywords) {
-            $q->where('sku',  $keywords); // '=' is optional
-        })->limit(100);
-        $products = $products->get();
+        $detailedProduct = Product::where('published', '1')->where('sku',  $keyword)->first();
+        // $products->orWhereHas('product_addons', function ($q) use ($keywords) {
+        //     $q->where('sku',  $keywords); // '=' is optional
+        // })->limit(100);
+        // $products = $products->get();
 
 
-        echo  view('pos.product_listing', compact('products'))->render();
+        //echo  view('pos.product_listing', compact('products'))->render();
+
+
+        $product_addons  = ProductAddon::where('sku', $keyword)->get();
+
+        // echo '<pre>';
+        //   print_r($detailedProduct);
+        // echo '</pre>';
+        // exit();
+        echo  view('pos.addon_search', compact('product_addons', 'keyword', 'detailedProduct'))->render();
     }
 
 
@@ -190,7 +214,7 @@ class PosController extends Controller
 
     public function get_product(Request $request)
     {
-        $detailedProduct  = Product::with('product_addons')->where('id', $request->id)->where('approved', 1)->first();
+        $detailedProduct  = Product::with('product_addons')->where('id', $request->id)->where('published', 1)->where('approved', 1)->first();
         $keyword = $request->keyword;
         // echo '<pre>';
         //   print_r($detailedProduct);
@@ -201,11 +225,11 @@ class PosController extends Controller
 
     public function get_categories(Request $request)
     {
-
+        //->where('id', '!=', 120)
         if ($request->id == 15) {
-            $categories = Category::with('childrenCategoriesCreatedOrder')->where('parent_id', $request->id)->where('id', '!=', 120)->orderBy('id', 'desc')->get();
+            $categories = Category::with('childrenCategoriesCreatedOrder')->where('published', 1)->where('parent_id', $request->id)->orderBy('created_at', 'desc')->get();
         } else {
-            $categories = Category::with('childrenCategoriesCreatedOrder')->where('parent_id', $request->id)->where('id', '!=', 120)->orderBy('created_at', 'desc')->get();
+            $categories = Category::with('childrenCategoriesCreatedOrder')->where('published', 1)->where('parent_id', $request->id)->orderBy('created_at', 'desc')->get();
         }
 
         echo  view('pos.category_listing', compact('categories'))->render();
@@ -216,7 +240,7 @@ class PosController extends Controller
         $pId = $request->id;
 
         if ($request->has('addons')) {
-            $addons = \DB::table('product_addons')->select(DB::raw('product_addons.id,product_addons.name,product_addon_pivot.sort_order'))
+            $addons = \DB::table('product_addons')->select(DB::raw('product_addons.id,product_addons.name,product_addons.sku,product_addon_pivot.sort_order'))
                 ->leftJoin('product_addon_pivot', function ($join) use ($pId) {
                     $join->on('product_addons.id', '=', 'product_addon_pivot.product_addon_id')
                         ->where('product_addon_pivot.product_id', $pId);
@@ -238,14 +262,20 @@ class PosController extends Controller
 
     public function addToCart(Request $request)
     {
-        $product = Product::find($request->product_id);
+        if ($request->product_id == 0) {
+            $productUniqueId =  0 . '' . $request->addon;
+        } else {
+            $product = Product::find($request->product_id);
+            $productUniqueId =  $product->id . '' . $request->addon;
+        }
+
 
         if ($request->type == 'addon') {
             $productAddon = ProductAddon::find($request->addon);
         }
 
         $data = array();
-        $productUniqueId =  $product->id . '' . $request->addon;
+
         $data['id'] = $productUniqueId;
         $tax = 0;
         $data['addon'] = $request->addon;
@@ -284,11 +314,16 @@ class PosController extends Controller
         //calculation of taxes
 
 
-        if ($product->tax_type == 'percent') {
-            $tax = ($price * $product->tax) / 100;
-        } elseif ($product->tax_type == 'amount') {
-            $tax = $product->tax;
+        if ($request->product_id > 0) {
+            if ($product->tax_type == 'percent') {
+                $tax = ($price * $product->tax) / 100;
+            } elseif ($product->tax_type == 'amount') {
+                $tax = $product->tax;
+            }
+        } else {
+            $tax = 0;
         }
+
 
         $data['quantity'] = $request->quantity;
         $data['price'] = $price;
@@ -582,9 +617,12 @@ class PosController extends Controller
                     'email' =>  auth()->user()->email,
                     'name' => 'Tm Racing Sweden',
                     'variables' => array(
+                        'company' => auth()->user()->company,
                         'customer_name' => auth()->user()->name,
                         'customer_email' => auth()->user()->email,
+                        'shipping_method' =>   $order->shipping_method,
                         'order_number' =>  $order->code,
+                        'comments' => $order->comments,
                         'order_date' => date('D m d Y', strtotime($order->created_at)),
                         'items' => $send_grid_items,
                         'sub_total' => single_price($subtotal),
@@ -600,9 +638,12 @@ class PosController extends Controller
                     'email' =>  'magnus@tmracingsweden.se',
                     'name' => 'Tm Racing Sweden',
                     'variables' => array(
+                        'company' => auth()->user()->company,
                         'customer_name' => auth()->user()->name,
                         'customer_email' => auth()->user()->email,
                         'order_number' =>  $order->code,
+                        'shipping_method' =>   $order->shipping_method,
+                        'comments' => $order->comments,
                         'order_date' => date('D m d Y', strtotime($order->created_at)),
                         'items' => $send_grid_items,
                         'sub_total' => single_price($subtotal),
@@ -621,7 +662,7 @@ class PosController extends Controller
                 Session::forget('shipping_method');
                 Session::forget('pos_discount');
                 Cart::where('user_id', Auth::user()->id)->delete();
-                return 1;
+                return $order->id;
             } else {
                 return 0;
             }

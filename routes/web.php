@@ -63,6 +63,11 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::get('/', function () {
     return redirect('/admin/pos');
 });
+Route::get('/home', function () {
+    return redirect('/admin/pos');
+});
+
+
 
 Route::get('/start-project', 'HomeController@start_project')->name('start_project');
 Route::post('/cart/addtocart-projecr', 'CartController@startProjectCart')->name('cart.startProjectCart');

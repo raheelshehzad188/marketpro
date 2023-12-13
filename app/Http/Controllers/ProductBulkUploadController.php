@@ -70,6 +70,7 @@ class ProductBulkUploadController extends Controller
     {
         if ($request->hasFile('bulk_file')) {
             $import = new ProductsImport;
+          
             Excel::import($import, request()->file('bulk_file'));
         }
         return back();
@@ -80,6 +81,7 @@ class ProductBulkUploadController extends Controller
     {
         if ($request->hasFile('bulk_file')) {
             $import = new ProductsLink($request->product_id);
+            
             Excel::import($import, request()->file('bulk_file'));
         }
         return back();

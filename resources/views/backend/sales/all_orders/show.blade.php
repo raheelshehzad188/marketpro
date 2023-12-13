@@ -145,16 +145,17 @@
 
                             <td>
                                 @if ($orderDetail->product_type == 'simple')
+                                    {{ $orderDetail->product->sku }} -
                                     {{ strip_tags($orderDetail->product->name) }}
-
                                 @else
+                                {{ \App\ProductAddon::findOrFail($orderDetail->product_id)->sku }} -
                                     {{ \App\ProductAddon::findOrFail($orderDetail->product_id)->name }}
                                 @endif
                             </td>
 
                             <td class="text-center">{{ $orderDetail->quantity }}</td>
                             <td class="text-center">
-                                    {{ single_price($orderDetail->price / $orderDetail->quantity) }}
+                                {{ single_price($orderDetail->price / $orderDetail->quantity) }}
                             </td>
                             <td class="text-center">{{ single_price($orderDetail->price) }}</td>
                         </tr>
@@ -179,7 +180,7 @@
                         <strong class="text-muted">{{ translate('Shipping') }} :</strong>
                     </td>
                     <td>
-                       {{  single_price($order->shipping_cost) }} <small>({{$order->shipping_method}}) </small>
+                        {{ single_price($order->shipping_cost) }} <small>({{ $order->shipping_method }}) </small>
                     </td>
                 </tr>
                 {{-- <tr>

@@ -15,7 +15,7 @@
         @foreach ($addons as $key => $addon)
             <tr class="variant">
                 <td>
-                    <label for="" class="control-label">{{ $addon->name }}</label>
+                    <label for="" class="control-label">{{ $addon->sku }} - {{ $addon->name }}</label>
                 </td>
                 <td>
                     <input type="number" lang="en" name="sort_order[{{$addon->id}}]" value="{{$addon->sort_order}}" class="form-control">

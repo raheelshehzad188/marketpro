@@ -61,6 +61,9 @@ class ProductController extends Controller
         $query = null;
         $seller_id = null;
         $sort_search = null;
+        $category = 0;
+
+
         $products = Product::orderBy('created_at', 'desc')->where('auction_product', 0);
         if ($request->has('user_id') && $request->user_id != null) {
             $products = $products->where('user_id', $request->user_id);
@@ -79,10 +82,21 @@ class ProductController extends Controller
             $sort_type = $request->type;
         }
 
+        if ($request->has('category') && $request->category != null) {
+            $category = $request->category;
+            $products->whereHas('categories', function ($q) use ($category) {
+                $q->where('category_id', '=', $category); // '=' is optional
+            });
+        }
+
         $products = $products->paginate(15);
         $type = 'All';
 
-        return view('backend.product.products.index', compact('products', 'type', 'col_name', 'query', 'seller_id', 'sort_search'));
+        $categories = Category::where('parent_id', 0)
+            ->where('digital', 0)
+            ->with('childrenCategories')
+            ->get();
+        return view('backend.product.products.index', compact('categories', 'category', 'products', 'type', 'col_name', 'query', 'seller_id', 'sort_search'));
     }
 
 
@@ -231,7 +245,7 @@ class ProductController extends Controller
         $product->sku = $request->sku;
 
 
-        $product->created_at = date('Y-m-d h:i',strtotime($request->created_at));
+        $product->created_at = date('Y-m-d h:i', strtotime($request->created_at));
 
 
         if ($request->has('addons')) {

@@ -57,7 +57,6 @@
         .text-right {
             text-align: <?php echo $not_text_align; ?>;
         }
-
     </style>
 </head>
 
@@ -123,24 +122,29 @@
                 </thead>
                 <tbody class="strong">
                     @foreach ($order->orderDetails as $key => $orderDetail)
+                        <tr class="">
+                            @if ($orderDetail->product_type == 'simple')
+                                <td>
+                                    {{ $orderDetail->product->sku }}
+                                    -
+                                    {{ strip_tags($orderDetail->product->name) }}
 
-                            <tr class="">
-                                @if ($orderDetail->product_type == 'simple')
-                                    <td>{{ strip_tags($orderDetail->product->name) }}
+                                </td>
+                            @else
+                                <td>
+                                    {{ \App\ProductAddon::findOrFail($orderDetail->product_id)->sku }}
 
-                                    </td>
-                                @else
-                                    <td>
-                                        {{ \App\ProductAddon::findOrFail($orderDetail->product_id)->name }}
-                                    </td>
-                                @endif
+                                    -
 
-                                <td class="">{{ $orderDetail->quantity }}</td>
-                                <td class="currency">{{ single_price($orderDetail->price) }}</td>
-                                <td class="currency">{{ single_price($orderDetail->tax) }}</td>
-                                <td class="text-right currency">{{ single_price($orderDetail->price) }}</td>
-                            </tr>
+                                    {{ \App\ProductAddon::findOrFail($orderDetail->product_id)->name }}
+                                </td>
+                            @endif
 
+                            <td class="">{{ $orderDetail->quantity }}</td>
+                            <td class="currency">{{ single_price($orderDetail->price) }}</td>
+                            <td class="currency">{{ single_price($orderDetail->tax) }}</td>
+                            <td class="text-right currency">{{ single_price($orderDetail->price) }}</td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -162,13 +166,14 @@
                             <table class="text-right sm-padding small strong">
                                 <tbody>
                                     <tr>
-							            <th class="gry-color text-left">{{ translate('Sub Total') }}</th>
-							            <td class="currency">{{ single_price($order->orderDetails->sum('price')) }}</td>
-							        </tr>
+                                        <th class="gry-color text-left">{{ translate('Sub Total') }}</th>
+                                        <td class="currency">{{ single_price($order->orderDetails->sum('price')) }}
+                                        </td>
+                                    </tr>
                                     <tr>
-							            <th class="gry-color text-left">{{ translate('Shipping Cost') }}</th>
-							            <td class="currency">{{ single_price($order->shipping_cost) }}</td>
-							        </tr>
+                                        <th class="gry-color text-left">{{ translate('Shipping Cost') }}</th>
+                                        <td class="currency">{{ single_price($order->shipping_cost) }}</td>
+                                    </tr>
                                     {{--
 
 				                    <tr class="border-bottom">
@@ -176,9 +181,9 @@
 							            <td class="currency">{{ single_price($order->coupon_discount) }}</td>
 							        </tr> --}}
                                     <tr class="border-bottom">
-							            <th class="gry-color text-left">{{ translate('Total Tax') }}</th>
-							            <td class="currency">{{ single_price($order->orderDetails->sum('tax')) }}</td>
-							        </tr>
+                                        <th class="gry-color text-left">{{ translate('Total Tax') }}</th>
+                                        <td class="currency">{{ single_price($order->orderDetails->sum('tax')) }}</td>
+                                    </tr>
                                     <tr>
                                         <th class="text-left strong">{{ translate('Grand Total') }}</th>
                                         <td class="currency">{{ single_price($order->grand_total) }}</td>

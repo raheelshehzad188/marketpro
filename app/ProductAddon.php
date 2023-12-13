@@ -16,7 +16,10 @@ class ProductAddon extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'product_addon_pivot');
+    }
 
-       
+    public function product()
+    {
+        return $this->belongsToOne(Product::class, 'product_addon_pivot');
     }
 }

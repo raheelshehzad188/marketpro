@@ -18,6 +18,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::post('/categories/products-copy', 'CategoryController@copy_products')->name('categories.copy');
     Route::post('/categories/categories-copy', 'CategoryController@copy_categories')->name('categories_all.copy');
 
+    Route::post('/categories/categories-products-copy', 'CategoryController@copy_categories_products')->name('categories_all.copy.product_version');
+
 
     
 
@@ -25,6 +27,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/categories/edit/{id}', 'CategoryController@edit')->name('categories.edit');
     Route::get('/categories/destroy/{id}', 'CategoryController@destroy')->name('categories.destroy');
     Route::post('/categories/featured', 'CategoryController@updateFeatured')->name('categories.featured');
+    Route::post('/categories/published', 'CategoryController@updatePublished')->name('categories.published');
    
 
     Route::resource('shippings', 'ShippingController');
@@ -62,7 +65,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/product-addons/edit/{id}', 'ProductAddonController@edit')->name('product-addons.edit');
     Route::get('/product-addons/destroy/{id}', 'ProductAddonController@destroy')->name('product-addons.destroy');
 
-    Route::get('/products/admin', 'ProductController@admin_products')->name('products.admin');
+    Route::get('/products/admin', 'ProductController@all_products')->name('products.admin');
     Route::get('/products/seller', 'ProductController@seller_products')->name('products.seller');
     Route::get('/products/all', 'ProductController@all_products')->name('products.all');
     Route::get('/products/create', 'ProductController@create')->name('products.create');

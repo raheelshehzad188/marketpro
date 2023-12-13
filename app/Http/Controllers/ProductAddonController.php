@@ -21,7 +21,7 @@ class ProductAddonController extends Controller
 
         if ($request->has('search')) {
             $sort_search = $request->search;
-            $product_addons = $product_addons->where('name', 'like', '%' . $sort_search . '%')->orWhere('sku', 'like', '%' . $sort_search . '%');
+            $product_addons = $product_addons->where('name', 'like', '%' . $sort_search . '%')->orWhere('sku', $sort_search);
         }
         $product_addons = $product_addons->paginate(15);
         return view('backend.product.addons.index', compact('product_addons', 'sort_search'));
