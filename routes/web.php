@@ -309,6 +309,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/product-bulk-upload/index', 'ProductBulkUploadController@index')->name('product_bulk_upload.index');
     Route::post('/bulk-product-upload', 'ProductBulkUploadController@bulk_upload')->name('bulk_product_upload');
 
+
+    Route::post('/bulk-product-upload2', 'ProductBulkUploadController@bulk_upload')->name('knobby_category_upload');
+
+
+
+
     Route::get('/product-bulk-link/index', 'ProductBulkUploadController@product_link')->name('bulk_product_link.index');
     Route::post('/bulk-product-link', 'ProductBulkUploadController@bulk_link')->name('bulk_product_link');
 
