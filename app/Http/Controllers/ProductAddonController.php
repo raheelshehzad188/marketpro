@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\ProductAddon;
 use App\Product;
+use App\Models\Shop;
 use Illuminate\Support\Str;
 
 class ProductAddonController extends Controller
@@ -24,6 +25,12 @@ class ProductAddonController extends Controller
             $product_addons = $product_addons->where('name', 'like', '%' . $sort_search . '%')->orWhere('sku', $sort_search);
         }
         $product_addons = $product_addons->paginate(15);
+
+        // Fetch visibility information for each product addon
+        foreach ($product_addons as $product_addon) {
+            $product_addon->visibilityShops = $product_addon->visibility()->pluck('name', 'id')->toArray();
+        }
+
         return view('backend.product.addons.index', compact('product_addons', 'sort_search'));
     }
 
@@ -46,7 +53,6 @@ class ProductAddonController extends Controller
     {
         $product_addon = new ProductAddon;
         $product_addon->name = $request->product_name;
-
         $product_addon->other_name = $request->other_name;
         $product_addon->short_name = $request->short_name;
         $product_addon->article_group = $request->article_group;
@@ -54,12 +60,21 @@ class ProductAddonController extends Controller
         $product_addon->qty = $request->current_stock;
         $product_addon->sku = $request->sku;
         $product_addon->unit_price = $request->unit_price;
-
         $product_addon->save();
+
+        // Handling visibility
+        if ($request->has('visibility') && !empty($request->input('visibility'))) {
+            $product_addon->visibility()->sync($request->input('visibility'));
+        } else {
+            // Set visibility to all shops if visibility is not provided or is empty
+            $allShopIds = Shop::pluck('id')->all();
+            $product_addon->visibility()->sync($allShopIds);
+        }
 
         flash(translate('Addon has been inserted successfully'))->success();
         return redirect()->route('product-addons.index');
     }
+
 
     /**
      * Display the specified resource.
@@ -80,9 +95,14 @@ class ProductAddonController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $product_addon  = ProductAddon::findOrFail($id);
-        return view('backend.product.addons.edit', compact('product_addon'));
+        $product_addon = ProductAddon::findOrFail($id);
+
+        // Fetch visibility information
+        $visibilityShopIds = $product_addon->visibility()->pluck('id')->toArray();
+
+        return view('backend.product.addons.edit', compact('product_addon', 'visibilityShopIds'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -94,7 +114,6 @@ class ProductAddonController extends Controller
     public function update(Request $request, $id)
     {
         $product_addon = ProductAddon::findOrFail($id);
-
         $product_addon->name = $request->product_name;
         $product_addon->other_name = $request->other_name;
         $product_addon->short_name = $request->short_name;
@@ -103,8 +122,16 @@ class ProductAddonController extends Controller
         $product_addon->qty = $request->current_stock;
         $product_addon->sku = $request->sku;
         $product_addon->unit_price = $request->unit_price;
-
         $product_addon->save();
+
+        // Handling visibility
+        if ($request->has('visibility') && !empty($request->input('visibility'))) {
+            $product_addon->visibility()->sync($request->input('visibility'));
+        } else {
+            // Set visibility to all shops if visibility is not provided or is empty
+            $allShopIds = Shop::pluck('id')->all();
+            $product_addon->visibility()->sync($allShopIds);
+        }
 
         flash(translate('Product Addon has been updated successfully'))->success();
         return back();

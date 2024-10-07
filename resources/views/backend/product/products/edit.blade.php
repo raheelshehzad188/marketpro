@@ -54,10 +54,21 @@
                                 </div>
                             </div>
 
+                            <div class="form-group row">
+                                <label for="visibility" class="col-lg-3 col-from-label">Visibility</label>
+                                <div class="col-lg-8">
+                                    <select class="aiz-selectpicker w-100" id="visibility" data-selected="{{ json_encode($visibilityShopIds)}}" name="visibility[]" multiple>
+                                        @foreach (App\Models\Shop::all() as $shop)
+                                            <option value="{{ $shop->id }}">{{ $shop->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="form-group row" id="category">
                                 <label class="col-lg-3 col-from-label">{{ translate('Category') }}</label>
                                 <div class="col-lg-8">
-                                    <select class="form-control aiz-selectpicker" multiple name="category[]"
+                                    {{-- <select class="form-control aiz-selectpicker" multiple name="category[]"
                                         id="category_id" data-selected="{{ json_encode($selected_categories) }}"
                                         data-live-search="true" required>
                                         @foreach ($categories as $category)
@@ -69,7 +80,12 @@
                                                 ])
                                             @endforeach
                                         @endforeach
-                                    </select>
+                                    </select> --}}
+
+                                    <x-treeview :nodes="$topLevelNodes" treeview-id="treeview1" :selectedCategories="$selected_categories"
+                                        :selectedCategoryNames="$selected_category_names" treeview-type="category" />
+
+
                                 </div>
                             </div>
 
@@ -112,6 +128,63 @@
 
                     <div class="card">
                         <div class="card-header">
+                            <h5 class="mb-0 h6">{{ translate('Related Products & Addons') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row gutters-5">
+                                <div class="col-lg-3">
+                                    <input type="text" class="form-control" value="{{ translate('Products') }}"
+                                        disabled>
+                                </div>
+                                <div class="col-lg-8">
+
+                                    <x-treeview :nodes="$topLevelNodes" treeview-id="related_products" :selectedCategories="$relatedProductIdsArray"
+                                        :selectedCategoryNames="$selected_related_product_names" treeview-type="product" />
+
+                                    {{-- <select name="related_products[]" id="" data-selected-text-format="count"
+                                        data-actions-box="true" data-live-search="true"
+                                        class="form-control aiz-selectpicker" multiple
+                                        data-selected="{{ json_encode($relatedProductIdsArray) }}"
+                                        data-placeholder="{{ translate('Choose Products') }}">
+                                        @foreach (\App\Product::where('id', '!=', $product->id)->get() as $key => $p)
+<option value="{{ $p->id }}">
+                                                {{ $p->name }}
+                                            </option>
+@endforeach
+                                    </select> --}}
+                                </div>
+
+                            </div>
+
+                            <div class="form-group row gutters-5">
+                                <div class="col-lg-3">
+                                    <input type="text" class="form-control" value="{{ translate('Addons') }}"
+                                        disabled>
+                                </div>
+                                <div class="col-lg-8">
+                                    <x-treeview :nodes="$topLevelNodes" treeview-id="related_addons" :selectedCategories="$relatedAddonIdsArray"
+                                        :selectedCategoryNames="$selected_related_addon_names" treeview-type="addon" />
+
+
+                                    {{-- <select name="related_addons[]" id="" data-selected-text-format="count"
+                                        data-actions-box="true" data-live-search="true"
+                                        class="form-control aiz-selectpicker" multiple
+                                        data-selected="{{ json_encode($relatedAddonIdsArray) }}"
+                                        data-placeholder="{{ translate('Choose Addons') }}">
+                                        @foreach (\App\ProductAddon::all() as $key => $addon)
+                                            <option value="{{ $addon->id }}">
+                                                {{ $addon->name }} - {{ $addon->sku }}
+                                            </option>
+                                        @endforeach
+                                    </select> --}}
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
                             <h5 class="mb-0 h6">{{ translate('Product Spare Parts') }}</h5>
                         </div>
                         <div class="card-body">
@@ -119,10 +192,17 @@
                                 <div class="col-lg-3">
                                     <input type="text" class="form-control" value="{{ translate('Addons') }}"
                                         disabled>
+                                    <p>{{ translate('Choose the spare parts of this product and then input values of each part') }}
+                                    </p>
                                 </div>
-                                <div class="col-lg-8">
-                                    <select name="addons[]" id="" data-selected-text-format="count"
-                                        data-live-search="true" class="form-control aiz-selectpicker" multiple
+                                <div class="col-lg-8" id="update_sku">
+                                    <x-treeview :nodes="$topLevelNodes" treeview-id="addons" :selectedCategories="$selected_addons"
+                                        :selectedCategoryNames="$selected_addon_names" treeview-type="addon" />
+
+
+                                    {{-- <select name="addons[]" id="" data-selected-text-format="count"
+                                        data-actions-box="true" data-live-search="true"
+                                        class="form-control aiz-selectpicker" multiple
                                         data-placeholder="{{ translate('Choose Addons') }}" id="addons"
                                         data-selected="{{ json_encode($selected_addons) }}" onchange=" update_sku()">
                                         @foreach (\App\ProductAddon::all() as $key => $addon)
@@ -130,16 +210,16 @@
                                                 @if ($product->addons != null && in_array($addon->id, json_decode($product->addons, true))) selected @endif>
                                                 {{ $addon->name }} - {{ $addon->sku }}</option>
                                         @endforeach
-                                    </select>
+                                    </select> --}}
                                 </div>
-                                <div class="">
-                                    <p>{{ translate('Choose the spare parts of this product and then input values of each part') }}
-                                    </p>
-                                    <br>
-                                </div>
+
                             </div>
                         </div>
                     </div>
+
+
+
+
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0 h6">{{ translate('Product price + stock') }}</h5>
@@ -225,57 +305,6 @@
             update_sku();
         });
 
-        $("[name=shipping_type]").on("change", function() {
-            show_hide_shipping_div();
-        });
-
-        function show_hide_shipping_div() {
-            var shipping_val = $("[name=shipping_type]:checked").val();
-
-            $(".flat_rate_shipping_div").hide();
-
-            if (shipping_val == 'flat_rate') {
-                $(".flat_rate_shipping_div").show();
-            }
-        }
-
-        function add_more_customer_choice_option(i, name) {
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                type: "POST",
-                url: '{{ route('products.add-more-choice-option') }}',
-                data: {
-                    attribute_id: i
-                },
-                success: function(data) {
-                    var obj = JSON.parse(data);
-                    $('#customer_choice_options').append('\
-                                                        <div class="form-group row">\
-                                                            <div class="col-md-3">\
-                                                                <input type="hidden" name="choice_no[]" value="' + i +
-                        '">\
-                                                                <input type="text" class="form-control" name="choice[]" value="' +
-                        name +
-                        '" placeholder="{{ translate('Choice Title') }}" readonly>\
-                                                            </div>\
-                                                            <div class="col-md-8">\
-                                                                <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_' +
-                        i + '[]" multiple>\
-                                                                    ' + obj + '\
-                                                                </select>\
-                                                            </div>\
-                                                        </div>');
-                    AIZ.plugins.bootstrapSelect('refresh');
-                }
-            });
-
-
-        }
-
-
-
 
         function update_sku() {
             $.ajax({
@@ -295,4 +324,5 @@
             });
         }
     </script>
+    @include('backend.product.products.script')
 @endsection

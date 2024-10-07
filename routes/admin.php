@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\ShippingController;
 
 /*
   |--------------------------------------------------------------------------
@@ -30,7 +31,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::post('/categories/published', 'CategoryController@updatePublished')->name('categories.published');
    
 
-    Route::resource('shippings', 'ShippingController');
+    Route::resource('shippings', ShippingController::class);
     Route::get('/shippings/edit/{id}', 'ShippingController@edit')->name('shippings.edit');
     Route::get('/shippings/destroy/{id}', 'ShippingController@destroy')->name('shippings.destroy');
     Route::post('/shippings/featured', 'ShippingController@updateFeatured')->name('shippings.featured');
@@ -39,43 +40,46 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/brands/edit/{id}', 'BrandController@edit')->name('brands.edit');
     Route::get('/brands/destroy/{id}', 'BrandController@destroy')->name('brands.destroy');
 
-    Route::resource('gardens', 'GardenController');
-    Route::get('/gardens/edit/{id}', 'GardenController@edit')->name('gardens.edit');
-    Route::get('/gardens/destroy/{id}', 'GardenController@destroy')->name('gardens.destroy');
+    // Route::resource('gardens', 'GardenController');
+    // Route::get('/gardens/edit/{id}', 'GardenController@edit')->name('gardens.edit');
+    // Route::get('/gardens/destroy/{id}', 'GardenController@destroy')->name('gardens.destroy');
 
 
 
-    Route::resource('testimonials', 'TestimonialController');
-    Route::get('/testimonials/edit/{id}', 'TestimonialController@edit')->name('testimonials.edit');
-    Route::get('/testimonials/destroy/{id}', 'TestimonialController@destroy')->name('testimonials.destroy');
+    // Route::resource('testimonials', 'TestimonialController');
+    // Route::get('/testimonials/edit/{id}', 'TestimonialController@edit')->name('testimonials.edit');
+    // Route::get('/testimonials/destroy/{id}', 'TestimonialController@destroy')->name('testimonials.destroy');
 
-    Route::resource('plants', 'PlantController');
-    Route::get('/plants/edit/{id}', 'PlantController@edit')->name('plants.edit');
-    Route::get('/plants/destroy/{id}', 'PlantController@destroy')->name('plants.destroy');
+    // Route::resource('plants', 'PlantController');
+    // Route::get('/plants/edit/{id}', 'PlantController@edit')->name('plants.edit');
+    // Route::get('/plants/destroy/{id}', 'PlantController@destroy')->name('plants.destroy');
 
 
-    Route::resource('results', 'ResultController');
-    Route::get('/results/edit/{id}', 'ResultController@edit')->name('results.edit');
-    Route::get('/results/destroy/{id}', 'ResultController@destroy')->name('results.destroy');
+    // Route::resource('results', 'ResultController');
+    // Route::get('/results/edit/{id}', 'ResultController@edit')->name('results.edit');
+    // Route::get('/results/destroy/{id}', 'ResultController@destroy')->name('results.destroy');
 
-    Route::get('/leads', 'UserResultController@index')->name('leads.index');
-    Route::get('/leads/destroy/{id}', 'UserResultController@destroy')->name('lead.destroy');
+    // Route::get('/leads', 'UserResultController@index')->name('leads.index');
+    // Route::get('/leads/destroy/{id}', 'UserResultController@destroy')->name('lead.destroy');
 
     Route::resource('product-addons', 'ProductAddonController');
     Route::get('/product-addons/edit/{id}', 'ProductAddonController@edit')->name('product-addons.edit');
     Route::get('/product-addons/destroy/{id}', 'ProductAddonController@destroy')->name('product-addons.destroy');
 
-    Route::get('/products/admin', 'ProductController@all_products')->name('products.admin');
-    Route::get('/products/seller', 'ProductController@seller_products')->name('products.seller');
+    //Route::get('/products/admin', 'ProductController@all_products')->name('products.admin');
+    //Route::get('/products/seller', 'ProductController@seller_products')->name('products.seller');
     Route::get('/products/all', 'ProductController@all_products')->name('products.all');
     Route::get('/products/create', 'ProductController@create')->name('products.create');
     Route::get('/products/admin/{id}/edit', 'ProductController@admin_product_edit')->name('products.admin.edit');
-    Route::get('/products/seller/{id}/edit', 'ProductController@seller_product_edit')->name('products.seller.edit');
-    Route::post('/products/todays_deal', 'ProductController@updateTodaysDeal')->name('products.todays_deal');
+    //Route::get('/products/seller/{id}/edit', 'ProductController@seller_product_edit')->name('products.seller.edit');
+    ///Route::post('/products/todays_deal', 'ProductController@updateTodaysDeal')->name('products.todays_deal');
     Route::post('/products/featured', 'ProductController@updateFeatured')->name('products.featured');
     Route::post('/products/approved', 'ProductController@updateProductApproval')->name('products.approved');
     Route::post('/products/get_products_by_subcategory', 'ProductController@get_products_by_subcategory')->name('products.get_products_by_subcategory');
     Route::post('/bulk-product-delete', 'ProductController@bulk_product_delete')->name('bulk-product-delete');
+
+    Route::get('/load-nodes', 'ProductController@loadNodes')->name('products.loadNodes');
+    Route::get('/search-nodes', 'ProductController@searchNodes')->name('products.searchNodes');
 
 
 
@@ -111,26 +115,26 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/google-firebase', 'BusinessSettingsController@google_firebase')->name('google-firebase.index');
 
     //Facebook Settings
-    Route::get('/facebook-chat', 'BusinessSettingsController@facebook_chat')->name('facebook_chat.index');
-    Route::post('/facebook_chat', 'BusinessSettingsController@facebook_chat_update')->name('facebook_chat.update');
-    Route::get('/facebook-comment', 'BusinessSettingsController@facebook_comment')->name('facebook-comment');
-    Route::post('/facebook-comment', 'BusinessSettingsController@facebook_comment_update')->name('facebook-comment.update');
-    Route::post('/facebook_pixel', 'BusinessSettingsController@facebook_pixel_update')->name('facebook_pixel.update');
+    // Route::get('/facebook-chat', 'BusinessSettingsController@facebook_chat')->name('facebook_chat.index');
+    // Route::post('/facebook_chat', 'BusinessSettingsController@facebook_chat_update')->name('facebook_chat.update');
+    // Route::get('/facebook-comment', 'BusinessSettingsController@facebook_comment')->name('facebook-comment');
+    // Route::post('/facebook-comment', 'BusinessSettingsController@facebook_comment_update')->name('facebook-comment.update');
+    // Route::post('/facebook_pixel', 'BusinessSettingsController@facebook_pixel_update')->name('facebook_pixel.update');
 
-    Route::post('/env_key_update', 'BusinessSettingsController@env_key_update')->name('env_key_update.update');
-    Route::post('/payment_method_update', 'BusinessSettingsController@payment_method_update')->name('payment_method.update');
-    Route::post('/google_analytics', 'BusinessSettingsController@google_analytics_update')->name('google_analytics.update');
-    Route::post('/google_recaptcha', 'BusinessSettingsController@google_recaptcha_update')->name('google_recaptcha.update');
-    Route::post('/google-map', 'BusinessSettingsController@google_map_update')->name('google-map.update');
-    Route::post('/google-firebase', 'BusinessSettingsController@google_firebase_update')->name('google-firebase.update');
+    // Route::post('/env_key_update', 'BusinessSettingsController@env_key_update')->name('env_key_update.update');
+    // Route::post('/payment_method_update', 'BusinessSettingsController@payment_method_update')->name('payment_method.update');
+    // Route::post('/google_analytics', 'BusinessSettingsController@google_analytics_update')->name('google_analytics.update');
+    // Route::post('/google_recaptcha', 'BusinessSettingsController@google_recaptcha_update')->name('google_recaptcha.update');
+    // Route::post('/google-map', 'BusinessSettingsController@google_map_update')->name('google-map.update');
+    // Route::post('/google-firebase', 'BusinessSettingsController@google_firebase_update')->name('google-firebase.update');
     //Currency
-    Route::get('/currency', 'CurrencyController@currency')->name('currency.index');
-    Route::post('/currency/update', 'CurrencyController@updateCurrency')->name('currency.update');
-    Route::post('/your-currency/update', 'CurrencyController@updateYourCurrency')->name('your_currency.update');
-    Route::get('/currency/create', 'CurrencyController@create')->name('currency.create');
-    Route::post('/currency/store', 'CurrencyController@store')->name('currency.store');
-    Route::post('/currency/currency_edit', 'CurrencyController@edit')->name('currency.edit');
-    Route::post('/currency/update_status', 'CurrencyController@update_status')->name('currency.update_status');
+    // Route::get('/currency', 'CurrencyController@currency')->name('currency.index');
+    // Route::post('/currency/update', 'CurrencyController@updateCurrency')->name('currency.update');
+    // Route::post('/your-currency/update', 'CurrencyController@updateYourCurrency')->name('your_currency.update');
+    // Route::get('/currency/create', 'CurrencyController@create')->name('currency.create');
+    // Route::post('/currency/store', 'CurrencyController@store')->name('currency.store');
+    // Route::post('/currency/currency_edit', 'CurrencyController@edit')->name('currency.edit');
+    // Route::post('/currency/update_status', 'CurrencyController@update_status')->name('currency.update_status');
 
     //Tax
     Route::resource('tax', 'TaxController');
@@ -144,11 +148,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/vendor_commission', 'BusinessSettingsController@vendor_commission')->name('business_settings.vendor_commission');
     Route::post('/vendor_commission_update', 'BusinessSettingsController@vendor_commission_update')->name('business_settings.vendor_commission.update');
 
-    Route::resource('/languages', 'LanguageController');
-    Route::post('/languages/{id}/update', 'LanguageController@update')->name('languages.update');
-    Route::get('/languages/destroy/{id}', 'LanguageController@destroy')->name('languages.destroy');
-    Route::post('/languages/update_rtl_status', 'LanguageController@update_rtl_status')->name('languages.update_rtl_status');
-    Route::post('/languages/key_value_store', 'LanguageController@key_value_store')->name('languages.key_value_store');
+    // Route::resource('/languages', 'LanguageController');
+    // Route::post('/languages/{id}/update', 'LanguageController@update')->name('languages.update');
+    // Route::get('/languages/destroy/{id}', 'LanguageController@destroy')->name('languages.destroy');
+    // Route::post('/languages/update_rtl_status', 'LanguageController@update_rtl_status')->name('languages.update_rtl_status');
+    // Route::post('/languages/key_value_store', 'LanguageController@key_value_store')->name('languages.key_value_store');
 
     // website setting
     Route::group(['prefix' => 'website'], function () {
@@ -168,13 +172,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::resource('staffs', 'StaffController');
     Route::get('/staffs/destroy/{id}', 'StaffController@destroy')->name('staffs.destroy');
 
-    Route::resource('flash_deals', 'FlashDealController');
-    Route::get('/flash_deals/edit/{id}', 'FlashDealController@edit')->name('flash_deals.edit');
-    Route::get('/flash_deals/destroy/{id}', 'FlashDealController@destroy')->name('flash_deals.destroy');
-    Route::post('/flash_deals/update_status', 'FlashDealController@update_status')->name('flash_deals.update_status');
-    Route::post('/flash_deals/update_featured', 'FlashDealController@update_featured')->name('flash_deals.update_featured');
-    Route::post('/flash_deals/product_discount', 'FlashDealController@product_discount')->name('flash_deals.product_discount');
-    Route::post('/flash_deals/product_discount_edit', 'FlashDealController@product_discount_edit')->name('flash_deals.product_discount_edit');
+    // Route::resource('flash_deals', 'FlashDealController');
+    // Route::get('/flash_deals/edit/{id}', 'FlashDealController@edit')->name('flash_deals.edit');
+    // Route::get('/flash_deals/destroy/{id}', 'FlashDealController@destroy')->name('flash_deals.destroy');
+    // Route::post('/flash_deals/update_status', 'FlashDealController@update_status')->name('flash_deals.update_status');
+    // Route::post('/flash_deals/update_featured', 'FlashDealController@update_featured')->name('flash_deals.update_featured');
+    // Route::post('/flash_deals/product_discount', 'FlashDealController@product_discount')->name('flash_deals.product_discount');
+    // Route::post('/flash_deals/product_discount_edit', 'FlashDealController@product_discount_edit')->name('flash_deals.product_discount_edit');
 
     //Subscribers
     Route::get('/subscribers', 'SubscriberController@index')->name('subscribers.index');
@@ -190,8 +194,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
      Route::get('/inhouse-orders/{id}/show', 'OrderController@show')->name('inhouse_orders.show');
 
      // Seller Orders
-     Route::get('/seller_orders', 'OrderController@seller_orders')->name('seller_orders.index');
-     Route::get('/seller_orders/{id}/show', 'OrderController@seller_orders_show')->name('seller_orders.show');
+    //  Route::get('/seller_orders', 'OrderController@seller_orders')->name('seller_orders.index');
+    //  Route::get('/seller_orders/{id}/show', 'OrderController@seller_orders_show')->name('seller_orders.show');
 
      Route::post('/bulk-order-status', 'OrderController@bulk_order_status')->name('bulk-order-status');
 
@@ -222,12 +226,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
 
 
      //Portolio Section
-     Route::resource('portfolio-category', 'PortfolioCategoryController');
-     Route::get('/portfolio-category/destroy/{id}', 'PortfolioCategoryController@destroy')->name('portfolio-category.destroy');
-     Route::resource('portfolio', 'PortfolioController');
-     Route::get('/portfolio/destroy/{id}', 'PortfolioController@destroy')->name('portfolio.destroy');
-     Route::post('/portfolio/change-status', 'PortfolioController@change_status')->name('portfolio.change-status');
-     Route::post('/portfolio/change-feature', 'PortfolioController@change_feature')->name('portfolio.change-feature');
+    //  Route::resource('portfolio-category', 'PortfolioCategoryController');
+    //  Route::get('/portfolio-category/destroy/{id}', 'PortfolioCategoryController@destroy')->name('portfolio-category.destroy');
+    //  Route::resource('portfolio', 'PortfolioController');
+    //  Route::get('/portfolio/destroy/{id}', 'PortfolioController@destroy')->name('portfolio.destroy');
+    //  Route::post('/portfolio/change-status', 'PortfolioController@change_status')->name('portfolio.change-status');
+    //  Route::post('/portfolio/change-feature', 'PortfolioController@change_feature')->name('portfolio.change-feature');
 
 
      //Coupons
@@ -235,8 +239,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
      Route::get('/coupon/destroy/{id}', 'CouponController@destroy')->name('coupon.destroy');
 
      //Reviews
-     Route::get('/reviews', 'ReviewController@index')->name('reviews.index');
-     Route::post('/reviews/published', 'ReviewController@updatePublished')->name('reviews.published');
+    //  Route::get('/reviews', 'ReviewController@index')->name('reviews.index');
+    //  Route::post('/reviews/published', 'ReviewController@updatePublished')->name('reviews.published');
 
      //Support_Ticket
      Route::get('support_ticket/', 'SupportTicketController@admin_index')->name('support_ticket.admin_index');
@@ -244,27 +248,27 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
      Route::post('support_ticket/reply', 'SupportTicketController@admin_store')->name('support_ticket.admin_store');
 
      //Pickup_Points
-     Route::resource('pick_up_points', 'PickupPointController');
-     Route::get('/pick_up_points/edit/{id}', 'PickupPointController@edit')->name('pick_up_points.edit');
-     Route::get('/pick_up_points/destroy/{id}', 'PickupPointController@destroy')->name('pick_up_points.destroy');
+    //  Route::resource('pick_up_points', 'PickupPointController');
+    //  Route::get('/pick_up_points/edit/{id}', 'PickupPointController@edit')->name('pick_up_points.edit');
+    //  Route::get('/pick_up_points/destroy/{id}', 'PickupPointController@destroy')->name('pick_up_points.destroy');
 
      //conversation of seller customer
-     Route::get('conversations', 'ConversationController@admin_index')->name('conversations.admin_index');
-     Route::get('conversations/{id}/show', 'ConversationController@admin_show')->name('conversations.admin_show');
+    //  Route::get('conversations', 'ConversationController@admin_index')->name('conversations.admin_index');
+    //  Route::get('conversations/{id}/show', 'ConversationController@admin_show')->name('conversations.admin_show');
 
-     Route::post('/sellers/profile_modal', 'SellerController@profile_modal')->name('sellers.profile_modal');
-     Route::post('/sellers/approved', 'SellerController@updateApproved')->name('sellers.approved');
+    //  Route::post('/sellers/profile_modal', 'SellerController@profile_modal')->name('sellers.profile_modal');
+    //  Route::post('/sellers/approved', 'SellerController@updateApproved')->name('sellers.approved');
 
-     Route::resource('attributes', 'AttributeController');
-     Route::get('/attributes/edit/{id}', 'AttributeController@edit')->name('attributes.edit');
-     Route::get('/attributes/destroy/{id}', 'AttributeController@destroy')->name('attributes.destroy');
+    //  Route::resource('attributes', 'AttributeController');
+    //  Route::get('/attributes/edit/{id}', 'AttributeController@edit')->name('attributes.edit');
+    //  Route::get('/attributes/destroy/{id}', 'AttributeController@destroy')->name('attributes.destroy');
 
      //Colors
-    Route::get('/colors', 'AttributeController@colors')->name('colors');
-    Route::post('/colors/store', 'AttributeController@store_color')->name('colors.store');
-    Route::get('/colors/edit/{id}', 'AttributeController@edit_color')->name('colors.edit');
-    Route::post('/colors/update/{id}', 'AttributeController@update_color')->name('colors.update');
-    Route::get('/colors/destroy/{id}', 'AttributeController@destroy_color')->name('colors.destroy');
+    // Route::get('/colors', 'AttributeController@colors')->name('colors');
+    // Route::post('/colors/store', 'AttributeController@store_color')->name('colors.store');
+    // Route::get('/colors/edit/{id}', 'AttributeController@edit_color')->name('colors.edit');
+    // Route::post('/colors/update/{id}', 'AttributeController@update_color')->name('colors.update');
+    // Route::get('/colors/destroy/{id}', 'AttributeController@destroy_color')->name('colors.destroy');
 
     Route::resource('addons', 'AddonController');
     Route::post('/addons/activation', 'AddonController@activation')->name('addons.activation');
@@ -280,8 +284,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/customer_packages/destroy/{id}', 'CustomerPackageController@destroy')->name('customer_packages.destroy');
 
     //Classified Products
-    Route::get('/classified_products', 'CustomerProductController@customer_product_index')->name('classified_products');
-    Route::post('/classified_products/published', 'CustomerProductController@updatePublished')->name('classified_products.published');
+    // Route::get('/classified_products', 'CustomerProductController@customer_product_index')->name('classified_products');
+    // Route::post('/classified_products/published', 'CustomerProductController@updatePublished')->name('classified_products.published');
 
     //Shipping Configuration
     Route::get('/shipping_configuration', 'BusinessSettingsController@shipping_configuration')->name('shipping_configuration.index');

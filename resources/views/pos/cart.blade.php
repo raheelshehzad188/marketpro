@@ -33,150 +33,157 @@
         </div> --}}
         <div class="card mar-btm" id="cart-details">
             <div class="card-body">
-                <table class="table aiz-table mb-0 mar-no" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>
-                            <th width="60%">{{ translate('Product') }}</th>
-                            <th width="15%">{{ translate('QTY') }}</th>
-                            <th>{{ translate('Price') }}</th>
-                            <th>{{ translate('Subtotal') }}</th>
-                            <th class="text-right">{{ translate('Remove') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $selected_shipping_id = $selected_shipping_cost = 0;
-                            $subtotal = 0;
-                            $tax = 0;
-                            $shipping = 0;
-
-                        @endphp
-                        @if (\App\Models\Cart::where('user_id', Auth::user()->id)->first())
+                <div class="table-responsive"> <!-- Add this div -->
+                    <table class="table aiz-table mb-0 mar-no" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th width="60%">{{ translate('Product') }}</th>
+                                <th width="15%">{{ translate('QTY') }}</th>
+                                <th>{{ translate('Price') }}</th>
+                                <th>{{ translate('Subtotal') }}</th>
+                                <th class="text-right">{{ translate('Remove') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             @php
+                                $selected_shipping_id = $selected_shipping_cost = 0;
+                                $subtotal = 0;
+                                $tax = 0;
+                                $shipping = 0;
 
-                                $carts = unserialize(\App\Models\Cart::where('user_id', Auth::user()->id)->first()->cart_data);
-                                $selected_shipping_id = @Session::get('shipping_id');
-                                $selected_shipping_cost = @Session::get('shipping');
-                                //     echo '<pre>';
-                                // print_r($selected_shipping_cost);
-                                // echo '</pre>';
-                                //     exit();
                             @endphp
-                            @forelse ($carts as $key => $cartItem)
+                            @if (\App\Models\Cart::where('user_id', Auth::user()->id)->first())
                                 @php
-                                    $subtotal += $cartItem['price'] * $cartItem['quantity'];
-                                    $tax += $cartItem['tax'] * $cartItem['quantity'];
-                                    $shipping += $cartItem['shipping'] * $cartItem['quantity'];
-                                    if (Session::get('shipping', 0) == 0) {
-                                        $shipping = 0;
-                                    }
 
-                                    if ($cartItem['type'] == 'simple') {
-                                        $product_name = \App\Product::find($cartItem['item_id'])->name;
-                                        $article_number = \App\Product::find($cartItem['item_id'])->sku;
-                                    } else {
-                                        $product_name = \App\ProductAddon::find($cartItem['item_id'])->name;
-                                        $article_number = \App\ProductAddon::find($cartItem['item_id'])->sku;
-                                    }
+                                    $carts = unserialize(\App\Models\Cart::where('user_id', Auth::user()->id)->first()->cart_data);
+                                    $selected_shipping_id = @Session::get('shipping_id');
+                                    $selected_shipping_cost = @Session::get('shipping');
+                                    //     echo '<pre>';
+                                    // print_r($selected_shipping_cost);
+                                    // echo '</pre>';
+                                    //     exit();
                                 @endphp
-                                <tr>
-                                    <td>
-                                        <span class="media">
-                                            <div class="media-body">
-                                                {{ $article_number }} - {{ $product_name }}
+                                @forelse ($carts as $key => $cartItem)
+                                    @php
+                                        $subtotal += $cartItem['price'] * $cartItem['quantity'];
+                                        $tax += $cartItem['tax'] * $cartItem['quantity'];
+                                        $shipping += $cartItem['shipping'] * $cartItem['quantity'];
+                                        if (Session::get('shipping', 0) == 0) {
+                                            $shipping = 0;
+                                        }
+
+                                        if ($cartItem['type'] == 'simple') {
+                                            $product_name = \App\Product::find($cartItem['item_id'])->name;
+                                            $article_number = \App\Product::find($cartItem['item_id'])->sku;
+                                        } else {
+                                            $product_name = \App\ProductAddon::find($cartItem['item_id'])->name;
+                                            $article_number = \App\ProductAddon::find($cartItem['item_id'])->sku;
+                                        }
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <span class="media">
+                                                <div class="media-body">
+                                                    {{ $article_number }} - {{ $product_name }}
+                                                </div>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="">
+                                                <input type="number" class="form-control text-center quantity_input"
+                                                    placeholder="1" id="qty-{{ $key }}"
+                                                    value="{{ $cartItem['quantity'] }}"
+                                                    onchange="updateQuantity({{ $key }})" min="1">
                                             </div>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="">
-                                            <input type="number" class="form-control text-center" placeholder="1"
-                                                id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}"
-                                                onchange="updateQuantity({{ $key }})" min="1">
-                                        </div>
-                                    </td>
-                                    <td>{{ single_price($cartItem['price']) }}</td>
-                                    <td>{{ single_price($cartItem['price'] * $cartItem['quantity']) }}
-                                    </td>
-                                    <td class="text-right">
-                                        <button type="button" class="btn btn-circle btn-icon btn-sm btn-danger"
-                                            onclick="removeFromCart({{ $key }})">
-                                            <i class="las la-trash-alt"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center">
-                                        <i class="las la-frown la-3x opacity-50"></i>
-                                        <p>{{ translate('No Product Added') }}</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        @endif
-                    </tbody>
-                </table>
+                                        </td>
+                                        <td>{{ single_price($cartItem['price']) }}</td>
+                                        <td>{{ single_price($cartItem['price'] * $cartItem['quantity']) }}
+                                        </td>
+                                        <td class="text-right">
+                                            <button type="button" class="btn btn-circle btn-icon btn-sm btn-danger"
+                                                onclick="removeFromCart({{ $key }})">
+                                                <i class="las la-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            <i class="las la-frown la-3x opacity-50"></i>
+                                            <p>{{ translate('No Product Added') }}</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="card-footer bord-top">
-                <table class="table mb-0 mar-no" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>
-                            <th class="">{{ translate('Shipping') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($shippings as $shipping_method)
+                <div class="table-responsive"> <!-- Add this div -->
+                    <table class="table mb-0 mar-no" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th class="">{{ translate('Shipping') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($shippings as $shipping_method)
+                                <tr>
+                                    <td class="">
+                                        <div class="radio radio-inline">
+                                            <input type="radio" name="shipping"
+                                                id="radioExample_2a{{ $shipping_method->id }}"
+                                                value="{{ $shipping_method->id }}" onchange="setShipping()"
+                                                {{ $shipping_method->id == $selected_shipping_id ? 'checked' : '' }}>
+                                            <label
+                                                for="radioExample_2a{{ $shipping_method->id }}">{{ $shipping_method->name }}
+                                                ({{ single_price($shipping_method->cost) }})
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+
                             <tr>
                                 <td class="">
-                                    <div class="radio radio-inline">
-                                        <input type="radio" name="shipping"
-                                            id="radioExample_2a{{ $shipping_method->id }}"
-                                            value="{{ $shipping_method->id }}" onchange="setShipping()"
-                                            {{ $shipping_method->id == $selected_shipping_id ? 'checked' : '' }}>
-                                        <label
-                                            for="radioExample_2a{{ $shipping_method->id }}">{{ $shipping_method->name }}
-                                            ({{ single_price($shipping_method->cost) }})
-                                        </label>
+
+                                    <div class="form-group">
+                                        <textarea class="form-control comments" name="comments" placeholder="Write comments for this order.."></textarea>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
 
-                        <tr>
-                            <td class="">
-
-                                <div class="form-group">
-                                    <textarea class="form-control comments" name="comments" placeholder="Write comments for this order.."></textarea>
-                                </div>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="card-footer bord-top">
-                <table class="table mb-0 mar-no" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>
-                            <th class="text-center">{{ translate('Sub Total') }}</th>
-                            <th class="text-center">{{ translate('Total Tax') }}</th>
-                            {{-- <th class="text-center">{{ translate('Total Shipping') }}</th>
+                <div class="table-responsive"> <!-- Add this div -->
+                    <table class="table mb-0 mar-no" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th class="text-center">{{ translate('Sub Total') }}</th>
+                                {{-- <th class="text-center">{{ translate('Total Tax') }}</th> --}}
+                                {{-- <th class="text-center">{{ translate('Total Shipping') }}</th>
                             <th class="text-center">{{ translate('Discount') }}</th> --}}
-                            <th class="text-center">{{ translate('Total') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center">{{ single_price($subtotal) }}</td>
-                            <td class="text-center">{{ single_price($tax) }}</td>
-                            {{-- <td class="text-center">{{ single_price($shipping) }}</td>
+                                <th class="text-center">{{ translate('Total') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">{{ single_price($subtotal) }}</td>
+                                {{-- <td class="text-center">{{ single_price($tax) }}</td> --}}
+                                {{-- <td class="text-center">{{ single_price($shipping) }}</td>
                             <td class="text-center">
                                 {{ single_price(Session::get('pos_discount', 0)) }}</td> --}}
-                            <td class="text-center">
-                                {{ single_price($subtotal + $tax + $selected_shipping_cost - Session::get('pos_discount', 0)) }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                <td class="text-center">
+                                    {{ single_price($subtotal + $tax + $selected_shipping_cost - Session::get('pos_discount', 0)) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div class="pos-footer mar-btm">
@@ -357,6 +364,13 @@
     <style>
         th {
             border-top: 0px !important;
+        }
+
+        @media (max-width: 991px) {
+            .quantity_input {
+                padding: 0px;
+                min-width: 40px;
+            }
         }
     </style>
 @endsection

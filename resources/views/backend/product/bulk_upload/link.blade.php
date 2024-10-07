@@ -35,13 +35,14 @@
 
                 <div class="form-group row" id="category">
                     <div class="col-lg-9">
-                        <select class="form-control aiz-selectpicker" data-placeholder="Select multipe products" name="product_id[]" id="category_id" multiple
+                        {{-- <select class="form-control aiz-selectpicker" data-placeholder="Select multipe products" name="product_id[]" id="category_id" multiple
                             data-live-search="true" required>
                             @foreach ($products as $product)
                                 <option value="{{ $product->id }}">
                                     {{ $product->name }} - {{ $product->sku }}</option>
                             @endforeach
-                        </select>
+                        </select> --}}
+                        <x-treeview :nodes="$topLevelNodes" treeview-id="product_id" treeview-type="product" />
                     </div>
                 </div>
 

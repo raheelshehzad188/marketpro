@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\BlogCategory;
 use App\Blog;
+use Illuminate\Support\Facades\Artisan;
 
 class BlogController extends Controller
 {
@@ -14,8 +15,20 @@ class BlogController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+
     public function index(Request $request)
     {
+        // try {
+        //     Artisan::call('migrate', [
+        //         '--force' => true, // Use the --force flag to run migrations in production
+        //     ]);
+        //     return response()->json(['success' => 'Migrations ran successfully']);
+        // } catch (\Exception $e) {
+        //     return response()->json(['error' => $e->getMessage()], 500);
+        // }
+
+
         $sort_search = null;
         $blogs = Blog::orderBy('created_at', 'desc');
 
@@ -99,7 +112,7 @@ class BlogController extends Controller
         $blog = Blog::find($id);
         $blog_categories = BlogCategory::all();
         $selected_categories = $blog->categories()->pluck('blog_category_id')->toArray();
-        return view('backend.blog_system.blog.edit', compact('blog', 'blog_categories','selected_categories'));
+        return view('backend.blog_system.blog.edit', compact('blog', 'blog_categories', 'selected_categories'));
     }
 
     /**
@@ -185,7 +198,7 @@ class BlogController extends Controller
 
         $recent_posts = Blog::where('status', 1)->latest()->limit(5)->get();
         $blog_categories = BlogCategory::with('posts')->orderBy('category_name', 'asc')->get();
-        return view("frontend.blog.listing_new", compact('blogs', 'blog_categories', 'recent_posts','search'));
+        return view("frontend.blog.listing_new", compact('blogs', 'blog_categories', 'recent_posts', 'search'));
     }
 
     // public function all_blog() {

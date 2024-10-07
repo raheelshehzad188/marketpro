@@ -2,7 +2,7 @@
 
 @section('content')
     @php
-    $refund_request_addon = \App\Addon::where('unique_identifier', 'refund_request')->first();
+        $refund_request_addon = \App\Addon::where('unique_identifier', 'refund_request')->first();
     @endphp
     <div class="card">
         <form class="" action="" id="sort_orders" method="GET">
@@ -16,17 +16,18 @@
                         {{ translate('Bulk Action') }}
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="#" onclick="bulk_delete()"> {{ translate('Delete selection') }}</a>
+                        <a class="dropdown-item" href="#" onclick="bulk_delete()">
+                            {{ translate('Delete selection') }}</a>
                         <!--                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exampleModal">
-                            <i class="las la-sync-alt"></i>
-                            {{ translate('Change Order Status') }}
-                        </a>-->
+                                    <i class="las la-sync-alt"></i>
+                                    {{ translate('Change Order Status') }}
+                                </a>-->
                     </div>
                 </div>
 
                 <!-- Change Status Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                {{-- <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -54,7 +55,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- <div class="col-lg-2 ml-auto">
                 <select class="form-control aiz-selectpicker" name="delivery_status" id="delivery_status">
@@ -107,7 +108,7 @@
                             <th data-breakpoints="md">{{ translate('Num. of Products') }}</th>
                             <th data-breakpoints="md">{{ translate('Customer') }}</th>
                             <th data-breakpoints="md">{{ translate('Amount') }}</th>
-
+                            <th data-breakpoints="sm">{{ translate('Shop') }}</th>
                             <th data-breakpoints="md">{{ translate('Payment Status') }}</th>
                             @if ($refund_request_addon != null && $refund_request_addon->activated == 1)
                                 <th>{{ translate('Refund') }}</th>
@@ -119,8 +120,8 @@
                         @foreach ($orders as $key => $order)
                             <tr>
                                 <!--                    <td>
-                                {{ $key + 1 + ($orders->currentPage() - 1) * $orders->perPage() }}
-                            </td>-->
+                                        {{ $key + 1 + ($orders->currentPage() - 1) * $orders->perPage() }}
+                                    </td>-->
                                 <td>
                                     <div class="form-group">
                                         <div class="aiz-checkbox-inline">
@@ -147,6 +148,10 @@
                                 </td>
                                 <td>
                                     {{ single_price($order->grand_total) }}
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge badge-inline badge-{{ $badgeClasses[$order->shop->id] ?? 'soft-info' }}">{{ $order->shop->name }}</span>
                                 </td>
 
                                 <td>
@@ -177,7 +182,8 @@
                                         <i class="las la-download"></i>
                                     </a>
                                     @if (Auth::user()->user_type == 'admin')
-                                        <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
+                                        <a href="#"
+                                            class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
                                             data-href="{{ route('orders.destroy', $order->id) }}"
                                             title="{{ translate('Delete') }}">
                                             <i class="las la-trash"></i>

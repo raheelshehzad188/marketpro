@@ -147,52 +147,53 @@ class PosController extends Controller
 
     public function search(Request $request)
     {
-
-        // if (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') {
-        //     $products = Product::where('added_by', 'admin')->where('published', '1');
-        // } else {
-        //     $products = Product::where('user_id', Auth::user()->id)->where('published', '1');
-        // }
-
-        // if($request->category != null){
-        //     $arr = explode('-', $request->category);
-        //     if($arr[0] == 'category'){
-        //         $products = $products->where('category_id', $arr[1]);
-        //     }
-        //     elseif($arr[0] == 'subcategory'){
-        //         $products = $products->where('subcategory_id', $arr[1]);
-        //     }
-        //     elseif($arr[0] == 'subsubcategory'){
-        //         $products = $products->where('subsubcategory_id', $arr[1]);
-        //     }
-        // }
-
-        // if($request->brand != null){
-        //     $products = $products->where('brand_id', $request->brand);
-        // }
-
-
         $keyword = $request->keyword;
 
+        // Validate the keyword
+        if (!$keyword) {
+            return redirect()->back()->withErrors(['keyword' => 'Keyword is required']);
+        }
 
-        $detailedProduct = Product::where('published', '1')->where('sku',  $keyword)->first();
-        // $products->orWhereHas('product_addons', function ($q) use ($keywords) {
-        //     $q->where('sku',  $keywords); // '=' is optional
-        // })->limit(100);
-        // $products = $products->get();
+        // Search for all ProductAddons with the provided SKU
+        $product_addons = ProductAddon::where('sku', $keyword)
+            ->with(['products' => function ($query) {
+                $query->withPivot('sort_order')
+                    ->orderByRaw('(thumbnail_img IS NULL) DESC');
+            }])
+            ->get();
 
+        // Initialize variables for the result
+        $linked_product_addon = null;
+        $unlinked_product_addon = null;
+        $detailedProduct = null;
 
-        //echo  view('pos.product_listing', compact('products'))->render();
+        // Filter out the first addon that is linked to a product
+        foreach ($product_addons as $addon) {
+            if ($addon->products->isNotEmpty()) {
+                $linked_product_addon = $addon; // Consider it linked if it has any associated products
+                break;
+            }
+        }
 
+        // Check for unlinked addons if no linked addon is found
+        if (!$linked_product_addon) {
+            $unlinked_product_addon = $product_addons->first(function ($addon) {
+                return $addon->products->isEmpty(); // Unlinked if no products are associated
+            });
+        }
 
-        $product_addons  = ProductAddon::where('sku', $keyword)->get();
+        // Search for a Product directly if no addon is found
+        if (!$linked_product_addon && !$unlinked_product_addon) {
+            $detailedProduct = Product::where('published', '1')
+                ->where('sku', $keyword)
+                ->first();
+        }
 
-        // echo '<pre>';
-        //   print_r($detailedProduct);
-        // echo '</pre>';
-        // exit();
-        echo  view('pos.addon_search', compact('product_addons', 'keyword', 'detailedProduct'))->render();
+        return view('pos.addon_search', compact('linked_product_addon', 'unlinked_product_addon', 'keyword', 'detailedProduct'));
     }
+
+
+
 
 
     public function get_products(Request $request)
@@ -212,16 +213,66 @@ class PosController extends Controller
         echo  view('pos.product_listing', compact('products'))->render();
     }
 
+    // public function get_product(Request $request)
+    // {
+    //     $detailedProduct  = Product::with('product_addons')->where('id', $request->id)->where('published', 1)->where('approved', 1)->first();
+    //     $keyword = $request->keyword;
+    //     // echo '<pre>';
+    //     //   print_r($detailedProduct);
+    //     // echo '</pre>';
+    //     // exit();
+    //     echo  view('pos.product_detail', compact('detailedProduct', 'keyword'))->render();
+    // }
     public function get_product(Request $request)
     {
-        $detailedProduct  = Product::with('product_addons')->where('id', $request->id)->where('published', 1)->where('approved', 1)->first();
+        $relatedProducts = '';
+        $detailedProduct = Product::where('id', $request->id)
+            ->where('published', 1)
+            ->where('approved', 1)
+            ->with(['product_addons' => function ($query) {
+                $query->withPivot('sort_order');
+            }])
+            ->first();
+
+        // Perform custom sorting of product_addons
+        if ($detailedProduct) {
+            $detailedProduct->product_addons = $detailedProduct->product_addons->sortBy(function ($product_addon) {
+                $sortOrder = $product_addon->pivot->sort_order;
+                $sku = $product_addon->sku;
+
+                // Create a sorting key
+                $sortKey = is_null($sortOrder) ? "n/a_{$sku}" : sprintf('%05d_%s', $sortOrder, $sku);
+                return $sortKey;
+            }, SORT_NATURAL);
+
+            // $relatedProducts = $detailedProduct->relevantProducts()->get();
+
+            $uniqueProductsFromAddons = collect();
+
+            foreach ($detailedProduct->relatedAddons as $addon) {
+                $product = $addon->products->first(); // Get only the first product of this addon
+                if ($product) {
+                    // Add the SKU to the product object
+                    $product->addonSKU = $addon->sku; // Assuming 'SKU' is the attribute name in product_addons
+                    $uniqueProductsFromAddons->push($product);
+                }
+            }
+
+            // Combine with directly related products
+            $allRelatedProducts = $detailedProduct->relevantProducts
+                ->merge($uniqueProductsFromAddons)
+                ->unique('id')
+                ->reject(fn ($p) => $p->id === $detailedProduct->id); // Exclude the main product
+
+        }
+
+
         $keyword = $request->keyword;
-        // echo '<pre>';
-        //   print_r($detailedProduct);
-        // echo '</pre>';
-        // exit();
-        echo  view('pos.product_detail', compact('detailedProduct', 'keyword'))->render();
+
+        return view('pos.product_detail', compact('detailedProduct', 'keyword', 'allRelatedProducts'));
     }
+
+
 
     public function get_categories(Request $request)
     {
@@ -238,14 +289,14 @@ class PosController extends Controller
     public function addon_combination_edit(Request $request)
     {
         $pId = $request->id;
-
-        if ($request->has('addons')) {
+        $addons = array_filter(explode(',', $request->input('selectedCategories_addons')));
+        if (!empty($addons)) {
             $addons = \DB::table('product_addons')->select(DB::raw('product_addons.id,product_addons.name,product_addons.sku,product_addon_pivot.sort_order'))
                 ->leftJoin('product_addon_pivot', function ($join) use ($pId) {
                     $join->on('product_addons.id', '=', 'product_addon_pivot.product_addon_id')
                         ->where('product_addon_pivot.product_id', $pId);
                 })
-                ->whereIn('product_addons.id', $request->addons)->get();
+                ->whereIn('product_addons.id', $addons)->get();
             return view('backend.product.products.addon_combinations_edit', compact('addons'));
         }
     }
@@ -652,7 +703,7 @@ class PosController extends Controller
                         'order_url' => route('all_orders.index')
                     ),
                 );
-                $send_grid->do_send($template_id, $email_data);
+                $send_grid->do_send($template_id, $email_data, true);
 
                 $request->session()->put('order_id', $order->id);
 

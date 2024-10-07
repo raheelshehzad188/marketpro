@@ -8,6 +8,7 @@ use App\Product;
 use App\CategoryTranslation;
 use App\Utility\CategoryUtility;
 use Illuminate\Support\Str;
+use App\Models\Shop;
 use Cache;
 
 class CategoryController extends Controller
@@ -26,8 +27,15 @@ class CategoryController extends Controller
             $categories = $categories->where('name', 'like', '%' . $sort_search . '%');
         }
         $categories = $categories->paginate(15);
+
+        // Fetch visibility information for each category
+        foreach ($categories as $category) {
+            $category->visibilityShops = $category->visibility()->pluck('name', 'id')->toArray();
+        }
+
         return view('backend.product.categories.index', compact('categories', 'sort_search'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -36,11 +44,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $categories = Category::where('parent_id', 0)
-            ->with('childrenCategories')
-            ->get();
-
-        return view('backend.product.categories.create', compact('categories'));
+        $topLevelNodes = Category::where('parent_id', 0)->where('published', 1)->get();
+        return view('backend.product.categories.create', compact('topLevelNodes'));
     }
 
     public function updatePublished(Request $request)
@@ -74,10 +79,11 @@ class CategoryController extends Controller
         $category->meta_title = $request->meta_title;
         $category->meta_description = $request->meta_description;
 
-        if ($request->parent_id != "0") {
-            $category->parent_id = $request->parent_id;
+        $parent_id = $request->selectedCategories_parent_id;
+        if (!empty($parent_id)) {
+            $category->parent_id = $parent_id;
 
-            $parent = Category::find($request->parent_id);
+            $parent = Category::find($parent_id);
             $category->level = $parent->level + 1;
         }
 
@@ -92,7 +98,15 @@ class CategoryController extends Controller
 
         $category->save();
 
-      
+        // Handling visibility
+        if ($request->has('visibility') && !empty($request->input('visibility'))) {
+            $category->visibility()->sync($request->input('visibility'));
+        } else {
+            // Set visibility to all shops if visibility is not provided or is empty
+            $allShopIds = Shop::pluck('id')->all();
+            $category->visibility()->sync($allShopIds);
+        }
+
         flash(translate('Category has been inserted successfully'))->success();
         return redirect()->route('categories.index');
     }
@@ -124,8 +138,17 @@ class CategoryController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
-        return view('backend.product.categories.edit', compact('category', 'categories', 'lang'));
+        $topLevelNodes = Category::where('parent_id', 0)->where('published', 1)->get();
+
+        $selectCategoryId = array($category->parent_id);
+        $selectCategoryName = Category::where('id', $category->parent_id)->get();
+
+        // Fetch visibility information
+        $visibilityShopIds = $category->visibility()->pluck('shops.id')->toArray();
+
+        return view('backend.product.categories.edit', compact('category', 'categories', 'lang', 'topLevelNodes', 'selectCategoryId', 'selectCategoryName', 'visibilityShopIds'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -151,10 +174,11 @@ class CategoryController extends Controller
 
         $previous_level = $category->level;
 
-        if ($request->parent_id != "0") {
-            $category->parent_id = $request->parent_id;
+        $parent_id = $request->selectedCategories_parent_id;
+        if (!empty($parent_id)) {
+            $category->parent_id = $parent_id;
 
-            $parent = Category::find($request->parent_id);
+            $parent = Category::find($parent_id);
             $category->level = $parent->level + 1;
         } else {
             $category->parent_id = 0;
@@ -173,7 +197,6 @@ class CategoryController extends Controller
             $category->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)) . '-' . Str::random(5);
         }
 
-
         if ($request->commision_rate != null) {
             $category->commision_rate = $request->commision_rate;
         }
@@ -181,12 +204,20 @@ class CategoryController extends Controller
 
         $category->save();
 
-      
-        
+        // Handling visibility
+        if ($request->has('visibility') && !empty($request->input('visibility'))) {
+            $category->visibility()->sync($request->input('visibility'));
+        } else {
+            // Set visibility to all shops if visibility is not provided or is empty
+            $allShopIds = Shop::pluck('id')->all();
+            $category->visibility()->sync($allShopIds);
+        }
+
         Cache::forget('featured_categories');
         flash(translate('Category has been updated successfully'))->success();
         return back();
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -244,8 +275,8 @@ class CategoryController extends Controller
 
     public function copy_products(Request $request)
     {
-        $source_product_id = $request->source_products;
-        $target_product_id = $request->target_products;
+        $source_product_id = $request->selectedCategories_source_products;
+        $target_product_id = $request->selectedCategories_target_products;
 
 
         $detailedProduct  = \DB::table('product_addon_pivot')->where('product_id', $source_product_id)->get();
@@ -256,7 +287,8 @@ class CategoryController extends Controller
                 \DB::table('product_addon_pivot')->insert([
                     'product_id' =>  $target_product_id,
                     'product_addon_id' => $product_addon->product_addon_id,
-                    'sort_order' => $product_addon->sort_order
+                    'sort_order' => $product_addon->sort_order,
+                    'created_at' => $product_addon->created_at
                 ]);
             }
         }
@@ -266,12 +298,14 @@ class CategoryController extends Controller
     }
 
 
-    public function category_store($name, $order_level, $banner, $icon, $parent_id, $cID = 0, $with_product = 'without_product')
+    public function category_store($created_at, $name, $order_level, $banner, $icon, $parent_id, $cID = 0, $with_product = 'without_product')
     {
         $category = new Category;
         $category->name = $name;
         $category->order_level = $order_level;
         $category->banner = $banner;
+        $category->created_at = $created_at;
+
         $category->icon = $icon;
         if ($parent_id != "0") {
             $category->parent_id = $parent_id;
@@ -347,6 +381,8 @@ class CategoryController extends Controller
         $target_product->current_stock = $source_product->current_stock;
         $target_product->sku = $source_product->sku;
 
+        $target_product->created_at = $source_product->created_at;
+
         $target_product->save();
 
         //fetch addons
@@ -363,12 +399,20 @@ class CategoryController extends Controller
         }
 
         $target_product->categories()->attach($category_id);
+
+        // Copy related products
+        $relatedProductIds = $source_product->relevantProducts()->pluck('product_relevant_product.relevant_product_id')->toArray();
+        $target_product->relevantProducts()->sync($relatedProductIds);
+
+        // Copy related addons
+        $relatedAddonIds = $source_product->relatedAddons()->pluck('product_related_addons.addon_id')->toArray();
+        $target_product->relatedAddons()->sync($relatedAddonIds);
     }
 
 
     public function child_cat_recuring($child_category, $parent_cat)
     {
-        $re_parent_id =  $this->category_store($child_category->name, 0, $child_category->banner, $child_category->icon, $parent_cat, $child_category->id);
+        $re_parent_id =  $this->category_store($child_category->created_at, $child_category->name, 0, $child_category->banner, $child_category->icon, $parent_cat, $child_category->id);
         if ($child_category->categories) {
             foreach ($child_category->categories as $childCategory) {
                 $this->child_cat_recuring($childCategory, $re_parent_id);
@@ -389,8 +433,8 @@ class CategoryController extends Controller
 
     public function copy_categories(Request $request)
     {
-        $source_category_id = $request->source_category;
-        $target_category_id = $request->target_category;
+        $source_category_id = $request->selectedCategories_source_category;
+        $target_category_id = $request->selectedCategories_target_category;
 
 
         $parentcategories = Category::where('parent_id', $source_category_id)
@@ -409,7 +453,7 @@ class CategoryController extends Controller
         }
 
         foreach ($parentcategories as $category) {
-            $re_parent_id =  $this->category_store($category->name, 0, $category->banner, $category->icon, $target_category_id, $category->id);
+            $re_parent_id =  $this->category_store($category->created_at, $category->name, 0, $category->banner, $category->icon, $target_category_id, $category->id);
             foreach ($category->childrenCategories as $childCategory) {
                 $this->child_cat_recuring($childCategory, $re_parent_id);
             }
@@ -424,8 +468,8 @@ class CategoryController extends Controller
 
     public function copy_categories_products(Request $request)
     {
-        $source_category_id = $request->source_category;
-        $target_category_id = $request->target_category;
+        $source_category_id = $request->selectedCategories_source_category1;
+        $target_category_id = $request->selectedCategories_target_category1;
 
 
 
@@ -448,7 +492,7 @@ class CategoryController extends Controller
         }
 
         foreach ($parentcategories as $category) {
-            $re_parent_id =  $this->category_store($category->name, 0, $category->banner, $category->icon, $target_category_id, $category->id, 'with_product');
+            $re_parent_id =  $this->category_store($category->created_at, $category->name, 0, $category->banner, $category->icon, $target_category_id, $category->id, 'with_product');
             foreach ($category->childrenCategories as $childCategory) {
                 $this->child_cat_recuring($childCategory, $re_parent_id);
             }

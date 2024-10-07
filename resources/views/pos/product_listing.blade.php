@@ -1,6 +1,6 @@
 @if (count($products) > 0)
     @foreach ($products as $product)
-        <div class="col-4 ml-auto mr-auto" onclick="loadProduct({{ $product->id }})">
+        <div class="col-lg-4 col-md-6 col-12  ml-auto mr-auto" onclick="loadProduct({{ $product->id }})">
             <div class="card c-pointer mb-2" data-id="4">
                 <div class="d-block shadow bg-no-repeat bg-cover bg-center card-img-top img-fit h-200px mw-100 mx-auto"
                     style="background-image: url({{ uploaded_asset($product->thumbnail_img) }})">

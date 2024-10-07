@@ -8,12 +8,27 @@
     <section class="gry-bg py-4 profile">
         <div class="container-fluid">
 
+            <!-- Mobile View Toggle Button -->
+            <div class="d-lg-none">
+                <button id="mobileToggleBtn" class="btn btn-secondary btn-sm mb-2">
+                    <i class="las la-bars"></i> Menu
+                </button>
+            </div>
             @csrf
             <div class="row gutters-10">
-                <div class="col-lg-4">
+                <div class="col-lg-4 mobile-slide-panel" id="mobileSlidePanel">
+
                     <div class="card">
                         <div class="card-header d-block">
-                            <h5>MOTO</h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <h5>MOTO</h5>
+                                </div>
+                                <div class="col-6">
+                                    <button id="closeSlideBtn" class="float-right d-block d-md-none">Close</button>
+
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="aiz-pos-product-list c-scrollbar-light">
@@ -58,6 +73,7 @@
 
         </div>
     </section>
+    <div class="overlay" id="overlay"></div>
 @endsection
 
 @section('modal')
@@ -189,11 +205,265 @@
     </div><!-- /.modal -->
 @endsection
 
+@section('style')
+    <style>
+        /* Default style for the overlay - not displayed */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
 
+        /* Media query for mobile devices */
+        @media (max-width: 1024px) {
+
+            /* Adjusting for Bootstrap's large (lg) breakpoint */
+            .mobile-slide-panel {
+                position: fixed;
+                width: 90%;
+                /* Width of the slide panel */
+                max-width: 450px;
+                /* Maximum width */
+                left: -100%;
+                /* Start off-screen */
+                top: 0;
+                bottom: 0;
+                z-index: 1050;
+                /* Above most items */
+                transition: left 0.3s;
+                /* Smooth slide-in transition */
+                overflow-y: auto;
+                /* Scrollable if content is long */
+            }
+
+            .mobile-slide-panel.active {
+                left: -10px;
+                /* Slide in */
+            }
+
+            /* Adjust this value based on your design's breakpoints */
+            .overlay {
+                display: none;
+                /* Initially hidden */
+            }
+
+            .overlay.active {
+                display: block;
+                /* Shown when active, only on mobile devices */
+            }
+
+            .jstree-closed i.jstree-icon.jstree-ocl::before {
+                content: '\f0fe';
+                background: transparent !important;
+                font-family: 'Line Awesome Free';
+                font-style: normal;
+                font-size: 24px;
+            }
+
+            .jstree-closed i.jstree-icon.jstree-ocl {
+                background: transparent;
+            }
+
+            .jstree-open>i.jstree-icon.jstree-ocl::before {
+                content: "\f146";
+                font-family: 'Line Awesome Free';
+                font-style: normal;
+                font-size: 24px;
+            }
+
+            .jstree-open i.jstree-icon.jstree-ocl {
+                background: transparent;
+            }
+
+            i.jstree-icon.jstree-themeicon.fa.fa-folder.icon-lg.jstree-themeicon-custom {
+                display: none !important;
+            }
+
+            .jstree-default-responsive .jstree-anchor {
+                /* background: no-repeat; */
+                box-shadow: none;
+            }
+
+
+            .jstree-default-responsive .jstree-node {
+                margin: 0 0 0 10px;
+            }
+
+            .aiz-pos-product-list.right {
+                overflow: visible !important;
+                height: 100%;
+                max-height: 100%;
+            }
+
+            .aiz-pos-product-list.c-scrollbar-light {
+                height: 100%;
+                min-height: 100vh;
+                max-height: 100%;
+            }
+
+            #mobileSlidePanel .card-body {
+                padding: 20px 10px 10px 10px;
+            }
+
+            .right .addon-scroll {
+                overflow: visible !important;
+                height: auto !important;
+            }
+
+            .table-responsive {
+                position: relative;
+            }
+
+            .scroll-indicator {
+                position: sticky;
+                top: 10%;
+                right: 10px;
+                /* Position the arrow near the right edge of the viewport */
+                font-size: 14px;
+                /* Adjust size as needed */
+                color: red;
+                /* Adjust color as needed */
+                animation: bounceArrow 1.5s ease-in-out infinite;
+                z-index: 2;
+                /* Ensure it's above the table content */
+            }
+
+            /* .scroll-indicator i {
+                            font-size: 20px;
+                        } */
+
+            @keyframes bounceArrow {
+
+                0%,
+                100% {
+                    transform: translateY(-50%) translateX(0px);
+                }
+
+                25% {
+                    transform: translateY(-50%) translateX(10px);
+                    /* Move right */
+                }
+
+                75% {
+                    transform: translateY(-50%) translateX(-10px);
+                    /* Move left */
+                }
+            }
+
+            /* Ensure the scroll indicator doesn't go beyond the table */
+            .table-responsive::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 30px;
+                /* Width of sticky area */
+                height: 100%;
+                pointer-events: none;
+            }
+
+            /* Style for the horizontal scrollbar */
+            .table-responsive::-webkit-scrollbar {
+                height: 8px;
+            }
+
+            .table-responsive::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+            }
+
+            .table-responsive::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+
+            .table-responsive-container {
+                position: relative;
+                overflow: hidden;
+                /* This hides the shadow when it's not needed */
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            .table-responsive-container::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 20px;
+                /* Width of the shadow */
+                background: linear-gradient(to left, rgba(0, 0, 0, 0.2), transparent);
+                pointer-events: none;
+                z-index: 2;
+            }
+
+            .related-products-list {
+            height: 200px;
+            /* Adjust as needed */
+        }
+
+
+        }
+
+        /* related products */
+        .related-products {
+            position: relative;
+        }
+
+        .related-products-list {
+            height: 300px;
+            /* Adjust as needed */
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .related-product-item {
+            margin: 10px 0;
+        }
+
+        .scroll-btn {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+        }
+
+        .scroll-up {
+            top: -20px;
+        }
+
+        .scroll-down {
+            bottom: -20px;
+        }
+
+        button.scroll-btn {
+    border: none;
+    box-shadow: 2px 2px 8px #00000075;
+    color: grey;
+    font-size: 23px;
+    text-align: center;
+    background: #ffffff73;
+    padding: 0;
+    height: 28px;
+    line-height: 0;
+    border-radius: 100%;
+    width: 28px;
+}
+    </style>
+@endsection
 @section('script')
     <script src="//code.jquery.com/jquery-migrate-1.4.1.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.11/jquery.mousewheel.min.js"></script>
     <script src="{{ static_asset('assets/simple-image-zoom/lib/js/ap-image-zoom.js') }} "></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <script type="text/javascript">
         var ajax_loader =
             ' <div class="text-center w-100"><div class="spinner-border" style="width: 3rem; height: 3rem;" role="status"><span class="sr-only">Loading...</span></div></div>'
@@ -266,10 +536,10 @@
                 },
                 "types": {
                     "default": {
-                        "icon": "fa fa-folder text-primary"
+                        "icon": "las la-folder"
                     },
                     "file": {
-                        "icon": "fa fa-file text-primary"
+                        "icon": "las la-file-alt"
                     }
                 },
                 "plugins": ["dnd", "types"]
@@ -311,6 +581,16 @@
             });
         }
 
+        // Function to filter products
+        function filterProductsKeyword(keyword) {
+            loadContent('{{ route('pos.search_product') }}', {
+                keyword: keyword,
+                noCache: Math.random()
+            }, function(data) {
+                $('#product-list').html(data);
+            });
+        }
+
         // Function to load categories
         function loadCategories(id) {
             open_jstree(id);
@@ -324,6 +604,7 @@
 
         // Function to load a specific product
         function loadProduct(id) {
+            closeSidebar();
             var keyword = $('input[name=keyword]').val();
             loadContent('{{ route('pos.get_product') }}', {
                 keyword: keyword,
@@ -500,6 +781,73 @@
                     AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                 }
             });
+        }
+    </script>
+
+    <script>
+        document.getElementById('mobileToggleBtn').addEventListener('click', function() {
+            var panel = document.getElementById('mobileSlidePanel');
+            var overlay = document.getElementById('overlay');
+            panel.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        // Optional: Close menu when overlay is clicked
+
+        document.getElementById('overlay').addEventListener('click', function() {
+            this.classList.remove('active');
+            document.getElementById('mobileSlidePanel').classList.remove('active');
+        });
+        document.getElementById('closeSlideBtn').addEventListener('click', function() {
+            document.getElementById('mobileSlidePanel').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        });
+
+        var startX, startY, deltaX, deltaY;
+
+        var sidebar = document.getElementById('mobileSlidePanel'); // Your sidebar element
+        var overlay = document.getElementById('overlay'); // Your overlay element
+
+        function handleTouchStart(e) {
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+        }
+
+        function handleTouchMove(e) {
+            deltaX = e.touches[0].pageX - startX;
+            deltaY = e.touches[0].pageY - startY;
+        }
+
+        // function handleTouchEnd(e) {
+        //     // Check for a left swipe
+        //     if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
+        //         closeSidebar();
+        //     }
+
+        //     // Reset deltaX and deltaY
+        //     deltaX = deltaY = 0;
+        // }
+
+        [sidebar, overlay].forEach(element => {
+            element.addEventListener('touchstart', handleTouchStart);
+            element.addEventListener('touchmove', handleTouchMove);
+            element.addEventListener('touchend', handleTouchEnd);
+        });
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        var swipeThreshold = 30; // Pixels
+
+        function handleTouchEnd(e) {
+            // Check for a left swipe and that it's long enough
+            if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0 && Math.abs(deltaX) > swipeThreshold) {
+                closeSidebar();
+            }
+
+            deltaX = deltaY = 0;
         }
     </script>
 @endsection

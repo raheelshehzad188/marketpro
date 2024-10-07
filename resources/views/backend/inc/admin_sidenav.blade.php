@@ -3,8 +3,8 @@
         <div class="aiz-side-nav-logo-wrap">
             <a href="{{ route('admin.dashboard') }}" class="d-block text-left">
                 @if (get_setting('system_logo_white') != null)
-                    <img class="mw-100" src="{{ uploaded_asset(get_setting('system_logo_white')) }}"
-                        class="brand-icon" alt="{{ get_setting('site_name') }}">
+                    <img class="mw-100" src="{{ uploaded_asset(get_setting('system_logo_white')) }}" class="brand-icon"
+                        alt="{{ get_setting('site_name') }}">
                 @else
                     <img class="mw-100" src="{{ static_asset('assets/img/logo.png') }}" class="brand-icon"
                         alt="{{ get_setting('site_name') }}">
@@ -13,8 +13,9 @@
         </div>
         <div class="aiz-side-nav-wrap">
             <div class="px-20px mb-3">
-                <input class="form-control bg-soft-secondary border-0 form-control-sm text-white" type="text" name=""
-                    placeholder="{{ translate('Search in menu') }}" id="menu-search" onkeyup="menuSearch()">
+                <input class="form-control bg-soft-secondary border-0 form-control-sm text-white" type="text"
+                    name="" placeholder="{{ translate('Search in menu') }}" id="menu-search"
+                    onkeyup="menuSearch()">
             </div>
             <ul class="aiz-side-nav-list" id="search-menu">
             </ul>
@@ -82,6 +83,13 @@
                                 <a href="{{ route('shippings.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['shippings.index', 'shippings.create', 'shippings.edit']) }}">
                                     <span class="aiz-side-nav-text">{{ translate('Shipping') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('coupon.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['coupon.index', 'coupon.create', 'coupon.edit']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Coupon') }}</span>
                                 </a>
                             </li>
 
@@ -235,7 +243,7 @@
                         </ul>
                     </li>
                 @endif --}}
-                {{-- @if (Auth::user()->user_type == 'admin' || in_array('23', json_decode(Auth::user()->staff->role->permissions)))
+                @if (Auth::user()->user_type == 'admin' || in_array('23', json_decode(Auth::user()->staff->role->permissions)))
                     <!--Blog System-->
                     <li class="aiz-side-nav-item">
                         <a href="#" class="aiz-side-nav-link">
@@ -258,7 +266,7 @@
                             </li>
                         </ul>
                     </li>
-                @endif --}}
+                @endif
 
                 {{-- @if (Auth::user()->user_type == 'admin' || in_array('23', json_decode(Auth::user()->staff->role->permissions)))
                     <!--Blog System-->

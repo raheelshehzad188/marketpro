@@ -19,58 +19,22 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-md-3 col-form-label">{{ translate('Parent Category') }}</label>
-                            <div class="col-md-9">
-                                <select class="select2 form-control aiz-selectpicker" name="parent_id" data-toggle="select2"
-                                    data-placeholder="Choose ..." data-live-search="true">
-                                    <option value="0">{{ translate('No Parent') }}</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}
-                                        </option>
-                                        @foreach ($category->childrenCategories as $childCategory)
-                                            @include('categories.child_category', [
-                                                'child_category' => $childCategory,
-                                            ])
-                                        @endforeach
+                            <label for="visibility" class="col-lg-3 col-from-label">Visibility</label>
+                            <div class="col-lg-9">
+                                <select class="aiz-selectpicker w-100" id="visibility" name="visibility[]" multiple>
+                                    @foreach (App\Models\Shop::all() as $shop)
+                                        <option value="{{ $shop->id }}">{{ $shop->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        {{-- <div class="form-group row">
-                            <label class="col-md-3 col-form-label">
-                                {{ translate('Ordering Number') }}
-                            </label>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label">{{ translate('Parent Category') }}</label>
                             <div class="col-md-9">
-                                <input type="number" name="order_level" class="form-control" id="order_level"
-                                    placeholder="{{ translate('Order Level') }}">
-                                <small>{{ translate('Higher number has high priority') }}</small>
+                                <x-treeview :nodes="$topLevelNodes" treeview-id="parent_id" :single-select="true"
+                                    treeview-type="category" />
                             </div>
-                        </div> --}}
-                        {{-- <div class="form-group row">
-                            <label class="col-md-3 col-form-label">{{ translate('Type') }}</label>
-                            <div class="col-md-9">
-                                <select name="digital" required class="form-control aiz-selectpicker mb-2 mb-md-0">
-                                    <option value="0">{{ translate('Physical') }}</option>
-                                    <option value="1">{{ translate('Digital') }}</option>
-                                </select>
-                            </div>
-                        </div> --}}
-                        {{-- <div class="form-group row">
-                            <label class="col-md-3 col-form-label" for="signinSrEmail">{{ translate('Banner') }}
-                                <small>({{ translate('200x200') }})</small></label>
-                            <div class="col-md-9">
-                                <div class="input-group" data-toggle="aizuploader" data-type="image">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text bg-soft-secondary font-weight-medium">
-                                            {{ translate('Browse') }}</div>
-                                    </div>
-                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                    <input type="hidden" name="banner" class="selected-files">
-                                </div>
-                                <div class="file-preview box sm">
-                                </div>
-                            </div>
-                        </div> --}}
+                        </div>
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label" for="signinSrEmail">{{ translate('Icon') }}
                                 <small>({{ translate('32x32') }})</small></label>
@@ -87,33 +51,7 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <div class="form-group row">
-                            <label class="col-md-3 col-form-label">{{ translate('Meta Title') }}</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control" name="meta_title"
-                                    placeholder="{{ translate('Meta Title') }}">
-                            </div>
-                        </div>
 
-                        <div class="form-group row">
-                            <label class="col-md-3 col-form-label">{{ translate('Meta Description') }}</label>
-                            <div class="col-md-9">
-                                <textarea name="meta_description" rows="5" class="form-control"></textarea>
-                            </div>
-                        </div> --}}
-
-                        {{-- <div class="form-group row">
-                            <label class="col-md-3 col-form-label">{{ translate('Filtering Attributes') }}</label>
-                            <div class="col-md-9">
-                                <select class="select2 form-control aiz-selectpicker" name="filtering_attributes[]"
-                                    data-toggle="select2" data-placeholder="Choose ..." data-live-search="true" multiple>
-                                    @foreach (\App\Attribute::all() as $attribute)
-                                        <option value="{{ $attribute->id }}">{{ $attribute->getTranslation('name') }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div> --}}
                         <div class="form-group mb-0 text-right">
                             <button type="submit" class="btn btn-primary">{{ translate('Save') }}</button>
                         </div>
@@ -136,28 +74,10 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label fw-500">{{ translate('Source') }}</label>
                             <div class="col-md-9">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <select class="select2 form-control aiz-selectpicker" name="source_category"
-                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true" onchange="loadProducts(this.value,'source_products')">
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                @foreach ($category->childrenCategories as $childCategory)
-                                                    @include('categories.child_category', [
-                                                        'child_category' => $childCategory,
-                                                    ])
-                                                @endforeach
+                                <x-treeview :nodes="$topLevelNodes" treeview-id="source_products" treeview-type="product"
+                                    :single-select="true" />
 
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
 
-                                <div class="row mt-3">
-                                    <div class="col-12 source_products">
-
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -165,27 +85,11 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label fw-500">{{ translate('Target') }}</label>
                             <div class="col-md-9">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <select class="select2 form-control aiz-selectpicker" name="source_category"
-                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true" onchange="loadProducts(this.value,'target_products')">
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                @foreach ($category->childrenCategories as $childCategory)
-                                                    @include('categories.child_category', [
-                                                        'child_category' => $childCategory,
-                                                    ])
-                                                @endforeach
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
+                                <x-treeview :nodes="$topLevelNodes" treeview-id="target_products" treeview-type="product"
+                                    :single-select="true" />
 
-                                <div class="row mt-3">
-                                    <div class="col-12 target_products">
 
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
 
@@ -207,27 +111,17 @@
                     <h5 class="mb-0 h6">{{ translate('Sync Categories') }} with (Product Link)</h5>
                 </div>
                 <div class="card-body">
-                    <form class="form-horizontal" action="{{route('categories_all.copy')}}" method="POST"
+                    <form class="form-horizontal" action="{{ route('categories_all.copy') }}" method="POST"
                         enctype="multipart/form-data" name="copy_data">
                         @csrf
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label fw-500">{{ translate('Source') }}</label>
                             <div class="col-md-9">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <select class="select2 form-control aiz-selectpicker" name="source_category"
-                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true">
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                @foreach ($category->childrenCategories as $childCategory)
-                                                    @include('categories.child_category', [
-                                                        'child_category' => $childCategory,
-                                                    ])
-                                                @endforeach
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
+                                <x-treeview :nodes="$topLevelNodes" treeview-id="source_category" treeview-type="category"
+                                    :single-select="true" />
+
+
+
                             </div>
                         </div>
 
@@ -235,21 +129,8 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label fw-500">{{ translate('Target') }}</label>
                             <div class="col-md-9">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <select class="select2 form-control aiz-selectpicker" name="target_category"
-                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true">
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                @foreach ($category->childrenCategories as $childCategory)
-                                                    @include('categories.child_category', [
-                                                        'child_category' => $childCategory,
-                                                    ])
-                                                @endforeach
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
+                                <x-treeview :nodes="$topLevelNodes" treeview-id="target_category" treeview-type="category"
+                                    :single-select="true" />
                             </div>
                         </div>
 
@@ -273,27 +154,14 @@
                     <h5 class="mb-0 h6">{{ translate('Sync Categories') }} with (Product Version)</h5>
                 </div>
                 <div class="card-body">
-                    <form class="form-horizontal" action="{{route('categories_all.copy.product_version')}}" method="POST"
-                        enctype="multipart/form-data" name="copy_data">
+                    <form class="form-horizontal" action="{{ route('categories_all.copy.product_version') }}"
+                        method="POST" enctype="multipart/form-data" name="copy_data">
                         @csrf
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label fw-500">{{ translate('Source') }}</label>
                             <div class="col-md-9">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <select class="select2 form-control aiz-selectpicker" name="source_category"
-                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true">
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                @foreach ($category->childrenCategories as $childCategory)
-                                                    @include('categories.child_category', [
-                                                        'child_category' => $childCategory,
-                                                    ])
-                                                @endforeach
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
+                                <x-treeview :nodes="$topLevelNodes" treeview-id="source_category1" treeview-type="category"
+                                    :single-select="true" />
                             </div>
                         </div>
 
@@ -301,28 +169,16 @@
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label fw-500">{{ translate('Target') }}</label>
                             <div class="col-md-9">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <select class="select2 form-control aiz-selectpicker" name="target_category"
-                                            data-toggle="select2" data-placeholder="Choose ..." data-live-search="true">
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                @foreach ($category->childrenCategories as $childCategory)
-                                                    @include('categories.child_category', [
-                                                        'child_category' => $childCategory,
-                                                    ])
-                                                @endforeach
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
+                                <x-treeview :nodes="$topLevelNodes" treeview-id="target_category1" treeview-type="category"
+                                    :single-select="true" />
                             </div>
                         </div>
 
 
 
                         <div class="form-group mb-0 text-right">
-                            <button type="submit" class="btn btn-primary">{{ translate('Copy Categories and Products') }}</button>
+                            <button type="submit"
+                                class="btn btn-primary">{{ translate('Copy Categories and Products') }}</button>
                         </div>
                     </form>
                 </div>
@@ -332,7 +188,7 @@
 @endsection
 @section('script')
     <script>
-        function loadProducts(id,target) {
+        function loadProducts(id, target) {
             var target_elem = $('.' + target);
 
             $.get('{{ route('categories.get_products') }}', {

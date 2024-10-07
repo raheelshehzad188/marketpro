@@ -13,8 +13,8 @@
                 <form class="p-4" action="{{ route('product-addons.update', $product_addon->id) }}"
                     method="POST" enctype="multipart/form-data">
                     <input name="_method" type="hidden" value="PATCH">
-
                     @csrf
+
                     <div class="form-group row">
                         <label class="col-sm-3 col-from-label" for="name">{{ translate('Name') }} <i
                                 class="las la-language text-danger" title="{{ translate('Translatable') }}"></i></label>
@@ -48,8 +48,6 @@
                         </div>
                     </div>
 
-
-
                     <div class="form-group row">
                         <label class="col-lg-3 col-from-label">{{ translate('Unit price') }}</label>
                         <div class="col-lg-9">
@@ -81,6 +79,18 @@
                         </div>
                     </div>
 
+                    <div class="form-group row">
+                        <label for="visibility" class="col-lg-3 col-from-label">{{ translate('Visibility') }}</label>
+                        <div class="col-lg-8">
+                            <select class="aiz-selectpicker w-100" id="visibility" name="visibility[]" multiple>
+                                @foreach (App\Models\Shop::all() as $shop)
+                                    <option value="{{ $shop->id }}" {{ in_array($shop->id, $visibilityShopIds) ? 'selected' : '' }}>
+                                        {{ $shop->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group mb-0 text-right">
                         <button type="submit" class="btn btn-primary">{{ translate('Save') }}</button>

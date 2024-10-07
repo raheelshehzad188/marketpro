@@ -32,19 +32,26 @@
                                 <th>{{ translate('Name') }}</th>
                                 <th>{{ translate('Article Number') }}</th>
                                 <th>{{ translate('Amount') }}</th>
+                                <th>{{ translate('Visibility') }}</th>
                                 <th class="text-right">{{ translate('Options') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($product_addons as $key => $product_addon)
                                 <tr>
-                                    <td>{{ $key + 1 + ($product_addons->currentPage() - 1) * $product_addons->perPage() }}
-                                    </td>
+                                    <td>{{ $key + 1 + ($product_addons->currentPage() - 1) * $product_addons->perPage() }}</td>
                                     <td>{{ $product_addon->name }}</td>
                                     <td>{{ $product_addon->sku }}</td>
-
+                                    <td>{{ single_price($product_addon->unit_price) }}</td>
                                     <td>
-                                        {{ single_price($product_addon->unit_price) }}
+                                        @if (!empty($product_addon->visibilityShops))
+
+                                            @foreach ($product_addon->visibilityShops as $shopId => $shopName)
+                                                <span class="badge badge-inline {{ $badgeClasses[$shopId] ?? 'badge-soft-info' }}">{{ $shopName }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="badge badge-inline badge-soft-success">{{ translate('All Shops') }}</span>
+                                        @endif
                                     </td>
                                     <td class="text-right">
                                         <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
@@ -122,8 +129,16 @@
                                 class="form-control">
                         </div>
 
-
-
+                        <div class="form-group row">
+                            <label for="visibility" class="col-lg-3 col-from-label">{{ translate('Visibility') }}</label>
+                            <div class="col-lg-8">
+                                <select class="aiz-selectpicker w-100" id="visibility" name="visibility[]" multiple>
+                                    @foreach (App\Models\Shop::all() as $shop)
+                                        <option value="{{ $shop->id }}">{{ $shop->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
 
                         <div class="form-group mb-3 text-right">
                             <button type="submit" class="btn btn-primary">{{ translate('Save') }}</button>

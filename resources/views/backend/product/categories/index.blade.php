@@ -36,10 +36,8 @@
                         <th data-breakpoints="sm">{{ translate('Parent Category') }}</th>
                         <th data-breakpoints="lg">{{ translate('Order Level') }}</th>
                         <th data-breakpoints="sm">{{ translate('Level') }}</th>
-                        {{-- <th data-breakpoints="lg">{{translate('Banner')}}</th> --}}
                         <th data-breakpoints="sm">{{ translate('Icon') }}</th>
-                        {{-- <th data-breakpoints="lg">{{translate('Featured')}}</th>
-                    <th data-breakpoints="lg">{{translate('Commission')}}</th> --}}
+                        <th data-breakpoints="sm">{{ translate('Visibility') }}</th>
                         <th data-breakpoints="sm">{{ translate('Published') }}</th>
                         <th width="10%" class="text-right">{{ translate('Options') }}</th>
                     </tr>
@@ -61,14 +59,6 @@
                             </td>
                             <td>{{ $category->order_level }}</td>
                             <td>{{ $category->level }}</td>
-                            {{-- <td>
-                                @if ($category->banner != null)
-                                    <img src="{{ uploaded_asset($category->banner) }}" alt="{{ translate('Banner') }}"
-                                        class="h-50px">
-                                @else
-                                    —
-                                @endif
-                            </td> --}}
                             <td>
                                 @if ($category->icon != null)
                                     <span class="avatar avatar-square avatar-xs">
@@ -78,13 +68,17 @@
                                     —
                                 @endif
                             </td>
-                            {{-- <td>
-                                <label class="aiz-switch aiz-switch-success mb-0">
-                                    <input type="checkbox" onchange="update_featured(this)" value="{{ $category->id }}">
-                                    <span></span>
-                                </label>
-                            </td> --}}
-                            {{-- <td>{{ $category->commision_rate }} %</td> --}}
+                            <td>
+                                @if (!empty($category->visibilityShops))
+                                    @foreach ($category->visibilityShops as $shopId => $shopName)
+                                        <span class="badge badge-inline badge-{{ $badgeClasses[$shopId] ?? 'soft-info' }}">{{ $shopName }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="badge badge-inline badge-soft-success">
+                                        {{ translate('All Shops') }}
+                                    </span>
+                                @endif
+                            </td>
                             <td>
                                 <label class="aiz-switch aiz-switch-success mb-0">
                                     <input onchange="update_published(this)" value="{{ $category->id }}" type="checkbox"
@@ -117,11 +111,9 @@
     </div>
 @endsection
 
-
 @section('modal')
     @include('modals.delete_modal')
 @endsection
-
 
 @section('script')
     <script type="text/javascript">
@@ -144,18 +136,20 @@
             });
         }
 
-        function update_published(el){
-            if(el.checked){
+        function update_published(el) {
+            if (el.checked) {
                 var status = 1;
-            }
-            else{
+            } else {
                 var status = 0;
             }
-            $.post('{{ route('categories.published') }}', {_token:'{{ csrf_token() }}', id:el.value, status:status}, function(data){
-                if(data == 1){
+            $.post('{{ route('categories.published') }}', {
+                _token: '{{ csrf_token() }}',
+                id: el.value,
+                status: status
+            }, function(data) {
+                if (data == 1) {
                     AIZ.plugins.notify('success', '{{ translate('Published category updated successfully') }}');
-                }
-                else{
+                } else {
                     AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                 }
             });

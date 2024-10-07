@@ -22,16 +22,21 @@ use PhpOffice\PhpSpreadsheet\Cell\IValueBinder;
 use Auth;
 
 //class ProductsImport implements ToModel, WithHeadingRow, WithValidation
-class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, ToModel, WithChunkReading,WithCustomValueBinder
+class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, ToModel, WithChunkReading, WithCustomValueBinder
 {
     private $rows = 0;
 
     public function collection(Collection $rows)
     {
 
-       
+
 
         foreach ($rows as $row) {
+
+
+            $row = $row->mapWithKeys(function ($value, $key) {
+                return [strtolower($key) => $value];
+            });
 
             if (!empty($row['artikelnummer'])) {
 
@@ -39,8 +44,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                     $addon = ProductAddon::where('sku', $row['artikelnummer'])->first();
                     if ($addon == null) {
                         $productId =  ProductAddon::create([
-                            'name' => $row['benamning'],
-                            'other_name' => $row['annan_benamning'],
+                            'name' => $row['benmning'],  // Adjusted from 'benamning' to 'benmning'
+                            'other_name' => $row['annan_benmning'],  // Adjusted from 'annan_benamning' to 'annan_benmning'
                             'short_name' => $row['kortnamn'],
                             'article_group' => $row['artikelgrupp'],
                             'fake_price' => $row['fake_pris'],
@@ -52,8 +57,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                         //$addonId =   ProductAddon::create();
                     } else {
 
-                        $addon->name = $row['benamning'];
-                        $addon->other_name = $row['annan_benamning'];
+                        $addon->name = $row['benmning'];
+                        $addon->other_name = $row['annan_benmning'];
                         $addon->short_name = $row['kortnamn'];
                         $addon->article_group = $row['artikelgrupp'];
                         $addon->fake_price = $row['fake_pris'];
@@ -66,8 +71,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                     $product = Product::where('sku', $row['artikelnummer'])->first();
                     if ($product == null) {
                         $productId =  Product::create([
-                            'name' => $row['benamning'],
-                            'other_name' => $row['annan_benamning'],
+                            'name' => $row['benmning'],
+                            'other_name' => $row['annan_benmning'],
                             'short_name' => $row['kortnamn'],
                             'added_by' =>  'admin',
                             'user_id' => 1,
@@ -79,8 +84,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                             'unit_price' => $row['pris'],
                         ]);
                     } else {
-                        $product->name = $row['benamning'];
-                        $product->other_name = $row['annan_benamning'];
+                        $product->name = $row['benmning'];
+                        $product->other_name = $row['annan_benmning'];
                         $product->short_name = $row['kortnamn'];
                         $product->article_group = $row['artikelgrupp'];
                         $product->fake_price = $row['fake_pris'];
@@ -108,7 +113,7 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
         // else return default behavior
         // return parent::bindValue($cell, $value);
     }
-    
+
     public function model(array $row)
     {
         ++$this->rows;

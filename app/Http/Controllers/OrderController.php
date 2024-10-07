@@ -5,14 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\OTPVerificationController;
 use Illuminate\Http\Request;
-use App\Http\Controllers\ClubPointController;
 use App\Order;
 use App\Cart;
 use App\Address;
 use App\Product;
 use App\ProductStock;
-use App\CommissionHistory;
-use App\Color;
 use App\OrderDetail;
 use App\CouponUsage;
 use App\Coupon;
@@ -40,38 +37,6 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $payment_status = null;
-        $delivery_status = null;
-        $sort_search = null;
-        $orders = DB::table('orders')
-            ->orderBy('id', 'desc')
-            //->join('order_details', 'orders.id', '=', 'order_details.order_id')
-            ->where('seller_id', Auth::user()->id)
-            ->select('orders.id')
-            ->distinct();
-
-        if ($request->payment_status != null) {
-            $orders = $orders->where('payment_status', $request->payment_status);
-            $payment_status = $request->payment_status;
-        }
-        if ($request->delivery_status != null) {
-            $orders = $orders->where('delivery_status', $request->delivery_status);
-            $delivery_status = $request->delivery_status;
-        }
-        if ($request->has('search')) {
-            $sort_search = $request->search;
-            $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
-        }
-
-        $orders = $orders->paginate(15);
-
-        foreach ($orders as $key => $value) {
-            $order = \App\Order::find($value->id);
-            $order->viewed = 1;
-            $order->save();
-        }
-
-        return view('frontend.user.seller.orders', compact('orders', 'payment_status', 'delivery_status', 'sort_search'));
     }
 
     // All Orders
@@ -81,7 +46,7 @@ class OrderController extends Controller
         $sort_search = null;
         $delivery_status = null;
 
-        $orders = Order::orderBy('id', 'desc');
+        $orders = Order::with('shop')->orderBy('id', 'desc');
 
         if (Auth::user()->user_type == 'customer') {
             $orders =  $orders->where('user_id', Auth::user()->id);
@@ -91,16 +56,17 @@ class OrderController extends Controller
             $sort_search = $request->search;
             $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
         }
-        if ($request->delivery_status != null) {
-            $orders = $orders->where('delivery_status', $request->delivery_status);
-            $delivery_status = $request->delivery_status;
-        }
+
         if ($date != null) {
             $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
         }
+
         $orders = $orders->paginate(15);
         return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'delivery_status', 'date'));
     }
+
+
+
 
     public function all_orders_show($id)
     {
@@ -109,36 +75,7 @@ class OrderController extends Controller
         return view('backend.sales.all_orders.show', compact('order', 'delivery_boys'));
     }
 
-    // Inhouse Orders
-    public function admin_orders(Request $request)
-    {
-        $date = $request->date;
-        $payment_status = null;
-        $delivery_status = null;
-        $sort_search = null;
-        $admin_user_id = User::where('user_type', 'admin')->first()->id;
-        $orders = Order::orderBy('id', 'desc')
-            ->where('seller_id', $admin_user_id);
 
-        if ($request->payment_type != null) {
-            $orders = $orders->where('payment_status', $request->payment_type);
-            $payment_status = $request->payment_type;
-        }
-        if ($request->delivery_status != null) {
-            $orders = $orders->where('delivery_status', $request->delivery_status);
-            $delivery_status = $request->delivery_status;
-        }
-        if ($request->has('search')) {
-            $sort_search = $request->search;
-            $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
-        }
-        if ($date != null) {
-            $orders = $orders->whereDate('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
-        }
-
-        $orders = $orders->paginate(15);
-        return view('backend.sales.inhouse_orders.index', compact('orders', 'payment_status', 'delivery_status', 'sort_search', 'admin_user_id', 'date'));
-    }
 
     public function show($id)
     {
@@ -153,118 +90,7 @@ class OrderController extends Controller
         return view('backend.sales.inhouse_orders.show', compact('order', 'delivery_boys'));
     }
 
-    // Seller Orders
-    public function seller_orders(Request $request)
-    {
-        $date = $request->date;
-        $seller_id = $request->seller_id;
-        $payment_status = null;
-        $delivery_status = null;
-        $sort_search = null;
-        $admin_user_id = User::where('user_type', 'admin')->first()->id;
-        $orders = Order::orderBy('code', 'desc')
-            ->where('orders.seller_id', '!=', $admin_user_id);
-
-        if ($request->payment_type != null) {
-            $orders = $orders->where('payment_status', $request->payment_type);
-            $payment_status = $request->payment_type;
-        }
-        if ($request->delivery_status != null) {
-            $orders = $orders->where('delivery_status', $request->delivery_status);
-            $delivery_status = $request->delivery_status;
-        }
-        if ($request->has('search')) {
-            $sort_search = $request->search;
-            $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
-        }
-        if ($date != null) {
-            $orders = $orders->whereDate('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
-        }
-        if ($seller_id) {
-            $orders = $orders->where('seller_id', $seller_id);
-        }
-
-        $orders = $orders->paginate(15);
-        return view('backend.sales.seller_orders.index', compact('orders', 'payment_status', 'delivery_status', 'sort_search', 'admin_user_id', 'seller_id', 'date'));
-    }
-
-    public function seller_orders_show($id)
-    {
-        $order = Order::findOrFail(decrypt($id));
-        $order->viewed = 1;
-        $order->save();
-        return view('backend.sales.seller_orders.show', compact('order'));
-    }
-
-
-    // Pickup point orders
-    public function pickup_point_order_index(Request $request)
-    {
-        $date = $request->date;
-        $sort_search = null;
-
-        if (Auth::user()->user_type == 'staff' && Auth::user()->staff->pick_up_point != null) {
-            $orders = DB::table('orders')
-                ->orderBy('code', 'desc')
-                ->join('order_details', 'orders.id', '=', 'order_details.order_id')
-                ->where('order_details.pickup_point_id', Auth::user()->staff->pick_up_point->id)
-                ->select('orders.id')
-                ->distinct();
-
-            if ($request->has('search')) {
-                $sort_search = $request->search;
-                $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
-            }
-            if ($date != null) {
-                $orders = $orders->whereDate('orders.created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('orders.created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
-            }
-
-            $orders = $orders->paginate(15);
-
-            return view('backend.sales.pickup_point_orders.index', compact('orders', 'sort_search', 'date'));
-        } else {
-            $orders = DB::table('orders')
-                ->orderBy('code', 'desc')
-                ->join('order_details', 'orders.id', '=', 'order_details.order_id')
-                ->where('order_details.shipping_type', 'pickup_point')
-                ->select('orders.id')
-                ->distinct();
-
-            if ($request->has('search')) {
-                $sort_search = $request->search;
-                $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
-            }
-            if ($date != null) {
-                $orders = $orders->whereDate('orders.created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->whereDate('orders.created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
-            }
-
-            $orders = $orders->paginate(15);
-
-            return view('backend.sales.pickup_point_orders.index', compact('orders', 'sort_search', 'date'));
-        }
-    }
-
-    public function pickup_point_order_sales_show($id)
-    {
-        if (Auth::user()->user_type == 'staff') {
-            $order = Order::findOrFail(decrypt($id));
-            $order_shipping_address = json_decode($order->shipping_address);
-            $delivery_boys = User::where('city', $order_shipping_address->city)
-                ->where('user_type', 'delivery_boy')
-                ->get();
-
-            return view('backend.sales.pickup_point_orders.show', compact('order', 'delivery_boys'));
-        } else {
-            $order = Order::findOrFail(decrypt($id));
-            $order_shipping_address = json_decode($order->shipping_address);
-            $delivery_boys = User::where('city', $order_shipping_address->city)
-                ->where('user_type', 'delivery_boy')
-                ->get();
-
-            return view('backend.sales.pickup_point_orders.show', compact('order', 'delivery_boys'));
-        }
-    }
-
+    
     /**
      * Display a single sale to admin.
      *
@@ -282,136 +108,9 @@ class OrderController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function package_store(Request $request)
-    {
-        $carts = Cart::where('user_id', Auth::user()->id)->get();
+   
 
 
-        if ($carts->isEmpty()) {
-            flash(translate('Your cart is empty'))->warning();
-            return redirect()->route('home');
-        }
-
-
-        $combined_order = new CombinedOrder;
-        $combined_order->user_id = Auth::user()->id;
-        $combined_order->save();
-
-        $is_quiz = false;
-        $seller_products = array();
-        foreach ($carts as $cartItem) {
-            $product_ids = array();
-            $product = Product::find($cartItem['product_id']);
-            if (isset($seller_products[$product->user_id])) {
-                $product_ids = $seller_products[$product->user_id];
-            }
-            array_push($product_ids, $cartItem);
-            $seller_products[$product->user_id] = $product_ids;
-            if (!empty($cartItem['user_results_id'])) {
-                $user_result = UserResult::findOrFail($cartItem['user_results_id']);
-                $is_quiz = true;
-            }
-        }
-
-        foreach ($seller_products as $seller_product) {
-            $order = new Order;
-            $order->combined_order_id = $combined_order->id;
-            $order->user_id = Auth::user()->id;
-
-
-
-            $order->payment_type = $request->payment_option;
-            $order->order_type = 2;
-            $order->delivery_viewed = '0';
-            $order->payment_status_viewed = '0';
-            $order->code = date('Ymd-His') . rand(10, 99);
-            $order->date = strtotime('now');
-            $order->save();
-
-            $subtotal = 0;
-            $tax = 0;
-            $shipping = 0;
-            $coupon_discount = 0;
-
-            //Order Details Storing
-            foreach ($seller_product as $cartItem) {
-                $product = Product::find($cartItem['product_id']);
-                $subtotal += $cartItem['price'] * $cartItem['quantity'];
-                $tax += $cartItem['tax'] * $cartItem['quantity'];
-                $coupon_discount += $cartItem['discount'];
-                $product_variation = $cartItem['variation'];
-
-                $order_detail = new OrderDetail;
-                $order_detail->order_id = $order->id;
-                $order_detail->seller_id = $product->user_id;
-                $order_detail->product_id = $product->id;
-                $order_detail->variation = $product_variation;
-                $order_detail->price = $cartItem['price'] * $cartItem['quantity'];
-                $order_detail->tax = $cartItem['tax'] * $cartItem['quantity'];
-                $order_detail->product_type = 2;
-                $order_detail->address = $cartItem['address'];
-                $order_detail->include = $cartItem['include'];
-                $order_detail->comments = $cartItem['comments'];
-                $order_detail->about_project = $cartItem['about_project'];
-                $order_detail->phone = $cartItem['phone'];
-                $order_detail->save();
-                if ($cartItem['addons'] != null) {
-                    $addons = json_decode($cartItem['addons']);
-                    if (!empty($addons)) {
-                        $product_addons = \App\ProductAddon::whereIn('id', $addons)->get();
-                        if (!empty($product_addons)) {
-                            foreach ($product_addons as $addon) {
-                                $subtotal += $addon['unit_price'];
-                                $order_detail = new OrderDetail;
-                                $order_detail->order_id = $order->id;
-                                $order_detail->product_type = 3;
-                                $order_detail->seller_id = $product->user_id;
-                                $order_detail->product_id = $addon->id;
-                                $order_detail->price = $addon['unit_price'];
-                                $order->seller_id = $product->user_id;
-                                $order_detail->save();
-                            }
-                        }
-                    }
-                }
-            }
-
-            $order->grand_total = $subtotal + $tax + $shipping;
-
-            if ($seller_product[0]->coupon_code != null) {
-                // if (Session::has('club_point')) {
-                //     $order->club_point = Session::get('club_point');
-                // }
-                $order->coupon_discount = $coupon_discount;
-                $order->grand_total -= $coupon_discount;
-
-                $coupon_usage = new CouponUsage;
-                $coupon_usage->user_id = Auth::user()->id;
-                $coupon_usage->coupon_id = Coupon::where('code', $seller_product[0]->coupon_code)->first()->id;
-                $coupon_usage->save();
-            }
-
-            $combined_order->grand_total += $order->grand_total;
-
-            $order->save();
-            if ($is_quiz) {
-                $user_result->orders_id = $order->id;
-                $user_result->save();
-            }
-        }
-
-        $combined_order->save();
-
-
-        Cart::where('user_id', Auth::user()->id)->delete();
-        $request->session()->put('combined_order_id', $combined_order->id);
-    }
     public function store(Request $request)
     {
         $carts = Cart::where('user_id', Auth::user()->id)
@@ -814,54 +513,7 @@ class OrderController extends Controller
         return 1;
     }
 
-    public function assign_delivery_boy(Request $request)
-    {
-        if (addon_is_activated('delivery_boy')) {
-
-            $order = Order::findOrFail($request->order_id);
-            $order->assign_delivery_boy = $request->delivery_boy;
-            $order->delivery_history_date = date("Y-m-d H:i:s");
-            $order->save();
-
-            $delivery_history = \App\DeliveryHistory::where('order_id', $order->id)
-                ->where('delivery_status', $order->delivery_status)
-                ->first();
-
-            if (empty($delivery_history)) {
-                $delivery_history = new \App\DeliveryHistory;
-
-                $delivery_history->order_id = $order->id;
-                $delivery_history->delivery_status = $order->delivery_status;
-                $delivery_history->payment_type = $order->payment_type;
-            }
-            $delivery_history->delivery_boy_id = $request->delivery_boy;
-
-            $delivery_history->save();
-
-            if (env('MAIL_USERNAME') != null && get_setting('delivery_boy_mail_notification') == '1') {
-                $array['view'] = 'emails.invoice';
-                $array['subject'] = translate('You are assigned to delivery an order. Order code') . ' - ' . $order->code;
-                $array['from'] = env('MAIL_FROM_ADDRESS');
-                $array['order'] = $order;
-
-                try {
-                    Mail::to($order->delivery_boy->email)->queue(new InvoiceEmailManager($array));
-                } catch (\Exception $e) {
-                }
-            }
-
-            if (addon_is_activated('otp_system') && SmsTemplate::where('identifier', 'assign_delivery_boy')->first()->status == 1) {
-                try {
-                    SmsUtility::assign_delivery_boy($order->delivery_boy->phone, $order->code);
-                } catch (\Exception $e) {
-                }
-            }
-        }
-
-        return 1;
-    }
-
-
+   
     public function change_price(Request $request, $id)
     {
         $fake_price = Session::get('fake_price');
@@ -872,6 +524,5 @@ class OrderController extends Controller
             $request->session()->put('fake_price', 'yes');
             return 'yes';
         }
-
     }
 }

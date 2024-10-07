@@ -8,9 +8,11 @@
 
                 <div class="alert alert-success" role="alert">
                     <h4 class="alert-heading">Order Placed Successfully!</h4>
-                    Your order number is <strong>{{$order->code}}</strong>.<br><br>
+                    {{-- Your order number is <strong>{{$order->code}}</strong>. --}}
 
-                    <strong> Please check your email for a detailed invoice and confirmation.</strong>
+                    <br><br>
+
+                    <strong> Please check your email for the confirmation.</strong>
                 </div>
 
 

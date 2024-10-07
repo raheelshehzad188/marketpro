@@ -6,13 +6,11 @@
             <div class="col-auto">
                 <h1 class="h3">{{ translate('All products') }}</h1>
             </div>
-            @if ($type != 'Seller')
-                <div class="col text-right">
-                    <a href="{{ route('products.create') }}" class="btn btn-circle btn-info">
-                        <span>{{ translate('Add New Product') }}</span>
-                    </a>
-                </div>
-            @endif
+            <div class="col text-right">
+                <a href="{{ route('products.create') }}" class="btn btn-circle btn-info">
+                    <span>{{ translate('Add New Product') }}</span>
+                </a>
+            </div>
         </div>
     </div>
     <br>
@@ -23,7 +21,6 @@
                 <div class="col">
                     <h5 class="mb-md-0 h6">{{ translate('All Product') }}</h5>
                 </div>
-
                 <div class="dropdown mb-2 mb-md-0">
                     <button class="btn border dropdown-toggle" type="button" data-toggle="dropdown">
                         {{ translate('Bulk Action') }}
@@ -34,41 +31,41 @@
                     </div>
                 </div>
 
-
-                {{-- <div class="col-md-2 ml-auto">
-                <select class="form-control form-control-sm aiz-selectpicker mb-2 mb-md-0" name="type" id="type" onchange="sort_products()">
-                    <option value="">{{ translate('Sort By') }}</option>
-                    <option value="rating,desc" @isset($col_name, $query) @if ($col_name == 'rating' && $query == 'desc') selected @endif @endisset>{{translate('Rating (High > Low)')}}</option>
-                    <option value="rating,asc" @isset($col_name, $query) @if ($col_name == 'rating' && $query == 'asc') selected @endif @endisset>{{translate('Rating (Low > High)')}}</option>
-                    <option value="num_of_sale,desc"@isset($col_name, $query) @if ($col_name == 'num_of_sale' && $query == 'desc') selected @endif @endisset>{{translate('Num of Sale (High > Low)')}}</option>
-                    <option value="num_of_sale,asc"@isset($col_name, $query) @if ($col_name == 'num_of_sale' && $query == 'asc') selected @endif @endisset>{{translate('Num of Sale (Low > High)')}}</option>
-                    <option value="unit_price,desc"@isset($col_name, $query) @if ($col_name == 'unit_price' && $query == 'desc') selected @endif @endisset>{{translate('Base Price (High > Low)')}}</option>
-                    <option value="unit_price,asc"@isset($col_name, $query) @if ($col_name == 'unit_price' && $query == 'asc') selected @endif @endisset>{{translate('Base Price (Low > High)')}}</option>
-                </select>
-            </div> --}}
-                <div class="col">
-                    <select class="form-control form-control-sm  aiz-selectpicker" data-selected="{{$category}}"  name="category" id="category_id" onchange="sort_products()"
-                        data-live-search="true" required>
-                        <option value="">Select a Category</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}">
-                                {{ $category->name }}</option>
-                            @foreach ($category->childrenCategories as $childCategory)
-                                @include('categories.child_category', [
-                                    'child_category' => $childCategory,
-                                ])
-                            @endforeach
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <div class="form-group mb-0">
                         <input type="text" class="form-control form-control-sm" id="search"
                             name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset
                             placeholder="{{ translate('Type & Enter') }}">
                     </div>
                 </div>
+                <div class="col-md-2">
+                    <input type="submit" class="btn btn-sm btn-primary" value="Search">
+                </div>
+                <div class="col-auto">
+                    <button type="button" id="advancedFilterToggle" class="btn btn-sm btn-secondary">Show Category
+                        Filter
+                        @if (!empty($categoryIds))
+                            ({{ count($categoryIds) }} )
+                        @endif
+                    </button>
+                </div>
+
             </div>
+            <div id="advancedFilters" class="row" style="display:none;">
+
+                <div class="col-md-11 mx-auto mt-4">
+                    <div class="form-group row" id="category">
+                        <label class="col-auto col-from-label fs-14 fw-500">Select one or more categories</label>
+                        <div class="col-lg-8">
+
+                            <x-treeview :nodes="$topLevelNodes" treeview-id="treeview1" :selectedCategories="$categoryIds" :selectedCategoryNames="$selectedCategoryNames"
+                                treeview-type="category" />
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more filters as needed -->
+            </div>
+
 
             <div class="card-body">
                 <table class="table aiz-table mb-0">
@@ -86,7 +83,7 @@
                             </th>
                             <!--<th data-breakpoints="lg">#</th>-->
                             <th>{{ translate('Name') }}</th>
-                            <th data-breakpoints="sm">{{ translate('Info') }}</th>
+                            <th data-breakpoints="sm">{{ translate('Visibility') }}</th>
                             {{-- <th data-breakpoints="md">{{translate('Total Stock')}}</th> --}}
                             {{-- <th data-breakpoints="lg">{{translate('Todays Deal')}}</th> --}}
                             <th data-breakpoints="sm">{{ translate('Published') }}</th>
@@ -110,10 +107,7 @@
                                 </td>
                                 <td>
                                     <div class="row gutters-5 w-200px w-md-300px mw-100">
-                                        <div class="col-auto">
-                                            <img src="{{ uploaded_asset($product->thumbnail_img) }}" alt="Image"
-                                                class="size-50px img-fit">
-                                        </div>
+
                                         <div class="col">
                                             <span
                                                 class="text-muted text-truncate-2">{{ $product->getTranslation('name') }}</span>
@@ -122,28 +116,18 @@
                                 </td>
 
                                 <td>
-                                    <strong>{{ translate('Base Price') }}:</strong>
-                                    {{ single_price($product->unit_price) }}
+                                    @if (!empty($product->visibilityShops))
+                                        @foreach ($product->visibilityShops as $shop)
+                                            <span class="badge badge-inline badge-soft-info">{{ $shop }}</span>
+                                        @endforeach
+                                    @else
+                                        <span class="badge badge-inline badge-soft-success">
+                                            {{ translate('All Shops') }}
+                                        </span>
+                                    @endif
                                 </td>
-                                {{-- <td>
-                            @php
-                                $qty = 0;
-                                if($product->variant_product) {
-                                    foreach ($product->stocks as $key => $stock) {
-                                        $qty += $stock->qty;
-                                        echo $stock->variant.' - '.$stock->qty.'<br>';
-                                    }
-                                }
-                                else {
-                                    //$qty = $product->current_stock;
-                                    $qty = optional($product->stocks->first())->qty;
-                                    echo $qty;
-                                }
-                            @endphp
-                            @if ($qty <= $product->low_stock_quantity)
-                                <span class="badge badge-inline badge-danger">Low</span>
-                            @endif
-                        </td> --}}
+
+
 
                                 <td>
                                     <label class="aiz-switch aiz-switch-success mb-0">
@@ -157,25 +141,15 @@
 
 
                                 <td class="text-right">
-                                    {{-- <a class="btn btn-soft-success btn-icon btn-circle btn-sm"  href="{{ route('product', $product->slug) }}" target="_blank" title="{{ translate('View') }}">
-                                <i class="las la-eye"></i>
-                            </a> --}}
-                                    @if ($type == 'Seller')
-                                        <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
-                                            href="{{ route('products.seller.edit', ['id' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
-                                            title="{{ translate('Edit') }}">
-                                            <i class="las la-edit"></i>
-                                        </a>
-                                    @else
-                                        <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
-                                            href="{{ route('products.admin.edit', ['id' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
-                                            title="{{ translate('Edit') }}">
-                                            <i class="las la-edit"></i>
-                                        </a>
-                                    @endif
-                                    {{-- <a class="btn btn-soft-warning btn-icon btn-circle btn-sm" href="{{route('products.duplicate', ['id'=>$product->id, 'type'=>$type]  )}}" title="{{ translate('Duplicate') }}">
-                                <i class="las la-copy"></i>
-                            </a> --}}
+
+
+                                    <a class="btn btn-soft-primary btn-icon btn-circle btn-sm"
+                                        href="{{ route('products.admin.edit', ['id' => $product->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
+                                        title="{{ translate('Edit') }}">
+                                        <i class="las la-edit"></i>
+                                    </a>
+
+
                                     <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete"
                                         data-href="{{ route('products.destroy', $product->id) }}"
                                         title="{{ translate('Delete') }}">
@@ -216,27 +190,13 @@
         });
 
         $(document).ready(function() {
-            //$('#container').removeClass('mainnav-lg').addClass('mainnav-sm');
+            $('#advancedFilterToggle').click(function() {
+                $('#advancedFilters').slideToggle('fast');
+            });
         });
 
-        function update_todays_deal(el) {
-            if (el.checked) {
-                var status = 1;
-            } else {
-                var status = 0;
-            }
-            $.post('{{ route('products.todays_deal') }}', {
-                _token: '{{ csrf_token() }}',
-                id: el.value,
-                status: status
-            }, function(data) {
-                if (data == 1) {
-                    AIZ.plugins.notify('success', '{{ translate('Todays Deal updated successfully') }}');
-                } else {
-                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-                }
-            });
-        }
+
+
 
         function update_published(el) {
             if (el.checked) {
@@ -257,43 +217,7 @@
             });
         }
 
-        function update_approved(el) {
-            if (el.checked) {
-                var approved = 1;
-            } else {
-                var approved = 0;
-            }
-            $.post('{{ route('products.approved') }}', {
-                _token: '{{ csrf_token() }}',
-                id: el.value,
-                approved: approved
-            }, function(data) {
-                if (data == 1) {
-                    AIZ.plugins.notify('success', '{{ translate('Product approval update successfully') }}');
-                } else {
-                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-                }
-            });
-        }
 
-        function update_featured(el) {
-            if (el.checked) {
-                var status = 1;
-            } else {
-                var status = 0;
-            }
-            $.post('{{ route('products.featured') }}', {
-                _token: '{{ csrf_token() }}',
-                id: el.value,
-                status: status
-            }, function(data) {
-                if (data == 1) {
-                    AIZ.plugins.notify('success', '{{ translate('Featured products updated successfully') }}');
-                } else {
-                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-                }
-            });
-        }
 
         function sort_products(el) {
             $('#sort_products').submit();
