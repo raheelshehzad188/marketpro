@@ -1,0 +1,666 @@
+@extends('backend.layouts.app')
+@section('content')
+
+    <div class="row">
+        <div class="col-xl-10 mx-auto">
+            <h6 class="fw-600">Home Page Mxe Settings</h6>
+
+
+            {{-- Hero Slider --}}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ translate('Hero Slider') }}</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label>{{ translate('Images & Links') }}</label>
+                            <div class="hero-slider-target">
+                                <input type="hidden" name="types[]" value="hero_slider_images_mxe">
+                                <input type="hidden" name="types[]" value="hero_slider_links_mxe">
+
+                                @if (get_setting('hero_slider_images_mxe') != null)
+                                    @foreach (json_decode(get_setting('hero_slider_images_mxe'), true) as $key => $value)
+                                        <div class="p-row">
+                                            <div class="row gutters-5">
+                                                <!-- Image Upload -->
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <div class="input-group" data-toggle="aizuploader"
+                                                            data-type="image">
+                                                            <div class="input-group-prepend">
+                                                                <div
+                                                                    class="input-group-text bg-soft-secondary font-weight-medium">
+                                                                    {{ translate('Browse') }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-control file-amount">
+                                                                {{ translate('Choose File') }}
+                                                            </div>
+                                                            <input type="hidden" name="types[]"
+                                                                value="hero_slider_images_mxe">
+                                                            <input type="hidden" name="hero_slider_images_mxe[]"
+                                                                class="selected-files"
+                                                                value="{{ json_decode(get_setting('hero_slider_images_mxe'), true)[$key] }}">
+                                                        </div>
+                                                        <div class="file-preview box sm"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Link Input -->
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]" value="hero_slider_links_mxe">
+                                                        <input type="text" class="form-control" placeholder="http://"
+                                                            name="hero_slider_links_mxe[]"
+                                                            value="{{ json_decode(get_setting('hero_slider_links_mxe'), true)[$key] }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Remove Button -->
+                                                <div class="col-md-auto">
+                                                    <div class="form-group">
+                                                        <button type="button"
+                                                            class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+                                                            data-toggle="remove-parent" data-parent=".p-row">
+                                                            <i class="las la-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- Add New Button -->
+                            <button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
+                                data-content='
+                    <div class="p-row">
+                        <div class="row gutters-5">
+                            <!-- Image Upload -->
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
+                                        </div>
+                                        <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                        <input type="hidden" name="types[]" value="hero_slider_images_mxe">
+                                        <input type="hidden" name="hero_slider_images_mxe[]" class="selected-files" value="">
+                                    </div>
+                                    <div class="file-preview box sm"></div>
+                                </div>
+                            </div>
+
+                            <!-- Link Input -->
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <input type="hidden" name="types[]" value="hero_slider_links_mxe">
+                                    <input type="text" class="form-control" placeholder="http://" name="hero_slider_links_mxe[]" value="">
+                                </div>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <div class="col-md-auto">
+                                <div class="form-group">
+                                    <button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".p-row">
+                                        <i class="las la-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>'
+                                data-target=".hero-slider-target">
+                                {{ translate('Add New') }}
+                            </button>
+                        </div>
+
+                        <!-- Update Button -->
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            {{-- Advert Banner --}}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ translate('Advert Banner') }}</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label>{{ translate('Banner Image & Link') }}</label>
+                            <div class="advert-banner-target">
+                                <input type="hidden" name="types[]" value="advert_banner_image_mxe">
+                                <input type="hidden" name="types[]" value="advert_banner_link_mxe">
+
+                                @if (get_setting('advert_banner_image_mxe') != null)
+                                    @foreach (json_decode(get_setting('advert_banner_image_mxe'), true) as $key => $value)
+                                        <div class="p-row">
+                                            <div class="row gutters-5">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <div class="input-group" data-toggle="aizuploader"
+                                                            data-type="image">
+                                                            <div class="input-group-prepend">
+                                                                <div
+                                                                    class="input-group-text bg-soft-secondary font-weight-medium">
+                                                                    {{ translate('Browse') }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-control file-amount">
+                                                                {{ translate('Choose File') }}
+                                                            </div>
+                                                            <input type="hidden" name="types[]"
+                                                                value="advert_banner_image_mxe">
+                                                            <input type="hidden" name="advert_banner_image_mxe[]"
+                                                                class="selected-files"
+                                                                value="{{ json_decode(get_setting('advert_banner_image_mxe'), true)[$key] }}">
+                                                        </div>
+                                                        <div class="file-preview box sm"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Banner Link Input -->
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]" value="advert_banner_link_mxe">
+                                                        <input type="text" class="form-control" placeholder="http://"
+                                                            name="advert_banner_link_mxe[]"
+                                                            value="{{ json_decode(get_setting('advert_banner_link_mxe'), true)[$key] }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Remove Button -->
+                                                <div class="col-md-auto">
+                                                    <div class="form-group">
+                                                        <button type="button"
+                                                            class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+                                                            data-toggle="remove-parent" data-parent=".p-row">
+                                                            <i class="las la-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- Add New Button -->
+                            <button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
+                                data-content='
+                    <div class="p-row">
+                        <div class="row gutters-5">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
+                                        </div>
+                                        <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                        <input type="hidden" name="types[]" value="advert_banner_image_mxe">
+                                        <input type="hidden" name="advert_banner_image_mxe[]" class="selected-files" value="">
+                                    </div>
+                                    <div class="file-preview box sm"></div>
+                                </div>
+                            </div>
+
+                            <!-- Banner Link Input -->
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <input type="hidden" name="types[]" value="advert_banner_link_mxe">
+                                    <input type="text" class="form-control" placeholder="http://" name="advert_banner_link_mxe[]" value="">
+                                </div>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <div class="col-md-auto">
+                                <div class="form-group">
+                                    <button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".p-row">
+                                        <i class="las la-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>'
+                                data-target=".advert-banner-target">
+                                {{ translate('Add New') }}
+                            </button>
+                        </div>
+
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+
+            {{-- Top Category Boxes --}}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ translate('Top Category Boxes') }}</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label>{{ translate('Category Boxes') }}</label>
+                            <div class="top-category-boxes-target">
+                                <input type="hidden" name="types[]" value="top_category_images_mxe">
+                                <input type="hidden" name="types[]" value="top_category_names_mxe">
+                                <input type="hidden" name="types[]" value="top_category_links_mxe">
+
+                                @if (get_setting('top_category_images_mxe') != null)
+                                    @foreach (json_decode(get_setting('top_category_images_mxe'), true) as $key => $value)
+                                        <div class="p-row">
+                                            <div class="row gutters-5">
+                                                <!-- Image Upload -->
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <div class="input-group" data-toggle="aizuploader"
+                                                            data-type="image">
+                                                            <div class="input-group-prepend">
+                                                                <div
+                                                                    class="input-group-text bg-soft-secondary font-weight-medium">
+                                                                    {{ translate('Browse') }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-control file-amount">
+                                                                {{ translate('Choose File') }}
+                                                            </div>
+                                                            <input type="hidden" name="types[]"
+                                                                value="top_category_images_mxe">
+                                                            <input type="hidden" name="top_category_images_mxe[]"
+                                                                class="selected-files"
+                                                                value="{{ json_decode(get_setting('top_category_images_mxe'), true)[$key] }}">
+                                                        </div>
+                                                        <div class="file-preview box sm"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Category Name -->
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]"
+                                                            value="top_category_names_mxe">
+                                                        <input type="text" class="form-control"
+                                                            placeholder="{{ translate('Category Name') }}"
+                                                            name="top_category_names_mxe[]"
+                                                            value="{{ json_decode(get_setting('top_category_names_mxe'), true)[$key] }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Category Link -->
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]"
+                                                            value="top_category_links_mxe">
+                                                        <input type="text" class="form-control" placeholder="http://"
+                                                            name="top_category_links_mxe[]"
+                                                            value="{{ json_decode(get_setting('top_category_links_mxe'), true)[$key] }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Remove Button -->
+                                                <div class="col-md-auto">
+                                                    <div class="form-group">
+                                                        <button type="button"
+                                                            class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+                                                            data-toggle="remove-parent" data-parent=".p-row">
+                                                            <i class="las la-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- Add New Button -->
+                            <button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
+                                data-content='
+                    <div class="p-row">
+                        <div class="row gutters-5">
+                            <!-- Image Upload -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
+                                        </div>
+                                        <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                        <input type="hidden" name="types[]" value="top_category_images_mxe">
+                                        <input type="hidden" name="top_category_images_mxe[]" class="selected-files" value="">
+                                    </div>
+                                    <div class="file-preview box sm"></div>
+                                </div>
+                            </div>
+
+                            <!-- Category Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" name="types[]" value="top_category_names_mxe">
+                                    <input type="text" class="form-control" placeholder="{{ translate('Category Name') }}" name="top_category_names_mxe[]" value="">
+                                </div>
+                            </div>
+
+                            <!-- Category Link -->
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="hidden" name="types[]" value="top_category_links_mxe">
+                                    <input type="text" class="form-control" placeholder="http://" name="top_category_links_mxe[]" value="">
+                                </div>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <div class="col-md-auto">
+                                <div class="form-group">
+                                    <button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".p-row">
+                                        <i class="las la-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>'
+                                data-target=".top-category-boxes-target">
+                                {{ translate('Add New') }}
+                            </button>
+                        </div>
+
+                        <!-- Update Button -->
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            {{-- Additional Category Boxes --}}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ translate('Additional Category Boxes') }}</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label>{{ translate('Additional Category Boxes') }}</label>
+                            <div class="additional-category-boxes-target">
+                                <input type="hidden" name="types[]" value="additional_category_images_mxe">
+                                <input type="hidden" name="types[]" value="additional_category_names_mxe">
+                                <input type="hidden" name="types[]" value="additional_category_links_mxe">
+
+                                @if (get_setting('additional_category_images_mxe') != null)
+                                    @foreach (json_decode(get_setting('additional_category_images_mxe'), true) as $key => $value)
+                                        <div class="p-row">
+                                            <div class="row gutters-5">
+                                                <!-- Image Upload -->
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <div class="input-group" data-toggle="aizuploader"
+                                                            data-type="image">
+                                                            <div class="input-group-prepend">
+                                                                <div
+                                                                    class="input-group-text bg-soft-secondary font-weight-medium">
+                                                                    {{ translate('Browse') }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-control file-amount">
+                                                                {{ translate('Choose File') }}
+                                                            </div>
+                                                            <input type="hidden" name="types[]"
+                                                                value="additional_category_images_mxe">
+                                                            <input type="hidden" name="additional_category_images_mxe[]"
+                                                                class="selected-files"
+                                                                value="{{ json_decode(get_setting('additional_category_images_mxe'), true)[$key] }}">
+                                                        </div>
+                                                        <div class="file-preview box sm"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Category Name -->
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]"
+                                                            value="additional_category_names_mxe">
+                                                        <input type="text" class="form-control"
+                                                            placeholder="{{ translate('Category Name') }}"
+                                                            name="additional_category_names_mxe[]"
+                                                            value="{{ json_decode(get_setting('additional_category_names_mxe'), true)[$key] }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Category Link -->
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]"
+                                                            value="additional_category_links_mxe">
+                                                        <input type="text" class="form-control" placeholder="http://"
+                                                            name="additional_category_links_mxe[]"
+                                                            value="{{ json_decode(get_setting('additional_category_links_mxe'), true)[$key] }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Remove Button -->
+                                                <div class="col-md-auto">
+                                                    <div class="form-group">
+                                                        <button type="button"
+                                                            class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+                                                            data-toggle="remove-parent" data-parent=".p-row">
+                                                            <i class="las la-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- Add New Button -->
+                            <button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
+                                data-content='
+                    <div class="p-row">
+                        <div class="row gutters-5">
+                            <!-- Image Upload -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
+                                        </div>
+                                        <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                        <input type="hidden" name="types[]" value="additional_category_images_mxe">
+                                        <input type="hidden" name="additional_category_images_mxe[]" class="selected-files" value="">
+                                    </div>
+                                    <div class="file-preview box sm"></div>
+                                </div>
+                            </div>
+
+                            <!-- Category Name -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input type="hidden" name="types[]" value="additional_category_names_mxe">
+                                    <input type="text" class="form-control" placeholder="{{ translate('Category Name') }}" name="additional_category_names_mxe[]" value="">
+                                </div>
+                            </div>
+
+                            <!-- Category Link -->
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="hidden" name="types[]" value="additional_category_links_mxe">
+                                    <input type="text" class="form-control" placeholder="http://" name="additional_category_links_mxe[]" value="">
+                                </div>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <div class="col-md-auto">
+                                <div class="form-group">
+                                    <button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".p-row">
+                                        <i class="las la-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>'
+                                data-target=".additional-category-boxes-target">
+                                {{ translate('Add New') }}
+                            </button>
+                        </div>
+
+                        <!-- Update Button -->
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+
+
+            {{-- Bottom Banners --}}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ translate('Bottom Banners') }}</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label>{{ translate('Banner Images & Links') }}</label>
+                            <div class="bottom-banners-target">
+                                <input type="hidden" name="types[]" value="bottom_banner_images_mxe">
+                                <input type="hidden" name="types[]" value="bottom_banner_links_mxe">
+
+                                @if (get_setting('bottom_banner_images_mxe') != null)
+                                    @foreach (json_decode(get_setting('bottom_banner_images_mxe'), true) as $key => $value)
+                                        <div class="p-row">
+                                            <div class="row gutters-5">
+                                                <!-- Image Upload -->
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <div class="input-group" data-toggle="aizuploader"
+                                                            data-type="image">
+                                                            <div class="input-group-prepend">
+                                                                <div
+                                                                    class="input-group-text bg-soft-secondary font-weight-medium">
+                                                                    {{ translate('Browse') }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-control file-amount">
+                                                                {{ translate('Choose File') }}
+                                                            </div>
+                                                            <input type="hidden" name="types[]"
+                                                                value="bottom_banner_images_mxe">
+                                                            <input type="hidden" name="bottom_banner_images_mxe[]"
+                                                                class="selected-files"
+                                                                value="{{ json_decode(get_setting('bottom_banner_images_mxe'), true)[$key] }}">
+                                                        </div>
+                                                        <div class="file-preview box sm"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Banner Link -->
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]"
+                                                            value="bottom_banner_links_mxe">
+                                                        <input type="text" class="form-control" placeholder="http://"
+                                                            name="bottom_banner_links_mxe[]"
+                                                            value="{{ json_decode(get_setting('bottom_banner_links_mxe'), true)[$key] }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Remove Button -->
+                                                <div class="col-md-auto">
+                                                    <div class="form-group">
+                                                        <button type="button"
+                                                            class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+                                                            data-toggle="remove-parent" data-parent=".p-row">
+                                                            <i class="las la-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- Add New Button -->
+                            <button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
+                                data-content='
+                    <div class="p-row">
+                        <div class="row gutters-5">
+                            <!-- Image Upload -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
+                                        </div>
+                                        <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                        <input type="hidden" name="types[]" value="bottom_banner_images_mxe">
+                                        <input type="hidden" name="bottom_banner_images_mxe[]" class="selected-files" value="">
+                                    </div>
+                                    <div class="file-preview box sm"></div>
+                                </div>
+                            </div>
+
+                            <!-- Banner Link -->
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <input type="hidden" name="types[]" value="bottom_banner_links_mxe">
+                                    <input type="text" class="form-control" placeholder="http://" name="bottom_banner_links_mxe[]" value="">
+                                </div>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <div class="col-md-auto">
+                                <div class="form-group">
+                                    <button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".p-row">
+                                        <i class="las la-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>'
+                                data-target=".bottom-banners-target">
+                                {{ translate('Add New') }}
+                            </button>
+                        </div>
+
+                        <!-- Update Button -->
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+@endsection
+
+@section('script')
+    <script type="text/javascript">
+        $(document).ready(function() {
+            AIZ.plugins.bootstrapSelect('refresh');
+        });
+    </script>
+@endsection

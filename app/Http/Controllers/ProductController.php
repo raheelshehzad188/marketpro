@@ -18,6 +18,9 @@ use App\ProductAddon;
 use Artisan;
 use Cache;
 use Illuminate\Support\Facades\Validator;
+use Excel;
+use Illuminate\Support\Facades\Log;
+use App\Imports\KnobbyProductsImport;
 
 class ProductController extends Controller
 {
@@ -74,44 +77,41 @@ class ProductController extends Controller
     public function all_products(Request $request)
     {
         $sort_search = null;
-
-        // Fetch top-level nodes - this remains unchanged
         $topLevelNodes = Category::where('parent_id', 0)->where('published', 1)->get();
 
-        // Initialize the query with the necessary joins for category filtering
         $productsQuery = Product::where('auction_product', 0)
             ->orderBy('created_at', 'desc');
 
-        // Apply search filter if there's a search term
         if ($request->search != null) {
             $productsQuery = $productsQuery->where('name', 'like', '%' . $request->search . '%');
             $sort_search = $request->search;
         }
 
-        // Extract category IDs from the query string and filter if they exist
+        if ($request->has('featured') && $request->featured == '1') {
+            $productsQuery = $productsQuery->where('featured', 1);
+        }
+
         $categoryIds = array_filter(explode(',', $request->selectedCategories_treeview1));
         if (!empty($categoryIds)) {
             $productsQuery = $productsQuery->join('product_category_pivot', 'products.id', '=', 'product_category_pivot.product_id')
                 ->whereIn('product_category_pivot.category_id', $categoryIds)
-                ->select('products.*') // Select only columns from products table
+                ->select('products.*')
                 ->distinct();
 
-            // Fetch the names of selected categories, if needed for the view
             $selectedCategoryNames = Category::whereIn('id', $categoryIds)->get();
         } else {
-            $selectedCategoryNames = collect(); // Empty collection if no categories are selected
+            $selectedCategoryNames = collect();
         }
 
-        // Apply pagination
         $products = $productsQuery->paginate(15);
 
-        // Fetch visibility information for each product
         foreach ($products as $product) {
             $product->visibilityShops = $product->visibility()->pluck('name')->toArray();
         }
 
         return view('backend.product.products.index', compact('products', 'sort_search', 'topLevelNodes', 'categoryIds', 'selectedCategoryNames'));
     }
+
 
 
 
@@ -838,5 +838,42 @@ class ProductController extends Controller
 
         $combinations = Combinations::makeCombinations($options);
         return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
+    }
+
+
+
+    public function uploadKnobbyData(Request $request)
+    {
+        // Validate the uploaded file and the import ID
+        $request->validate([
+            'bulk_file' => 'required|mimes:xlsx,xls',  // Ensure the correct file type
+            'import_id' => 'required|string',          // Validate the presence of the import ID
+        ]);
+
+        $importId = $request->input('import_id');  // Get the unique import ID from the request
+
+        // Create a unique file name based on the current time and original file name
+        $fileName = time() . '_' . $request->file('bulk_file')->getClientOriginalName();
+        $filePath = storage_path('app/tmp/' . $fileName);
+
+        // Ensure the temporary upload directory exists, if not, create it
+        if (!file_exists(storage_path('app/tmp'))) {
+            mkdir(storage_path('app/tmp'), 0777, true);
+        }
+
+        // Move the uploaded file to the specified directory
+        $request->file('bulk_file')->move(storage_path('app/tmp'), $fileName);
+
+        try {
+            // Start the import
+            Excel::queueImport(new KnobbyProductsImport($importId), $filePath);
+
+            // Return a JSON response indicating success
+            return response()->json(['success' => true, 'message' => 'Upload started successfully.']);
+        } catch (\Exception $e) {
+            // Log and return an error response
+            Log::channel('product_import')->error('Error during Excel import: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'File import failed.'], 500);
+        }
     }
 }

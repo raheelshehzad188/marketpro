@@ -45,7 +45,9 @@ class HomeController extends Controller
     public function index()
     {
 
-        redirect('admin');
+        $currentDomain = app('currentDomain'); // Access the bound domain
+        $domainConfig = app('domainConfig');
+        echo $domainConfig['view'];
         exit();
         $featured_categories = array();
 

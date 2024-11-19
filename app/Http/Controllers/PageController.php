@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Page;
+use App\Models\Shop;
 use App\PageTranslation;
 
 
@@ -14,10 +15,7 @@ class PageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
@@ -39,23 +37,28 @@ class PageController extends Controller
     {
         $page = new Page;
         $page->title = $request->title;
-        if (Page::where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() == null) {
-            $page->slug             = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
-            $page->type             = "custom_page";
-            $page->banner          = $request->banner;
-            $page->content          = $request->content;
-            $page->meta_title       = $request->meta_title;
-            $page->meta_description = $request->meta_description;
-            $page->keywords         = $request->keywords;
-            $page->meta_image       = $request->meta_image;
-            $page->save();
 
-            flash(translate('New page has been created successfully'))->success();
-            return redirect()->route('website.pages');
+        $page->slug             = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
+        $page->type             = "custom_page";
+        $page->banner          = $request->banner;
+        $page->content          = $request->content;
+        $page->meta_title       = $request->meta_title;
+        $page->meta_description = $request->meta_description;
+        $page->keywords         = $request->keywords;
+        $page->meta_image       = $request->meta_image;
+        $page->save();
+
+        // Handling product visibility
+        if ($request->has('visibility') && !empty($request->input('visibility'))) {
+            $page->visibility()->sync($request->input('visibility'));
+        } else {
+            // Set visibility to all shops if visibility is not provided or is empty
+            $allShopIds = Shop::pluck('id')->all();
+            $page->visibility()->sync($allShopIds);
         }
 
-        flash(translate('Slug has been used already'))->warning();
-        return back();
+        flash(translate('New page has been created successfully'))->success();
+        return redirect()->route('website.pages');
     }
 
     /**
@@ -75,18 +78,22 @@ class PageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-   public function edit(Request $request, $id)
-   {
+    public function edit(Request $request, $id)
+    {
         $lang = $request->lang;
         $page_name = $request->page;
-        $page = Page::where('slug', $id)->first();
-        if($page != null){
-          if ($page_name == 'home') {
-            return view('backend.website_settings.pages.home_page_edit', compact('page','lang'));
-          }
-          else{
-            return view('backend.website_settings.pages.edit', compact('page','lang'));
-          }
+        $page = Page::where('id', $id)->first();
+
+         // Fetching visibility shop_ids
+         $visibilityShopIds = $page->visibility()->pluck('id')->toArray();
+        if ($page != null) {
+            if ($page_name == 'home') {
+                return view('backend.website_settings.pages.home_page_edit', compact('page', 'lang'));
+            } elseif ($page->type  == 'home_mxe') {
+                return view('backend.website_settings.pages.home_page_mxe_edit', compact('page', 'lang'));
+            } else {
+                return view('backend.website_settings.pages.edit', compact('page', 'lang','visibilityShopIds'));
+            }
         }
         abort(404);
     }
@@ -101,30 +108,34 @@ class PageController extends Controller
     public function update(Request $request, $id)
     {
         $page = Page::findOrFail($id);
-        if (Page::where('id','!=', $id)->where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() == null) {
-            if($page->type == 'custom_page'){
-              $page->slug           = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
-            }
-            if($request->lang == env("DEFAULT_LANGUAGE")){
-              $page->title          = $request->title;
-              $page->content        = $request->content;
-            }
-            $page->banner          = $request->banner;
-            $page->meta_title       = $request->meta_title;
-            $page->meta_description = $request->meta_description;
-            $page->keywords         = $request->keywords;
-            $page->meta_image       = $request->meta_image;
-            $page->save();
+        if ($page->type == 'custom_page') {
+            $page->slug           = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
+        }
+        if ($request->lang == env("DEFAULT_LANGUAGE")) {
+            $page->title          = $request->title;
+            $page->content        = $request->content;
+        }
+        $page->banner          = $request->banner;
+        $page->meta_title       = $request->meta_title;
+        $page->meta_description = $request->meta_description;
+        $page->keywords         = $request->keywords;
+        $page->meta_image       = $request->meta_image;
+        $page->save();
 
 
 
-            flash(translate('Page has been updated successfully'))->success();
-            return redirect()->route('website.pages');
+        // Handling product visibility
+        if ($request->has('visibility') && !empty($request->input('visibility'))) {
+            $page->visibility()->sync($request->input('visibility'));
+        } else {
+            // Set visibility to all shops if visibility is not provided or is empty
+            $allShopIds = Shop::pluck('id')->all();
+            $page->visibility()->sync($allShopIds);
         }
 
-      flash(translate('Slug has been used already'))->warning();
-      return back();
 
+        flash(translate('Page has been updated successfully'))->success();
+        return redirect()->route('website.pages');
     }
 
     /**
@@ -139,23 +150,25 @@ class PageController extends Controller
         foreach ($page->page_translations as $key => $page_translation) {
             $page_translation->delete();
         }
-        if(Page::destroy($id)){
+        if (Page::destroy($id)) {
             flash(translate('Page has been deleted successfully'))->success();
             return redirect()->back();
         }
         return back();
     }
 
-    public function show_custom_page($slug){
+    public function show_custom_page($slug)
+    {
         $page = Page::where('slug', $slug)->first();
-        if($page != null){
+        if ($page != null) {
             return view('frontend.custom_page', compact('page'));
         }
         abort(404);
     }
-    public function mobile_custom_page($slug){
+    public function mobile_custom_page($slug)
+    {
         $page = Page::where('slug', $slug)->first();
-        if($page != null){
+        if ($page != null) {
             return view('frontend.m_custom_page', compact('page'));
         }
         abort(404);

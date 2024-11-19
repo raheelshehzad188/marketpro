@@ -1,17 +1,18 @@
 <?php
-/*
-  |--------------------------------------------------------------------------
-  | Web Routes
-  |--------------------------------------------------------------------------
-  |
-  | Here is where you can register web routes for your application. These
-  | routes are loaded by the RouteServiceProvider within a group which
-  | contains the "web" middleware group. Now create something great!
-  |
- */
-// use App\Mail\SupportMailManager;
+
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\BikeFitmentDataController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Cache;
+use App\Http\Controllers\ProductController;
+
+
+Route::get('/storage-link', function () {
+    Artisan::call('storage:link');
+    return 'Storage link has been created successfully.';
+});
 //demo
-Route::get('/clear-cache-all', function() {
+Route::get('/clear-cache-all', function () {
     Artisan::call('cache:clear');
 
     dd("Cache Clear All");
@@ -59,13 +60,15 @@ Route::get('/social-login/{provider}/callback', 'Auth\LoginController@handleProv
 Route::post('/users/login/cart', 'HomeController@cart_login')->name('cart.login.submit');
 
 //Home Page
-Route::get('/', 'HomeController@index')->name('home');
-Route::get('/', function () {
-    return redirect('/admin/pos');
+Route::group(['middleware' => ['domainCheck']], function () {
+    Route::get('/', 'HomeController@index')->name('home');
 });
-Route::get('/home', function () {
-    return redirect('/admin/pos');
-});
+// Route::get('/', function () {
+//     return redirect('/admin/pos');
+// });
+// Route::get('/home', function () {
+//     return redirect('/admin/pos');
+// });
 
 
 
@@ -174,38 +177,38 @@ Route::get('/paypal/payment/cancel', 'PaypalController@getCancel')->name('paymen
 //Paypal END
 
 // SSLCOMMERZ Start
-Route::get('/sslcommerz/pay', 'PublicSslCommerzPaymentController@index');
-Route::POST('/sslcommerz/success', 'PublicSslCommerzPaymentController@success');
-Route::POST('/sslcommerz/fail', 'PublicSslCommerzPaymentController@fail');
-Route::POST('/sslcommerz/cancel', 'PublicSslCommerzPaymentController@cancel');
-Route::POST('/sslcommerz/ipn', 'PublicSslCommerzPaymentController@ipn');
+// Route::get('/sslcommerz/pay', 'PublicSslCommerzPaymentController@index');
+// Route::POST('/sslcommerz/success', 'PublicSslCommerzPaymentController@success');
+// Route::POST('/sslcommerz/fail', 'PublicSslCommerzPaymentController@fail');
+// Route::POST('/sslcommerz/cancel', 'PublicSslCommerzPaymentController@cancel');
+// Route::POST('/sslcommerz/ipn', 'PublicSslCommerzPaymentController@ipn');
 //SSLCOMMERZ END
 
 //Stipe Start
-Route::get('stripe', 'StripePaymentController@stripe');
-Route::post('/stripe/create-checkout-session', 'StripePaymentController@create_checkout_session')->name('stripe.get_token');
-Route::any('/stripe/payment/callback', 'StripePaymentController@callback')->name('stripe.callback');
-Route::get('/stripe/success', 'StripePaymentController@success')->name('stripe.success');
-Route::get('/stripe/cancel', 'StripePaymentController@cancel')->name('stripe.cancel');
+// Route::get('stripe', 'StripePaymentController@stripe');
+// Route::post('/stripe/create-checkout-session', 'StripePaymentController@create_checkout_session')->name('stripe.get_token');
+// Route::any('/stripe/payment/callback', 'StripePaymentController@callback')->name('stripe.callback');
+// Route::get('/stripe/success', 'StripePaymentController@success')->name('stripe.success');
+// Route::get('/stripe/cancel', 'StripePaymentController@cancel')->name('stripe.cancel');
 //Stripe END
 
-Route::get('/compare', 'CompareController@index')->name('compare');
-Route::get('/compare/reset', 'CompareController@reset')->name('compare.reset');
-Route::post('/compare/addToCompare', 'CompareController@addToCompare')->name('compare.addToCompare');
+// Route::get('/compare', 'CompareController@index')->name('compare');
+// Route::get('/compare/reset', 'CompareController@reset')->name('compare.reset');
+// Route::post('/compare/addToCompare', 'CompareController@addToCompare')->name('compare.addToCompare');
 
-Route::resource('subscribers', 'SubscriberController');
+// Route::resource('subscribers', 'SubscriberController');
 
-Route::get('/brands', 'HomeController@all_brands')->name('brands.all');
-Route::get('/categories', 'HomeController@all_categories')->name('categories.all');
-Route::get('/sellers', 'HomeController@all_seller')->name('sellers');
-Route::get('/coupons', 'HomeController@all_coupons')->name('coupons.all');
-Route::get('/inhouse', 'HomeController@inhouse_products')->name('inhouse.all');
+// Route::get('/brands', 'HomeController@all_brands')->name('brands.all');
+// Route::get('/categories', 'HomeController@all_categories')->name('categories.all');
+// Route::get('/sellers', 'HomeController@all_seller')->name('sellers');
+// Route::get('/coupons', 'HomeController@all_coupons')->name('coupons.all');
+// Route::get('/inhouse', 'HomeController@inhouse_products')->name('inhouse.all');
 
-Route::get('/sellerpolicy', 'HomeController@sellerpolicy')->name('sellerpolicy');
-Route::get('/returnpolicy', 'HomeController@returnpolicy')->name('returnpolicy');
-Route::get('/supportpolicy', 'HomeController@supportpolicy')->name('supportpolicy');
-Route::get('/terms', 'HomeController@terms')->name('terms');
-Route::get('/privacypolicy', 'HomeController@privacypolicy')->name('privacypolicy');
+// Route::get('/sellerpolicy', 'HomeController@sellerpolicy')->name('sellerpolicy');
+// Route::get('/returnpolicy', 'HomeController@returnpolicy')->name('returnpolicy');
+// Route::get('/supportpolicy', 'HomeController@supportpolicy')->name('supportpolicy');
+// Route::get('/terms', 'HomeController@terms')->name('terms');
+// Route::get('/privacypolicy', 'HomeController@privacypolicy')->name('privacypolicy');
 
 // Route::group(['middleware' => ['user', 'verified', 'unbanned']], function () {
 //     Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
@@ -241,36 +244,36 @@ Route::get('/privacypolicy', 'HomeController@privacypolicy')->name('privacypolic
 
 Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy')->name('customer_products.destroy');
 
-Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user']], function () {
-    Route::get('/products', 'HomeController@seller_product_list')->name('seller.products');
-    Route::get('/product/upload', 'HomeController@show_product_upload_form')->name('seller.products.upload');
-    Route::get('/product/{id}/edit', 'HomeController@show_product_edit_form')->name('seller.products.edit');
-    Route::resource('payments', 'PaymentController');
+// Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user']], function () {
+//     Route::get('/products', 'HomeController@seller_product_list')->name('seller.products');
+//     Route::get('/product/upload', 'HomeController@show_product_upload_form')->name('seller.products.upload');
+//     Route::get('/product/{id}/edit', 'HomeController@show_product_edit_form')->name('seller.products.edit');
+//     Route::resource('payments', 'PaymentController');
 
-    Route::get('/shop/apply_for_verification', 'ShopController@verify_form')->name('shop.verify');
-    Route::post('/shop/apply_for_verification', 'ShopController@verify_form_store')->name('shop.verify.store');
+//     Route::get('/shop/apply_for_verification', 'ShopController@verify_form')->name('shop.verify');
+//     Route::post('/shop/apply_for_verification', 'ShopController@verify_form_store')->name('shop.verify.store');
 
-    Route::get('/reviews', 'ReviewController@seller_reviews')->name('reviews.seller');
+//     Route::get('/reviews', 'ReviewController@seller_reviews')->name('reviews.seller');
 
-    //digital Product
-    Route::get('/digitalproducts', 'HomeController@seller_digital_product_list')->name('seller.digitalproducts');
-    Route::get('/digitalproducts/upload', 'HomeController@show_digital_product_upload_form')->name('seller.digitalproducts.upload');
-    Route::get('/digitalproducts/{id}/edit', 'HomeController@show_digital_product_edit_form')->name('seller.digitalproducts.edit');
+//     //digital Product
+//     Route::get('/digitalproducts', 'HomeController@seller_digital_product_list')->name('seller.digitalproducts');
+//     Route::get('/digitalproducts/upload', 'HomeController@show_digital_product_upload_form')->name('seller.digitalproducts.upload');
+//     Route::get('/digitalproducts/{id}/edit', 'HomeController@show_digital_product_edit_form')->name('seller.digitalproducts.edit');
 
-    //Coupon
-    Route::get('/coupons', 'CouponController@sellerIndex')->name('seller.coupon.index');
-    Route::get('/coupons/create', 'CouponController@sellerCreate')->name('seller.coupon.create');
-    Route::post('/coupons/store', 'CouponController@sellerStore')->name('seller.coupon.store');
-    Route::get('/coupon/edit/{id}', 'CouponController@sellerEdit')->name('seller.coupon.edit');
-    Route::get('/coupon/destroy/{id}', 'CouponController@sellerDestroy')->name('seller.coupon.destroy');
-    Route::patch('/coupons/update/{id}', 'CouponController@sellerUpdate')->name('seller.coupon.update');
+//     //Coupon
+//     Route::get('/coupons', 'CouponController@sellerIndex')->name('seller.coupon.index');
+//     Route::get('/coupons/create', 'CouponController@sellerCreate')->name('seller.coupon.create');
+//     Route::post('/coupons/store', 'CouponController@sellerStore')->name('seller.coupon.store');
+//     Route::get('/coupon/edit/{id}', 'CouponController@sellerEdit')->name('seller.coupon.edit');
+//     Route::get('/coupon/destroy/{id}', 'CouponController@sellerDestroy')->name('seller.coupon.destroy');
+//     Route::patch('/coupons/update/{id}', 'CouponController@sellerUpdate')->name('seller.coupon.update');
 
-    //Upload
-    Route::any('/uploads/', 'AizUploadController@index')->name('my_uploads.all');
-    Route::any('/uploads/new', 'AizUploadController@create')->name('my_uploads.new');
-    Route::any('/uploads/file-info', 'AizUploadController@file_info')->name('my_uploads.info');
-    Route::get('/uploads/destroy/{id}', 'AizUploadController@destroy')->name('my_uploads.destroy');
-});
+//     //Upload
+//     Route::any('/uploads/', 'AizUploadController@index')->name('my_uploads.all');
+//     Route::any('/uploads/new', 'AizUploadController@create')->name('my_uploads.new');
+//     Route::any('/uploads/file-info', 'AizUploadController@file_info')->name('my_uploads.info');
+//     Route::get('/uploads/destroy/{id}', 'AizUploadController@destroy')->name('my_uploads.destroy');
+// });
 
 Route::group(['middleware' => ['auth']], function () {
     Route::post('/products/store/', 'ProductController@store')->name('products.store');
@@ -307,10 +310,35 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Product Bulk Upload
     Route::get('/product-bulk-upload/index', 'ProductBulkUploadController@index')->name('product_bulk_upload.index');
+
+    Route::get('/bulk-upload/knobby-category', 'ProductBulkUploadController@knobby_category')->name('knobby_category_upload.index');
+
+    Route::get('/bulk-upload/bike-fitment', 'ProductBulkUploadController@knobby_bike_fitment')->name('knobby_bike_fitment_upload.index');
+
+    Route::get('/bulk-upload/product-knobby', 'ProductBulkUploadController@knobby_product')->name('knobby_product_upload.index');
+
+
     Route::post('/bulk-product-upload', 'ProductBulkUploadController@bulk_upload')->name('bulk_product_upload');
 
+    Route::post('/categories/import', [CategoryController::class, 'importCategories'])->name('categories.import');
+    Route::post('bike-fitment-data-upload', [BikeFitmentDataController::class, 'uploadBikeFitmentData'])->name('bike_fitment_data_upload');
+    Route::post('/knobby-products-upload', [ProductController::class, 'uploadKnobbyData'])->name('knobby_products_data_upload');
 
-    Route::post('/bulk-product-upload2', 'ProductBulkUploadController@bulk_upload')->name('knobby_category_upload');
+
+
+    Route::get('/import-progress/{importId}', function ($importId) {
+        $progress = Cache::get("processed_rows_{$importId}", 0); // Get progress from cache
+        $isCompleted = Cache::get("import_completed_{$importId}", false); // Get completion status from cache
+
+        return response()->json([
+            'processed_rows' => $progress,
+            'status' => $isCompleted ? 'completed' : 'in_progress'
+        ]);
+    })->name('import.progress');
+
+
+
+
 
 
 

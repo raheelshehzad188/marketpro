@@ -65,8 +65,19 @@ class PosController extends Controller
         $data = array();
 
         if ($parent == "#") {
-            //->where('id', '!=', 120)
-            $categories = Category::with('childrenCategories')->where('parent_id', 0)->where('published', 1)->orderBy('created_at', 'desc')->get();
+            // Fetch top-level categories visible to Shop ID 1 or with no shop association
+            $categories = Category::with('childrenCategories')
+                ->where('parent_id', 0)
+                ->where('published', 1)
+                ->where(function ($query) {
+                    $query->whereHas('visibility', function ($subQuery) {
+                        $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                    })
+                        ->orWhereDoesntHave('visibility'); // No shop association
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
             foreach ($categories as $cat) {
                 $data[] = array(
                     "id" => "cat_" . $cat->id,
@@ -78,25 +89,30 @@ class PosController extends Controller
                 );
             }
         } else {
-            $parent  = explode('_', $parent);
+            $parent = explode('_', $parent);
+            $parentId = $parent[1];
 
-            if ($parent[1] == 15) {
-                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('published', 1)->where('parent_id',  $parent[1])->orderBy('created_at', 'desc')->get();
-            } else {
-                $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])->where('published', 1)->where('parent_id',  $parent[1])->orderBy('created_at', 'desc')->get();
-            }
-
+            $categories = Category::with(['childrenCategoriesCreatedOrder', 'products'])
+                ->where('published', 1)
+                ->where('parent_id', $parentId)
+                ->where(function ($query) {
+                    $query->whereHas('visibility', function ($subQuery) {
+                        $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                    })
+                        ->orWhereDoesntHave('visibility'); // No shop association
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             if (!$categories->isEmpty()) {
-
                 foreach ($categories as $cat) {
                     if (count($cat->childrenCategories) > 0) {
                         $data[] = array(
                             "id" => "cat_" . $cat->id,
                             "text" => $cat->name,
                             "icon" => "fa fa-folder icon-lg",
-                            "children" => (count($cat->childrenCategories)) ? true : false,
-                            "a_attr" => array('type' => (count($cat->childrenCategories)) ? 'category' : 'product', 'id' => $cat->id),
+                            "children" => true,
+                            "a_attr" => array('type' => 'category', 'id' => $cat->id),
                             "type" => "root"
                         );
                     } else {
@@ -105,45 +121,78 @@ class PosController extends Controller
                             "text" => $cat->name,
                             "icon" => "fa fa-folder icon-lg",
                             "children" => (count($cat->products)) ? true : false,
-                            "a_attr" => array('type' => (count($cat->products)) ? 'product' : 'category', 'id' => $cat->id),
+                            "a_attr" => array('type' => 'product', 'id' => $cat->id),
                             "type" => "root"
                         );
                     }
                 }
             } else {
-                $cat_id = $parent[1];
-                $products = Product::where('published', '1');
-                $products->whereHas('categories', function ($q) use ($cat_id) {
-                    $q->where('category_id', $cat_id); // '=' is optional
-                });
-                $products = $products->get();
+                // $cat_id = $parentId;
+                // $products = Product::where('published', 1)
+                //     ->whereHas('categories', function ($query) use ($cat_id) {
+                //         $query->where('category_id', $cat_id)
+                //             ->where(function ($subQuery) {
+                //                 $subQuery->whereHas('visibility', function ($visibilityQuery) {
+                //                     $visibilityQuery->where('shop_id', 1);
+                //                 })
+                //                     ->orWhereDoesntHave('visibility');
+                //             });
+                //     })
+                //     ->with(['categories', 'visibility']) // Eager load relationships
+                //     ->get();
 
+                // $data = [];
+                // foreach ($products as $product) {
+                //     $data[] = [
+                //         "id" => "pro_" . $product->id,
+                //         "text" => $product->name,
+                //         "icon" => "fa fa-folder icon-lg",
+                //         "children" => false,
+                //         "a_attr" => ['type' => 'single_product', 'id' => $product->id],
+                //         "type" => "root"
+                //     ];
+                // }
 
+                //Optimized one
+                
+                $cat_id = $parentId;
+                // Direct SQL query with optimized joins and conditions
+                $products = DB::select("SELECT DISTINCT products.*
+                                        FROM products
+                                        INNER JOIN product_category_pivot ON products.id = product_category_pivot.product_id
+                                        INNER JOIN categories ON categories.id = product_category_pivot.category_id
+                                        LEFT JOIN visibility_pivot AS vp ON categories.id = vp.entity_id 
+                                            AND vp.entity_type = 'App\\Category'
+                                            AND vp.shop_id = 1
+                                        WHERE products.published = 1
+                                        AND product_category_pivot.category_id = ?
+                                        AND (vp.shop_id = 1 OR vp.shop_id IS NULL)", [$cat_id]);
+
+                // Optional: Convert raw result to Eloquent models for further processing
+                $productIds = array_column($products, 'id');
+                $products = Product::whereIn('id', $productIds)
+                    ->with(['categories', 'visibility']) // Eager load relationships
+                    ->get();
+
+                // Format data array as in the original code
+                $data = [];
                 foreach ($products as $product) {
-                    $data[] = array(
+                    $data[] = [
                         "id" => "pro_" . $product->id,
                         "text" => $product->name,
                         "icon" => "fa fa-folder icon-lg",
-                        "children" =>  false,
-                        "a_attr" => array('type' => 'single_product', 'id' => $product->id),
+                        "children" => false,
+                        "a_attr" => ['type' => 'single_product', 'id' => $product->id],
                         "type" => "root"
-                    );
+                    ];
                 }
             }
-
-
-            // for ($i = 1; $i < rand(2, 4); $i++) {
-            //     $data[] = array(
-            //         "id" => "node_" . time() . rand(1, 100000),
-            //         "icon" => (rand(0, 3) == 2 ? "fa fa-file icon-lg" : "fa fa-folder icon-lg"),
-            //         "text" => "Node " . time(),
-            //         "children" => (rand(0, 3) == 2 ? false : true),
-            //         'second' => 2
-            //     );
-            // }
         }
+
         return response()->json($data);
     }
+
+
 
     public function search(Request $request)
     {
@@ -154,8 +203,14 @@ class PosController extends Controller
             return redirect()->back()->withErrors(['keyword' => 'Keyword is required']);
         }
 
-        // Search for all ProductAddons with the provided SKU
+        // Search for all ProductAddons with the provided SKU that are linked to Shop ID 1 or have no shop association
         $product_addons = ProductAddon::where('sku', $keyword)
+            ->where(function ($query) {
+                $query->whereHas('visibility', function ($subQuery) {
+                    $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                })
+                    ->orWhereDoesntHave('visibility'); // No shop association
+            })
             ->with(['products' => function ($query) {
                 $query->withPivot('sort_order')
                     ->orderByRaw('(thumbnail_img IS NULL) DESC');
@@ -182,10 +237,16 @@ class PosController extends Controller
             });
         }
 
-        // Search for a Product directly if no addon is found
+        // Search for a Product directly if no addon is found, considering visibility to Shop ID 1 or no association
         if (!$linked_product_addon && !$unlinked_product_addon) {
             $detailedProduct = Product::where('published', '1')
                 ->where('sku', $keyword)
+                ->where(function ($query) {
+                    $query->whereHas('visibility', function ($subQuery) {
+                        $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                    })
+                        ->orWhereDoesntHave('visibility'); // No shop association
+                })
                 ->first();
         }
 
@@ -196,22 +257,61 @@ class PosController extends Controller
 
 
 
+
+    // public function get_products(Request $request)
+    // {
+    //     $category_id = $request->id;
+
+    //     $products = Product::where('published', '1');
+
+    //     if ($request->has('id') && $request->id != null) {
+    //         $products->whereHas('categories', function ($q) use ($category_id) {
+    //             $q->where('category_id', $category_id); // Filter by category ID
+    //         });
+    //     }
+
+    //     // Add the condition to check visibility for Shop ID 1 or no shop association
+    //     $products->where(function ($query) {
+    //         $query->whereHas('visibility', function ($subQuery) {
+    //             $subQuery->where('shop_id', 1); // Products visible to Shop ID 1
+    //         })
+    //             ->orWhereDoesntHave('visibility'); // Products with no specific shop association
+    //     });
+
+    //     $products = $products->get();
+
+    //     echo view('pos.product_listing', compact('products'))->render();
+    // }
+
+    //Optimized
     public function get_products(Request $request)
     {
         $category_id = $request->id;
+        $params = [1]; // For the 'published' condition and shop visibility
 
-        $search = null;
-        $products = Product::where('published', '1');
-        if ($request->has('id') && $request->id != null) {
-            $products->whereHas('categories', function ($q) use ($category_id) {
-                $q->where('category_id', $category_id); // '=' is optional
-            });
+        // Base SQL query with JOINs for category and visibility filtering
+        $sql = "SELECT DISTINCT products.* 
+            FROM products
+            INNER JOIN product_category_pivot ON product_category_pivot.product_id = products.id
+            INNER JOIN categories ON categories.id = product_category_pivot.category_id
+            LEFT JOIN visibility_pivot ON visibility_pivot.entity_id = categories.id 
+                AND visibility_pivot.entity_type = 'App\\Category'
+                AND (visibility_pivot.shop_id = 1 OR visibility_pivot.shop_id IS NULL)
+            WHERE products.published = ?";
+
+        // Append category filter if a category ID is provided
+        if ($request->has('id') && $category_id != null) {
+            $sql .= " AND product_category_pivot.category_id = ?";
+            $params[] = $category_id;
         }
-        //orderBy('created_at','desc')->
-        $products = $products->get();
 
-        echo  view('pos.product_listing', compact('products'))->render();
+        // Execute the optimized query with parameters
+        $products = DB::select($sql, $params);
+
+        // Render the view with the fetched products
+        echo view('pos.product_listing', compact('products'))->render();
     }
+
 
     // public function get_product(Request $request)
     // {
@@ -223,12 +323,21 @@ class PosController extends Controller
     //     // exit();
     //     echo  view('pos.product_detail', compact('detailedProduct', 'keyword'))->render();
     // }
+
     public function get_product(Request $request)
     {
         $relatedProducts = '';
+
+        // Fetch the detailed product with visibility conditions
         $detailedProduct = Product::where('id', $request->id)
             ->where('published', 1)
             ->where('approved', 1)
+            ->where(function ($query) {
+                $query->whereHas('visibility', function ($subQuery) {
+                    $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                })
+                    ->orWhereDoesntHave('visibility'); // No shop association
+            })
             ->with(['product_addons' => function ($query) {
                 $query->withPivot('sort_order');
             }])
@@ -245,12 +354,19 @@ class PosController extends Controller
                 return $sortKey;
             }, SORT_NATURAL);
 
-            // $relatedProducts = $detailedProduct->relevantProducts()->get();
-
             $uniqueProductsFromAddons = collect();
 
+            // Ensure that only addons visible to Shop ID 1 or no shop association are considered
             foreach ($detailedProduct->relatedAddons as $addon) {
-                $product = $addon->products->first(); // Get only the first product of this addon
+                $product = $addon->products()
+                    ->where(function ($query) {
+                        $query->whereHas('visibility', function ($subQuery) {
+                            $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                        })
+                            ->orWhereDoesntHave('visibility'); // No shop association
+                    })
+                    ->first(); // Get only the first product of this addon
+
                 if ($product) {
                     // Add the SKU to the product object
                     $product->addonSKU = $addon->sku; // Assuming 'SKU' is the attribute name in product_addons
@@ -259,13 +375,18 @@ class PosController extends Controller
             }
 
             // Combine with directly related products
-            $allRelatedProducts = $detailedProduct->relevantProducts
+            $allRelatedProducts = $detailedProduct->relevantProducts()
+                ->where(function ($query) {
+                    $query->whereHas('visibility', function ($subQuery) {
+                        $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                    })
+                        ->orWhereDoesntHave('visibility'); // No shop association
+                })
+                ->get()
                 ->merge($uniqueProductsFromAddons)
                 ->unique('id')
-                ->reject(fn ($p) => $p->id === $detailedProduct->id); // Exclude the main product
-
+                ->reject(fn($p) => $p->id === $detailedProduct->id); // Exclude the main product
         }
-
 
         $keyword = $request->keyword;
 
@@ -274,16 +395,23 @@ class PosController extends Controller
 
 
 
+
     public function get_categories(Request $request)
     {
-        //->where('id', '!=', 120)
-        if ($request->id == 15) {
-            $categories = Category::with('childrenCategoriesCreatedOrder')->where('published', 1)->where('parent_id', $request->id)->orderBy('created_at', 'desc')->get();
-        } else {
-            $categories = Category::with('childrenCategoriesCreatedOrder')->where('published', 1)->where('parent_id', $request->id)->orderBy('created_at', 'desc')->get();
-        }
+        $categoriesQuery = Category::with('childrenCategoriesCreatedOrder')
+            ->where('published', 1)
+            ->where('parent_id', $request->id)
+            ->where(function ($query) {
+                $query->whereHas('visibility', function ($subQuery) {
+                    $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                })
+                    ->orWhereDoesntHave('visibility'); // No shop association
+            })
+            ->orderBy('created_at', 'desc');
 
-        echo  view('pos.category_listing', compact('categories'))->render();
+        $categories = $categoriesQuery->get();
+
+        echo view('pos.category_listing', compact('categories'))->render();
     }
 
     public function addon_combination_edit(Request $request)

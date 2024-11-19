@@ -38,6 +38,14 @@
                             placeholder="{{ translate('Type & Enter') }}">
                     </div>
                 </div>
+                <div class="col-auto">
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="featuredOnly" name="featured" value="1"
+                            @if (request('featured') == '1') checked @endif>
+                        <label class="form-check-label" for="featuredOnly">{{ translate('Show Featured Only') }}</label>
+                    </div>
+                </div>
+
                 <div class="col-md-2">
                     <input type="submit" class="btn btn-sm btn-primary" value="Search">
                 </div>
@@ -87,8 +95,7 @@
                             {{-- <th data-breakpoints="md">{{translate('Total Stock')}}</th> --}}
                             {{-- <th data-breakpoints="lg">{{translate('Todays Deal')}}</th> --}}
                             <th data-breakpoints="sm">{{ translate('Published') }}</th>
-
-                            {{-- <th data-breakpoints="lg">{{translate('Featured')}}</th> --}}
+                            <th data-breakpoints="lg">{{ translate('Featured') }}</th>
                             <th data-breakpoints="sm" class="text-right">{{ translate('Options') }}</th>
                         </tr>
                     </thead>
@@ -139,6 +146,15 @@
                                     </label>
                                 </td>
 
+                                <td>
+                                    <label class="aiz-switch aiz-switch-success mb-0">
+                                        <input onchange="update_featured(this)" value="{{ $product->id }}" type="checkbox"
+                                            <?php if ($product->featured == 1) {
+                                                echo 'checked';
+                                            } ?>>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
 
                                 <td class="text-right">
 
@@ -175,6 +191,11 @@
 
 @section('script')
     <script type="text/javascript">
+        $('#featuredOnly').on('change', function() {
+            $('#sort_products').submit();
+        });
+
+
         $(document).on("change", ".check-all", function() {
             if (this.checked) {
                 // Iterate each checkbox
@@ -239,6 +260,25 @@
                     if (response == 1) {
                         location.reload();
                     }
+                }
+            });
+        }
+
+        function update_featured(el) {
+            if (el.checked) {
+                var status = 1;
+            } else {
+                var status = 0;
+            }
+            $.post('{{ route('products.featured') }}', {
+                _token: '{{ csrf_token() }}',
+                id: el.value,
+                status: status
+            }, function(data) {
+                if (data == 1) {
+                    AIZ.plugins.notify('success', '{{ translate('Featured products updated successfully') }}');
+                } else {
+                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
                 }
             });
         }

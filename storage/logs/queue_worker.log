@@ -1,0 +1,305 @@
+  2024-11-06 02:08:02 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2024-11-06 02:08:02 Maatwebsite\Excel\Jobs\QueueImport ........ 31.64ms DONE
+  2024-11-06 02:08:02 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:08:14 Maatwebsite\Excel\Jobs\ReadChunk .............. 11s DONE
+  2024-11-06 02:08:14 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:08:25 Maatwebsite\Excel\Jobs\ReadChunk .............. 11s DONE
+  2024-11-06 02:08:25 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:08:37 Maatwebsite\Excel\Jobs\ReadChunk .............. 11s DONE
+  2024-11-06 02:08:37 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:08:49 Maatwebsite\Excel\Jobs\ReadChunk .............. 11s DONE
+  2024-11-06 02:08:49 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:09:02 Maatwebsite\Excel\Jobs\ReadChunk .............. 13s DONE
+  2024-11-06 02:09:02 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:09:17 Maatwebsite\Excel\Jobs\ReadChunk .............. 14s DONE
+  2024-11-06 02:09:17 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:09:31 Maatwebsite\Excel\Jobs\ReadChunk .............. 14s DONE
+  2024-11-06 02:09:31 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:09:46 Maatwebsite\Excel\Jobs\ReadChunk .............. 15s DONE
+  2024-11-06 02:09:46 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:10:04 Maatwebsite\Excel\Jobs\ReadChunk .............. 17s DONE
+  2024-11-06 02:10:04 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:10:22 Maatwebsite\Excel\Jobs\ReadChunk .............. 18s DONE
+  2024-11-06 02:10:22 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:10:41 Maatwebsite\Excel\Jobs\ReadChunk .............. 18s DONE
+  2024-11-06 02:10:41 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:10:59 Maatwebsite\Excel\Jobs\ReadChunk .............. 18s DONE
+  2024-11-06 02:10:59 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:11:18 Maatwebsite\Excel\Jobs\ReadChunk .............. 19s DONE
+  2024-11-06 02:11:18 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:11:38 Maatwebsite\Excel\Jobs\ReadChunk .............. 19s DONE
+  2024-11-06 02:11:38 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:11:59 Maatwebsite\Excel\Jobs\ReadChunk .............. 20s DONE
+  2024-11-06 02:11:59 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:12:21 Maatwebsite\Excel\Jobs\ReadChunk .............. 22s DONE
+  2024-11-06 02:12:21 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:12:43 Maatwebsite\Excel\Jobs\ReadChunk .............. 21s DONE
+  2024-11-06 02:12:43 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:13:06 Maatwebsite\Excel\Jobs\ReadChunk .............. 23s DONE
+  2024-11-06 02:13:06 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:13:29 Maatwebsite\Excel\Jobs\ReadChunk .............. 22s DONE
+  2024-11-06 02:13:29 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:13:53 Maatwebsite\Excel\Jobs\ReadChunk .............. 23s DONE
+  2024-11-06 02:13:53 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:14:18 Maatwebsite\Excel\Jobs\ReadChunk .............. 24s DONE
+  2024-11-06 02:14:18 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:14:44 Maatwebsite\Excel\Jobs\ReadChunk .............. 26s DONE
+  2024-11-06 02:14:44 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:15:13 Maatwebsite\Excel\Jobs\ReadChunk .............. 28s DONE
+  2024-11-06 02:15:13 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:15:19 Maatwebsite\Excel\Jobs\ReadChunk ............... 6s DONE
+  2024-11-06 02:15:19 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:15:21 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:15:21 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:15:23 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:15:23 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:15:25 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:15:25 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:15:28 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:15:28 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2024-11-06 02:15:28 Maatwebsite\Excel\Jobs\AfterImportJob ...... 2.83ms DONE
+  2024-11-06 02:20:03 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2024-11-06 02:20:04 Maatwebsite\Excel\Jobs\QueueImport ....... 464.48ms DONE
+  2024-11-06 02:20:04 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:06 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:20:06 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:08 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:08 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:10 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:10 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:12 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:12 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:14 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:14 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:16 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:16 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:17 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:18 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:19 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:19 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:22 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:20:22 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:24 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:24 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:26 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:26 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:28 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:28 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:29 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:30 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:31 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:32 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:34 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:34 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:35 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:36 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:37 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:37 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:39 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:39 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:41 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:41 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:43 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:20:43 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:45 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:45 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:47 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:47 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:49 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:49 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:51 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:51 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:52 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:53 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:54 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:54 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:56 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:56 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:58 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:20:58 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:20:59 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:00 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:02 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:21:02 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:04 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:04 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:06 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:06 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:07 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:07 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:09 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:09 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:11 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:11 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:13 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:13 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:14 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:14 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:16 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:16 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:18 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:18 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:20 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:20 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:22 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:22 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:24 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:24 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:25 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:26 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:27 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:27 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:30 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:21:30 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:32 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:32 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:33 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:34 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:35 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:35 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:37 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:37 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:39 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:39 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:41 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:41 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:43 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:43 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:45 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:45 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:46 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:47 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:48 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:48 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:50 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:21:51 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:52 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:52 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:54 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:54 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:56 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:56 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:21:58 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:21:58 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:00 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:00 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:02 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:02 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:04 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:04 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:06 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:06 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:08 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:08 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:10 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:10 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:12 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:12 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:14 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:14 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:16 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:16 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:17 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:17 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:19 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:19 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:21 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:21 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:23 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:23 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:24 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:24 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:26 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:26 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:28 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:28 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:30 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:30 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:32 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:32 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:34 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:34 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:35 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:35 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:37 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:37 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:39 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:39 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2024-11-06 02:22:39 Maatwebsite\Excel\Jobs\QueueImport ........ 12.00ms DONE
+  2024-11-06 02:22:39 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:41 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:41 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:57 Maatwebsite\Excel\Jobs\ReadChunk .............. 15s DONE
+  2024-11-06 02:22:57 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:22:58 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:22:59 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:23:15 Maatwebsite\Excel\Jobs\ReadChunk .............. 16s DONE
+  2024-11-06 02:23:15 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:23:17 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:23:17 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:23:34 Maatwebsite\Excel\Jobs\ReadChunk .............. 17s DONE
+  2024-11-06 02:23:34 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:23:36 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:23:36 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:23:53 Maatwebsite\Excel\Jobs\ReadChunk .............. 17s DONE
+  2024-11-06 02:23:53 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:23:54 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:23:55 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:24:13 Maatwebsite\Excel\Jobs\ReadChunk .............. 18s DONE
+  2024-11-06 02:24:13 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:24:15 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:24:15 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:24:35 Maatwebsite\Excel\Jobs\ReadChunk .............. 19s DONE
+  2024-11-06 02:24:35 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:24:36 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:24:36 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:24:59 Maatwebsite\Excel\Jobs\ReadChunk .............. 22s DONE
+  2024-11-06 02:24:59 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:25:01 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:25:01 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:25:24 Maatwebsite\Excel\Jobs\ReadChunk .............. 23s DONE
+  2024-11-06 02:25:24 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:25:26 Maatwebsite\Excel\Jobs\ReadChunk ............... 2s DONE
+  2024-11-06 02:25:26 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:25:48 Maatwebsite\Excel\Jobs\ReadChunk .............. 21s DONE
+  2024-11-06 02:25:48 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:25:50 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:25:50 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:26:10 Maatwebsite\Excel\Jobs\ReadChunk .............. 19s DONE
+  2024-11-06 02:26:10 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:26:11 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:26:11 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:26:29 Maatwebsite\Excel\Jobs\ReadChunk .............. 17s DONE
+  2024-11-06 02:26:29 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:26:30 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:26:30 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:26:54 Maatwebsite\Excel\Jobs\ReadChunk .............. 23s DONE
+  2024-11-06 02:26:54 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:26:55 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:26:55 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:27:19 Maatwebsite\Excel\Jobs\ReadChunk .............. 23s DONE
+  2024-11-06 02:27:19 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:27:21 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:27:21 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:27:46 Maatwebsite\Excel\Jobs\ReadChunk .............. 24s DONE
+  2024-11-06 02:27:46 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:27:48 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:27:48 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:28:14 Maatwebsite\Excel\Jobs\ReadChunk .............. 25s DONE
+  2024-11-06 02:28:14 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:28:15 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:28:15 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:28:42 Maatwebsite\Excel\Jobs\ReadChunk .............. 26s DONE
+  2024-11-06 02:28:42 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:28:44 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:28:44 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:29:11 Maatwebsite\Excel\Jobs\ReadChunk .............. 27s DONE
+  2024-11-06 02:29:11 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:29:13 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:29:13 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:29:39 Maatwebsite\Excel\Jobs\ReadChunk .............. 25s DONE
+  2024-11-06 02:29:39 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:29:41 Maatwebsite\Excel\Jobs\ReadChunk ............... 1s DONE
+  2024-11-06 02:29:41 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2024-11-06 02:30:13 Maatwebsite\Excel\Jobs\ReadChunk .............. 32s DONE
+  2024-11-06 02:30:13 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING

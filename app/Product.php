@@ -3,15 +3,48 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ModelName;
+use App\Models\Year;
+use App\Models\Manufacturer;
+use App\Models\Brand;
 use App;
 
 class Product extends Model
 {
 
     protected $fillable = [
-        'name', 'added_by', 'user_id', 'category_id', 'brand_id', 'video_provider', 'video_link', 'unit_price',
-        'purchase_price', 'unit', 'slug', 'colors', 'choice_options', 'variations', 'thumbnail_img', 'meta_title', 'description', 'short_name', 'other_name', 'article_group', 'fake_price', 'current_stock', 'qty', 'sku'
+        'name',
+        'added_by',
+        'user_id',
+        'category_id',
+        'brand_id',
+        'video_provider',
+        'video_link',
+        'unit_price',
+        'purchase_price',
+        'unit',
+        'slug',
+        'colors',
+        'choice_options',
+        'variations',
+        'thumbnail_img',
+        'meta_title',
+        'description',
+        'short_name',
+        'other_name',
+        'article_group',
+        'fake_price',
+        'current_stock',
+        'qty',
+        'sku',
+        'knobby_images',           // Added for the Knobby import
+        'knobby_thumbnail_img',    // Added for the Knobby import
+        'source',                  // Added for tracking the import source
+        'attributes',              // Added to handle product attributes like SizeTires, Spokes, etc.
+        'additional_attributes',   // Added for extra data like Short Webtext, Article No, Supplier SKU, etc.
+        'supplier_sku'
     ];
+
 
     protected $with = ['product_translations', 'taxes'];
 
@@ -50,10 +83,6 @@ class Product extends Model
 
 
 
-    public function brand()
-    {
-        return $this->belongsTo(Brand::class);
-    }
 
     public function user()
     {
@@ -100,14 +129,36 @@ class Product extends Model
     public function visibility()
     {
         return $this->morphToMany(Shop::class, 'entity', 'visibility_pivot', 'entity_id', 'shop_id')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     public function scopeVisibleTo($query, $shopId)
     {
         return $query->whereDoesntHave('visibility')
-                     ->orWhereHas('visibility', function ($q) use ($shopId) {
-                         $q->where('shop_id', $shopId);
-                     });
+            ->orWhereHas('visibility', function ($q) use ($shopId) {
+                $q->where('shop_id', $shopId);
+            });
+    }
+
+
+    
+    public function brands()
+    {
+        return $this->belongsToMany(Brand::class);
+    }
+
+    public function models()
+    {
+        return $this->belongsToMany(ModelName::class);
+    }
+
+    public function manufacturers()
+    {
+        return $this->belongsToMany(Manufacturer::class);
+    }
+
+    public function years()
+    {
+        return $this->belongsToMany(Year::class);
     }
 }

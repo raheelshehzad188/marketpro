@@ -9,6 +9,8 @@ use App\CategoryTranslation;
 use App\Utility\CategoryUtility;
 use Illuminate\Support\Str;
 use App\Models\Shop;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\CategoriesImport;
 use Cache;
 
 class CategoryController extends Controller
@@ -501,5 +503,24 @@ class CategoryController extends Controller
         $this->category_store_p($source_category_id, $target_category_id, 'with_product');
         flash(translate('Categories has been copied successfully'))->success();
         return back();
+    }
+
+
+    public function importCategories(Request $request)
+    {
+        // Validate the uploaded file and visibility selection
+        $request->validate([
+            'knobby_bulk_file' => 'required|mimes:xlsx',
+            'visibility' => 'array', // Ensure visibility is an array of shop IDs
+        ]);
+
+        // Extract visibility data from the request
+        $selectedVisibility = $request->input('visibility', []);
+
+        // Queue the import with chunking
+        Excel::queueImport(new CategoriesImport($selectedVisibility), $request->file('knobby_bulk_file'));
+
+        flash(translate('Categories import has started successfully'))->success();
+        return redirect()->route('categories.index');
     }
 }

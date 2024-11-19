@@ -24,6 +24,24 @@ class ProductBulkUploadController extends Controller
         return view('backend.product.bulk_upload.index');
     }
 
+
+    public function knobby_category()
+    {
+        return view('backend.product.bulk_upload.knobby_category');
+    }
+
+    public function knobby_bike_fitment()
+    {
+        return view('backend.product.bulk_upload.knobby_bike_fitment');
+    }
+
+    public function knobby_product()
+    {
+        return view('backend.product.bulk_upload.knobby_product');
+    }
+
+
+
     public function product_link()
     {
         // $products = Product::with(['categories'])->orderBy('created_at', 'desc')->get();

@@ -7,6 +7,23 @@ use App;
 
 class Category extends Model
 {
+    protected $fillable = [
+        'name',
+        'slug',
+        'order_level',
+        'parent_id',
+        'level',
+        'banner',
+        'icon',
+        'meta_title',
+        'meta_description',
+        'commision_rate',
+        'digital',
+        'published',
+        'featured',
+        'source',
+    ];
+
     protected $with = [];
 
     public function getTranslation($field = '', $lang = false)

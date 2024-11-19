@@ -80,6 +80,35 @@
                             </li>
 
                             <li class="aiz-side-nav-item">
+                                <a href="{{ route('brands.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['brands.index', 'brands.create', 'brands.edit']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Brand') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('model-names.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['model-names.index', 'model-names.create', 'model-names.edit']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Model') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('years.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['years.index', 'years.create', 'years.edit']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Year') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('manufacturers.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['manufacturers.index', 'manufacturers.create', 'manufacturers.edit']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Manufacturer') }}</span>
+                                </a>
+                            </li>
+
+
+                            <li class="aiz-side-nav-item">
                                 <a href="{{ route('shippings.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['shippings.index', 'shippings.create', 'shippings.edit']) }}">
                                     <span class="aiz-side-nav-text">{{ translate('Shipping') }}</span>
@@ -93,19 +122,7 @@
                                 </a>
                             </li>
 
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('product_bulk_upload.index') }}"
-                                    class="aiz-side-nav-link {{ areActiveRoutes(['product_bulk_upload.index']) }}">
-                                    <span class="aiz-side-nav-text">{{ translate('Import Items') }}</span>
-                                </a>
-                            </li>
 
-                            <li class="aiz-side-nav-item">
-                                <a href="{{ route('bulk_product_link.index') }}"
-                                    class="aiz-side-nav-link {{ areActiveRoutes(['bulk_product_link.index']) }}">
-                                    <span class="aiz-side-nav-text">{{ translate('Link Spare Parts') }}</span>
-                                </a>
-                            </li>
                             {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('brands.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['brands.index', 'brands.create', 'brands.edit']) }}">
@@ -143,6 +160,60 @@
 
 
 
+                <!-- Product -->
+                @if (Auth::user()->user_type == 'admin')
+                    <li class="aiz-side-nav-item">
+                        <a href="#" class="aiz-side-nav-link">
+                            <i class="las la-upload aiz-side-nav-icon"></i>
+                            <span class="aiz-side-nav-text">{{ translate('Bulk Import') }}</span>
+                            <span class="aiz-side-nav-arrow"></span>
+                        </a>
+
+                        <!--Submenu-->
+                        <ul class="aiz-side-nav-list level-2">
+
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('product_bulk_upload.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['product_bulk_upload.index']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Import Items') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('bulk_product_link.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['bulk_product_link.index']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Link Spare Parts') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('knobby_category_upload.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['knobby_category_upload.index']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Konbby Category') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('knobby_bike_fitment_upload.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['knobby_bike_fitment_upload.index']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Bike Fitment') }}</span>
+                                </a>
+                            </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('knobby_product_upload.index') }}"
+                                    class="aiz-side-nav-link {{ areActiveRoutes(['knobby_product_upload.index']) }}">
+                                    <span class="aiz-side-nav-text">{{ translate('Knobby Product') }}</span>
+                                </a>
+                            </li>
+
+
+
+
+                        </ul>
+                    </li>
+                @endif
 
 
                 <!-- Customers -->
@@ -394,9 +465,9 @@
 
 
                 <!-- Website Setup -->
-                {{-- @if (Auth::user()->user_type == 'admin' || in_array('13', json_decode(Auth::user()->staff->role->permissions)))
+                @if (Auth::user()->user_type == 'admin' || in_array('13', json_decode(Auth::user()->staff->role->permissions)))
                     <li class="aiz-side-nav-item">
-                        <a href="#" class="aiz-side-nav-link {{ areActiveRoutes(['website.footer', 'website.header'])}}" >
+                        <a href="#" class="aiz-side-nav-link {{ areActiveRoutes(['website.footer', 'website.header','mega_nav.index'])}}" >
                             <i class="las la-desktop aiz-side-nav-icon"></i>
                             <span class="aiz-side-nav-text">{{translate('Website Setup')}}</span>
                             <span class="aiz-side-nav-arrow"></span>
@@ -408,10 +479,18 @@
                                 </a>
                             </li>
                             <li class="aiz-side-nav-item">
+                                <a href="{{ route('mega_nav.index') }}" class="aiz-side-nav-link">
+                                    <span class="aiz-side-nav-text">Mega Nav</span>
+                                </a>
+                            </li>
+
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.footer', ['lang'=>  App::getLocale()] ) }}" class="aiz-side-nav-link {{ areActiveRoutes(['website.footer'])}}">
                                     <span class="aiz-side-nav-text">{{translate('Footer')}}</span>
                                 </a>
-                            </li>
+                            </li> --}}
+
+
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.pages') }}" class="aiz-side-nav-link {{ areActiveRoutes(['website.pages', 'custom-pages.create' ,'custom-pages.edit'])}}">
                                     <span class="aiz-side-nav-text">{{translate('Pages')}}</span>
@@ -424,7 +503,7 @@
                             </li>
                         </ul>
                     </li>
-                @endif --}}
+                @endif
 
                 <!-- Setup & Configurations -->
                 {{-- @if (Auth::user()->user_type == 'admin' || in_array('14', json_decode(Auth::user()->staff->role->permissions)))

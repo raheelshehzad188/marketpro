@@ -1,0 +1,4 @@
+
+  2024-11-06 00:54:02 Running ['artisan' queue:work --queue=default --stop-when-empty --timeout=3600]  3,282ms DONE
+  ⇂ '/opt/alt/php82/usr/bin/php' 'artisan' queue:work --queue=default --stop-when-empty --timeout=3600 >> 'storage/logs/queue_worker.log' 2>&1  
+

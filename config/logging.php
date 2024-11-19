@@ -87,6 +87,22 @@ return [
             'driver' => 'errorlog',
             'level' => 'debug',
         ],
+
+        'product_import' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/product_import_' . date('Y-m-d') . '.log'),
+            'level' => 'info',
+        ],
+        'bike_fitment_import' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/bike_fitment_import_' . date('Y-m-d') . '.log'),
+            'level' => 'info',
+        ],
+        'category_import' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/category_import_' . date('Y-m-d') . '.log'),
+            'level' => 'info',
+        ],
     ],
 
 ];
