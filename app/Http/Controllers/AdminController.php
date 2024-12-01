@@ -18,8 +18,6 @@ class AdminController extends Controller
      */
     public function admin_dashboard(Request $request)
     {
-
-
         if(Auth::user()->user_type != 'admin'){
            redirect('poin-of-sales.index');
            exit();

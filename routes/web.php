@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\FrontController;
 
+Auth::routes();
 
 Route::get('/storage-link', function () {
     Artisan::call('storage:link');
@@ -33,6 +34,10 @@ Route::get('/aiz-uploader/download/{id}', 'AizUploadController@attachment_downlo
 
 
 Route::get('/', [FrontController::class, 'home'])->name('home');
+Route::get('/tree_view', [FrontController::class, 'treeView'])->name('treeView');
+
+
+
 
 
 
@@ -54,10 +59,10 @@ Route::get('/sitemap.xml', function () {
 // Route::get('/category/{category_slug}', 'SearchController@listingByCategory')->name('products.category');
 // Route::get('/brand/{brand_slug}', 'SearchController@listingByBrand')->name('products.brand');
 
-// Route::get('/product/{slug}', 'HomeController@product')->name('product');
-// Route::post('/product/variant_price', 'HomeController@variant_price')->name('products.variant_price');
-// Route::get('/shop/{slug}', 'HomeController@shop')->name('shop.visit');
-// Route::get('/shop/{slug}/{type}', 'HomeController@filter_shop')->name('shop.visit.type');
+Route::get('/product/{slug}', 'HomeController@product')->name('product');
+Route::post('/product/variant_price', 'HomeController@variant_price')->name('products.variant_price');
+Route::get('/shop/{slug}', 'HomeController@shop')->name('shop.visit');
+Route::get('/shop/{slug}/{type}', 'HomeController@filter_shop')->name('shop.visit.type');
 
 // Route::get('/cart', 'CartController@index')->name('cart');
 // Route::post('/cart/show-cart-modal', 'CartController@showCartModal')->name('cart.showCartModal');
@@ -188,27 +193,27 @@ Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy
 //     Route::get('/uploads/destroy/{id}', 'AizUploadController@destroy')->name('my_uploads.destroy');
 // });
 
-// Route::group(['middleware' => ['auth']], function () {
-//     Route::post('/products/store/', 'ProductController@store')->name('products.store');
-//     Route::post('/products/update/{id}', 'ProductController@update')->name('products.update');
-//     Route::get('/products/destroy/{id}', 'ProductController@destroy')->name('products.destroy');
-//     Route::get('/products/duplicate/{id}', 'ProductController@duplicate')->name('products.duplicate');
-//     Route::post('/products/sku_combination', 'ProductController@sku_combination')->name('products.sku_combination');
-//     Route::post('/products/sku_combination_edit', 'ProductController@sku_combination_edit')->name('products.sku_combination_edit');
-//     Route::post('/products/seller/featured', 'ProductController@updateSellerFeatured')->name('products.seller.featured');
-//     Route::post('/products/published', 'ProductController@updatePublished')->name('products.published');
+Route::group(['middleware' => ['auth']], function () {
+    Route::post('/products/store/', 'ProductController@store')->name('products.store');
+    Route::post('/products/update/{id}', 'ProductController@update')->name('products.update');
+    Route::get('/products/destroy/{id}', 'ProductController@destroy')->name('products.destroy');
+    Route::get('/products/duplicate/{id}', 'ProductController@duplicate')->name('products.duplicate');
+    Route::post('/products/sku_combination', 'ProductController@sku_combination')->name('products.sku_combination');
+    Route::post('/products/sku_combination_edit', 'ProductController@sku_combination_edit')->name('products.sku_combination_edit');
+    Route::post('/products/seller/featured', 'ProductController@updateSellerFeatured')->name('products.seller.featured');
+    Route::post('/products/published', 'ProductController@updatePublished')->name('products.published');
 
-//     Route::post('/products/add-more-choice-option', 'ProductController@add_more_choice_option')->name('products.add-more-choice-option');
+    Route::post('/products/add-more-choice-option', 'ProductController@add_more_choice_option')->name('products.add-more-choice-option');
 
-//     Route::get('invoice/{order_id}', 'InvoiceController@invoice_download')->name('invoice.download');
+    Route::get('invoice/{order_id}', 'InvoiceController@invoice_download')->name('invoice.download');
 
-//     Route::resource('orders', 'OrderController');
-//     Route::get('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
-//     Route::post('/orders/details', 'OrderController@order_details')->name('orders.details');
-//     Route::post('/orders/update_delivery_status', 'OrderController@update_delivery_status')->name('orders.update_delivery_status');
-//     Route::post('/orders/update_payment_status', 'OrderController@update_payment_status')->name('orders.update_payment_status');
-//     Route::post('/orders/delivery-boy-assign', 'OrderController@assign_delivery_boy')->name('orders.delivery-boy-assign');
-
+    Route::resource('orders', 'OrderController');
+    Route::get('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
+    Route::post('/orders/details', 'OrderController@order_details')->name('orders.details');
+    Route::post('/orders/update_delivery_status', 'OrderController@update_delivery_status')->name('orders.update_delivery_status');
+    Route::post('/orders/update_payment_status', 'OrderController@update_payment_status')->name('orders.update_payment_status');
+    Route::post('/orders/delivery-boy-assign', 'OrderController@assign_delivery_boy')->name('orders.delivery-boy-assign');
+});
 //     Route::resource('/reviews', 'ReviewController');
 
 //     Route::resource('/withdraw_requests', 'SellerWithdrawRequestController');
@@ -222,20 +227,20 @@ Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy
 //     Route::resource('messages', 'MessageController');
 
 //     //Product Bulk Upload
-    Route::get('/product-bulk-upload/index', 'ProductBulkUploadController@index')->name('product_bulk_upload.index');
+Route::get('/product-bulk-upload/index', 'ProductBulkUploadController@index')->name('product_bulk_upload.index');
 
-    Route::get('/bulk-upload/knobby-category', 'ProductBulkUploadController@knobby_category')->name('knobby_category_upload.index');
+Route::get('/bulk-upload/knobby-category', 'ProductBulkUploadController@knobby_category')->name('knobby_category_upload.index');
 
-    Route::get('/bulk-upload/bike-fitment', 'ProductBulkUploadController@knobby_bike_fitment')->name('knobby_bike_fitment_upload.index');
+Route::get('/bulk-upload/bike-fitment', 'ProductBulkUploadController@knobby_bike_fitment')->name('knobby_bike_fitment_upload.index');
 
-    Route::get('/bulk-upload/product-knobby', 'ProductBulkUploadController@knobby_product')->name('knobby_product_upload.index');
+Route::get('/bulk-upload/product-knobby', 'ProductBulkUploadController@knobby_product')->name('knobby_product_upload.index');
 
 
-    Route::post('/bulk-product-upload', 'ProductBulkUploadController@bulk_upload')->name('bulk_product_upload');
+Route::post('/bulk-product-upload', 'ProductBulkUploadController@bulk_upload')->name('bulk_product_upload');
 
-    Route::post('/categories/import', [CategoryController::class, 'importCategories'])->name('categories.import');
-    Route::post('bike-fitment-data-upload', [BikeFitmentDataController::class, 'uploadBikeFitmentData'])->name('bike_fitment_data_upload');
-    Route::post('/knobby-products-upload', [ProductController::class, 'uploadKnobbyData'])->name('knobby_products_data_upload');
+Route::post('/categories/import', [CategoryController::class, 'importCategories'])->name('categories.import');
+Route::post('bike-fitment-data-upload', [BikeFitmentDataController::class, 'uploadBikeFitmentData'])->name('bike_fitment_data_upload');
+Route::post('/knobby-products-upload', [ProductController::class, 'uploadKnobbyData'])->name('knobby_products_data_upload');
 
 
 
@@ -256,8 +261,11 @@ Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy
 
 
 
-//     Route::get('/product-bulk-link/index', 'ProductBulkUploadController@product_link')->name('bulk_product_link.index');
-//     Route::post('/bulk-product-link', 'ProductBulkUploadController@bulk_link')->name('bulk_product_link');
+Route::get('/product-bulk-link/index', 'ProductBulkUploadController@product_link')->name('bulk_product_link.index');
+Route::post('/bulk-product-link', 'ProductBulkUploadController@bulk_link')->name('bulk_product_link');
+
+Route::post('/language', 'LanguageController@changeLanguage')->name('language.change');
+Route::post('/currency', 'CurrencyController@changeCurrency')->name('currency.change');
 
 //     Route::get('/product-csv-download/{type}', 'ProductBulkUploadController@import_product')->name('product_csv.download');
 //     Route::get('/vendor-product-csv-download/{id}', 'ProductBulkUploadController@import_vendor_product')->name('import_vendor_product.download');
@@ -301,10 +309,10 @@ Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy
 
 // Route::post('/get-city', 'CityController@get_city')->name('get-city');
 
-// Route::resource('addresses', 'AddressController');
-// Route::post('/addresses/update/{id}', 'AddressController@update')->name('addresses.update');
-// Route::get('/addresses/destroy/{id}', 'AddressController@destroy')->name('addresses.destroy');
-// Route::get('/addresses/set_default/{id}', 'AddressController@set_default')->name('addresses.set_default');
+Route::resource('addresses', 'AddressController');
+Route::post('/addresses/update/{id}', 'AddressController@update')->name('addresses.update');
+Route::get('/addresses/destroy/{id}', 'AddressController@destroy')->name('addresses.destroy');
+Route::get('/addresses/set_default/{id}', 'AddressController@set_default')->name('addresses.set_default');
 
 //payhere below
 // Route::get('/payhere/checkout/testing', 'PayhereController@checkout_testing')->name('payhere.checkout.testing');
@@ -355,4 +363,4 @@ Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy
 // Route::get('/mobile-page/{slug}', 'PageController@mobile_custom_page')->name('mobile.custom-pages');
 
 // //Custom page
-// Route::get('/{slug}', 'PageController@show_custom_page')->name('custom-pages.show_custom_page');
+Route::get('/{slug}', 'PageController@show_custom_page')->name('custom-pages.show_custom_page');

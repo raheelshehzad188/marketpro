@@ -24,14 +24,18 @@ class FrontController extends Controller
      */
     public function home()
     {
+        $domainConfig = app('domainConfig'); // Retrieve the matched domain configuration
 
-        $currentDomain = app('currentDomain'); // Access the bound domain
-        $domainConfig = app('domainConfig');
-        return view('frontend.pages.home');
+        // Access the domain-specific home view
+        $homeView = $domainConfig['views']['home'];
+
+        // Render the domain-specific home view
+        return view($homeView);
     }
+
 
     public function treeView()
     {
-        return view('frontend.pages.home');
+        return view('frontend.pages.tree_view');
     }
 }

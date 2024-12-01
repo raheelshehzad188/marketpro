@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
     });
 
     // Optionally set a custom URL configuration per domain (e.g., asset or links)
-    URL::forceRootUrl(config('app.url')); // Optional based on your domain setup
+   // URL::forceRootUrl(config('app.url')); // Optional based on your domain setup
 
     //When view::share
     // <h1>Welcome to {{ $domainConfig['settings']['site_name'] }}</h1>

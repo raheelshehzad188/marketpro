@@ -3,7 +3,10 @@
 return [
     'srs' => [
         'domain' => env('SRS_DOMAIN'),
-        'view' => 'frontend.site1.index',
+
+        'views' => [
+            'home' => 'frontend.pages.home.srs'
+        ],
         'settings' => [
             'site_name' => 'SRS Site',
             'theme_color' => 'red',
@@ -11,7 +14,9 @@ return [
     ],
     'mxe' => [
         'domain' => env('MXE_DOMAIN'),
-        'view' => 'frontend.site2.index',
+        'views' => [
+            'home' => 'frontend.pages.home.mxe'
+        ],
         'settings' => [
             'site_name' => 'MXE Site',
             'theme_color' => 'black',

@@ -2,13 +2,9 @@
 {{-- @section('meta_description', $blog->meta_description ?? '')
 @section('meta_author', $blog->author ?? '') --}}
 @section('title', 'Home')
-
 @section('content')
     <div role="main" class="main">
-
         <div role="main" class="main">
-
-
             <section class="page-header ">
                 <div class="container">
                     <div class="row align-items-center">
@@ -78,24 +74,204 @@
                             </div>
                         </div>
             </section>
+            <!-- Home Products Start-->
+            <section class="product-listing">
+                <div class="container">
+                    <div class="masonry-loader masonry-loader-loaded">
+                        <div class="row products product-thumb-info-list" data-plugin-masonry=""
+                            data-plugin-options="{'layoutMode': 'fitRows'}">
 
-            <?php include 'widgets/product-list.php'; ?>
+                            @foreach (range(1, 8) as $i)
+                                <div class="col-12 col-sm-6 col-lg-3">
+                                    <div class="product mb-0">
+                                        <div class="product-thumb-info border-0 mb-3">
+                                            <a href="shop-product-sidebar-left.html">
+                                                <div class="product-thumb-info-image">
+                                                    <img alt="Product {{ $i }}" class="img-fluid" src="{{ asset('frontend/img/srs-images/product' . $i . '.png') }}">
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="d-flex justify-content-center">
+                                            <div>
+                                                <h3
+                                                    class="text-3-5 font-weight-medium font-alternative text-transform-none line-height-3 mb-0 text-center">
+                                                    <a href="shop-product-sidebar-right.html"
+                                                        class="text-color-dark text-color-hover-primary product-title">
+                                                        Product Title {{ $i }}
+                                                    </a>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <p class="price text-5 mb-3">
+                                            <span class="sale text-color-dark font-weight-semi-bold">25,50kr</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
 
-
-
-
-
-
-
+                        </div>
+                    </div>
+                </div>
+            </section>
             @include('frontend.partials.instagram')
-
         </div>
-
-
-
-
-
     </div>
 @endsection
 @section('script')
+    <script src="{{ asset('frontend/js/bstreeview.js') }}"></script>
+    <script>
+        $(function() {
+
+            var json = [{
+                    text: "TYRES",
+                    nodes: [{
+                            text: "GIBSON TECH 6.2 Rear Enduro FIM Soft",
+                            nodes: [{
+                                    text: "Inner"
+                                },
+                                {
+                                    text: "Inner"
+                                }
+                            ]
+                        },
+                        {
+                            text: "GIBSON TECH 9.1 Front Tyre",
+                            nodes: [{
+                                    text: "Inner"
+                                },
+                                {
+                                    text: "Inner"
+                                }
+                            ]
+                        },
+                        {
+                            text: "GIBSON TECH 7.1 Rear enduro tyre",
+                            nodes: [{
+                                    text: "Inner"
+                                },
+                                {
+                                    text: "Inner"
+                                }
+                            ]
+                        },
+                        {
+                            text: "GIBSON MX 5.1 Rear Tyre",
+                            nodes: [{
+                                    text: "Inner GIBSON MX 5.1 Rear Tyre"
+                                },
+                                {
+                                    text: "Inner GIBSON MX 5.1 Rear Tyre"
+                                }
+                            ]
+                        },
+                        {
+                            text: "GIBSON MX 4.1 Rear Tyre",
+                            nodes: [{
+                                    text: " Inner GIBSON MX 4.1 Rear Tyre"
+                                },
+                                {
+                                    text: " Inner GIBSON MX 4.1 Rear Tyre"
+                                }
+                            ]
+                        },
+                        {
+                            text: "Gibson® MX 3.1 Rear Tyre",
+                            nodes: [{
+                                    text: "Inner Gibson® MX 3.1 Rear Tyre"
+                                },
+                                {
+                                    text: "Inner Gibson® MX 3.1 Rear Tyre"
+                                }
+                            ]
+                        },
+                        {
+                            text: "GIBSON TECH 6.1 Enduro FIM Rear",
+                            nodes: [{
+                                    text: "Inner GIBSON TECH 6.1 Enduro FIM Rear"
+                                },
+                                {
+                                    text: "Inner GIBSON TECH 6.1 Enduro FIM Rear"
+                                }
+                            ]
+                        },
+                        {
+                            text: "Gibson® MX 1.1 Front tyre",
+                            nodes: [{
+                                    text: "Inner Gibson® MX 1.1 Front tyre"
+                                },
+                                {
+                                    text: "Inner Gibson® MX 1.1 Front tyre"
+                                }
+                            ]
+                        },
+
+                        {
+                            text: "Others"
+                        }
+                    ]
+                },
+                {
+                    text: "TM ORIGINAL SPAREPARTS",
+                    nodes: [{
+                            text: "Inner"
+                        },
+                        {
+                            text: "Inner"
+                        }
+                    ]
+                },
+                {
+                    text: "VROOAM OIL",
+                    nodes: [{
+                            text: "Inner"
+                        },
+                        {
+                            text: "Inner"
+                        }
+                    ]
+                },
+                {
+                    text: "SCALVINI PIPES AND SILENCERS",
+                    nodes: [{
+                            text: "Inner"
+                        },
+                        {
+                            text: "Inner"
+                        }
+                    ]
+                },
+                {
+                    text: "GIBSON TYRES",
+                    nodes: [{
+                            text: "Inner"
+                        },
+                        {
+                            text: "Inner"
+                        }
+                    ]
+                },
+                {
+                    text: "MECA SYSTEM PROTECTORS",
+                    nodes: [{
+                            text: "Inner"
+                        },
+                        {
+                            text: "Inner"
+                        }
+                    ]
+                    //class: "text-info",
+                    //  href: "https://google.com"
+                }
+            ];
+
+            $('#tree').bstreeview({
+                data: json,
+                expandIcon: 'fa fa-minus fa-fw',
+                collapseIcon: 'fa fa-plus fa-fw',
+                indent: 1.25,
+                parentsMarginLeft: '1.25rem',
+                openNodeLinkOnNewTab: true
+            });
+        });
+    </script>
 @endsection
