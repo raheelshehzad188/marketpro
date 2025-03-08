@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\FrontController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+
 
 Auth::routes();
 
@@ -34,7 +37,57 @@ Route::get('/aiz-uploader/download/{id}', 'AizUploadController@attachment_downlo
 
 
 Route::get('/', [FrontController::class, 'home'])->name('home');
-Route::get('/tree_view', [FrontController::class, 'treeView'])->name('treeView');
+
+Route::get('/products', [FrontController::class, 'productListing'])->name('products.listing');
+Route::get('/products/{id}', [FrontController::class, 'productDetails'])->name('products.details');
+
+Route::get('exploded_view', [FrontController::class, 'explodedView'])->name('exploded_view');
+Route::get('exploded_view/category/{id}', [FrontController::class, 'explodedView'])->name('exploded_view.category');
+Route::get('exploded_view/product/{id}', [FrontController::class, 'explodedView'])->name('exploded_view.product');
+
+Route::get('/get_tree_parent_path', [FrontController::class, 'getTreeParentPath'])->name('get_tree_parent_path');
+
+
+Route::get('/exploded_view_product', [FrontController::class, 'exploded_view_product'])->name('exploded_view_product');
+
+
+
+Route::get('/get_tree', [FrontController::class, 'get_tree'])->name('get_tree');
+Route::get('/get_categories', [FrontController::class, 'get_categories'])->name('get_categories');
+Route::get('/get_products', [FrontController::class, 'get_products'])->name('get_products');
+Route::get('/get_product', [FrontController::class, 'get_product'])->name('get_product');
+Route::get('/search_product', [FrontController::class, 'search_product'])->name('search_product');
+Route::post('/add_to_cart', [FrontController::class, 'add_to_cart'])->name('add_to_cart');
+
+
+Route::get('/checkout', [FrontController::class, 'checkout'])->name('checkout');
+Route::post('/checkout', [FrontController::class, 'placeOrder'])->name('checkout.placeOrder');
+Route::get('/order-success/{order}', [FrontController::class, 'orderSuccess'])->name('order.success');
+
+Route::get('/customer/logout', [FrontController::class, 'logout'])->name('customer.logout');
+Route::post('/customer/login', [FrontController::class, 'login'])->name('customer.login');
+Route::post('/customer/register', [FrontController::class, 'register'])->name('customer.register');
+Route::post('/customer/forgot-password', [FrontController::class, 'forgotPassword'])->name('customer.forgot-password');
+
+
+Route::get('/shop/login', [FrontController::class, 'shopLogin'])->name('shop.login');
+
+
+
+Route::get('/basket', [FrontController::class, 'cart'])->name('basket');
+
+
+
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/update/{cartItemId}', [CartController::class, 'updateCart'])->name('cart.update');
+//Route::delete('/cart/remove/{cartItemId}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+// Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
+
+Route::get('/cart/mini', [CartController::class, 'getMiniCart'])->name('cart.mini');
+Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+
+
+
 
 
 

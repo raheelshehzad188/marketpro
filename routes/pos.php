@@ -17,9 +17,12 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/pos/get-products', 'PosController@get_products')->name('pos.get_products');
 	Route::get('/pos/get-product', 'PosController@get_product')->name('pos.get_product');
 	Route::get('/pos/get-categories', 'PosController@get_categories')->name('pos.get_categories');
-	Route::post('/products/addon_combination_edit', 'PosController@addon_combination_edit')->name('products.addon_combination_edit');
 
 	Route::get('/pos/get_tree', 'PosController@get_tree')->name('pos.get_tree');
+
+
+	Route::post('/products/addon_combination_edit', 'PosController@addon_combination_edit')->name('products.addon_combination_edit');
+
 	Route::get('/variants', 'PosController@getVarinats')->name('variants');
 	Route::post('/add-to-cart-pos', 'PosController@addToCart')->name('pos.addToCart');
 	Route::post('/update-quantity-cart-pos', 'PosController@updateQuantity')->name('pos.updateQuantity');

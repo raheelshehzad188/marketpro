@@ -6,7 +6,7 @@
                 <div class="header-column col-md-3 col-sm-12 logo-header">
                     <div class="row">
                         <div class="header-logo">
-                            <a href="index.php">
+                            <a href="{{ url('/') }}">
                                 <img alt="Porto" width="248" height="49" data-sticky-width="82"
                                     data-sticky-height="40" data-sticky-top="84"
                                     src="{{ asset('frontend/img/logo-default.png') }}">
@@ -78,8 +78,8 @@
                                         <span class="price-total"><span class="price">$890</span></span>
                                     </div>
                                     <div class="actions">
-                                        <a class="btn btn-dark" href="#">View Cart</a>
-                                        <a class="btn btn-primary" href="#">Checkout</a>
+                                        <a class="btn btn-dark" href="{{ route('basket') }}">View Cart</a>
+                                        <a class="btn btn-primary" href="{{ route('checkout') }}">Checkout</a>
                                     </div>
                                 </div>
                             </div>

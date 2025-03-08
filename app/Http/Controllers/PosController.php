@@ -127,34 +127,9 @@ class PosController extends Controller
                     }
                 }
             } else {
-                // $cat_id = $parentId;
-                // $products = Product::where('published', 1)
-                //     ->whereHas('categories', function ($query) use ($cat_id) {
-                //         $query->where('category_id', $cat_id)
-                //             ->where(function ($subQuery) {
-                //                 $subQuery->whereHas('visibility', function ($visibilityQuery) {
-                //                     $visibilityQuery->where('shop_id', 1);
-                //                 })
-                //                     ->orWhereDoesntHave('visibility');
-                //             });
-                //     })
-                //     ->with(['categories', 'visibility']) // Eager load relationships
-                //     ->get();
-
-                // $data = [];
-                // foreach ($products as $product) {
-                //     $data[] = [
-                //         "id" => "pro_" . $product->id,
-                //         "text" => $product->name,
-                //         "icon" => "fa fa-folder icon-lg",
-                //         "children" => false,
-                //         "a_attr" => ['type' => 'single_product', 'id' => $product->id],
-                //         "type" => "root"
-                //     ];
-                // }
 
                 //Optimized one
-                
+
                 $cat_id = $parentId;
                 // Direct SQL query with optimized joins and conditions
                 $products = DB::select("SELECT DISTINCT products.*
@@ -192,98 +167,6 @@ class PosController extends Controller
         return response()->json($data);
     }
 
-
-
-    public function search(Request $request)
-    {
-        $keyword = $request->keyword;
-
-        // Validate the keyword
-        if (!$keyword) {
-            return redirect()->back()->withErrors(['keyword' => 'Keyword is required']);
-        }
-
-        // Search for all ProductAddons with the provided SKU that are linked to Shop ID 1 or have no shop association
-        $product_addons = ProductAddon::where('sku', $keyword)
-            ->where(function ($query) {
-                $query->whereHas('visibility', function ($subQuery) {
-                    $subQuery->where('shop_id', 1); // Visible to Shop ID 1
-                })
-                    ->orWhereDoesntHave('visibility'); // No shop association
-            })
-            ->with(['products' => function ($query) {
-                $query->withPivot('sort_order')
-                    ->orderByRaw('(thumbnail_img IS NULL) DESC');
-            }])
-            ->get();
-
-        // Initialize variables for the result
-        $linked_product_addon = null;
-        $unlinked_product_addon = null;
-        $detailedProduct = null;
-
-        // Filter out the first addon that is linked to a product
-        foreach ($product_addons as $addon) {
-            if ($addon->products->isNotEmpty()) {
-                $linked_product_addon = $addon; // Consider it linked if it has any associated products
-                break;
-            }
-        }
-
-        // Check for unlinked addons if no linked addon is found
-        if (!$linked_product_addon) {
-            $unlinked_product_addon = $product_addons->first(function ($addon) {
-                return $addon->products->isEmpty(); // Unlinked if no products are associated
-            });
-        }
-
-        // Search for a Product directly if no addon is found, considering visibility to Shop ID 1 or no association
-        if (!$linked_product_addon && !$unlinked_product_addon) {
-            $detailedProduct = Product::where('published', '1')
-                ->where('sku', $keyword)
-                ->where(function ($query) {
-                    $query->whereHas('visibility', function ($subQuery) {
-                        $subQuery->where('shop_id', 1); // Visible to Shop ID 1
-                    })
-                        ->orWhereDoesntHave('visibility'); // No shop association
-                })
-                ->first();
-        }
-
-        return view('pos.addon_search', compact('linked_product_addon', 'unlinked_product_addon', 'keyword', 'detailedProduct'));
-    }
-
-
-
-
-
-
-    // public function get_products(Request $request)
-    // {
-    //     $category_id = $request->id;
-
-    //     $products = Product::where('published', '1');
-
-    //     if ($request->has('id') && $request->id != null) {
-    //         $products->whereHas('categories', function ($q) use ($category_id) {
-    //             $q->where('category_id', $category_id); // Filter by category ID
-    //         });
-    //     }
-
-    //     // Add the condition to check visibility for Shop ID 1 or no shop association
-    //     $products->where(function ($query) {
-    //         $query->whereHas('visibility', function ($subQuery) {
-    //             $subQuery->where('shop_id', 1); // Products visible to Shop ID 1
-    //         })
-    //             ->orWhereDoesntHave('visibility'); // Products with no specific shop association
-    //     });
-
-    //     $products = $products->get();
-
-    //     echo view('pos.product_listing', compact('products'))->render();
-    // }
-
-    //Optimized
     public function get_products(Request $request)
     {
         $category_id = $request->id;
@@ -312,17 +195,6 @@ class PosController extends Controller
         echo view('pos.product_listing', compact('products'))->render();
     }
 
-
-    // public function get_product(Request $request)
-    // {
-    //     $detailedProduct  = Product::with('product_addons')->where('id', $request->id)->where('published', 1)->where('approved', 1)->first();
-    //     $keyword = $request->keyword;
-    //     // echo '<pre>';
-    //     //   print_r($detailedProduct);
-    //     // echo '</pre>';
-    //     // exit();
-    //     echo  view('pos.product_detail', compact('detailedProduct', 'keyword'))->render();
-    // }
 
     public function get_product(Request $request)
     {
@@ -393,9 +265,6 @@ class PosController extends Controller
         return view('pos.product_detail', compact('detailedProduct', 'keyword', 'allRelatedProducts'));
     }
 
-
-
-
     public function get_categories(Request $request)
     {
         $categoriesQuery = Category::with('childrenCategoriesCreatedOrder')
@@ -413,6 +282,113 @@ class PosController extends Controller
 
         echo view('pos.category_listing', compact('categories'))->render();
     }
+
+
+
+    // public function get_products(Request $request)
+    // {
+    //     $category_id = $request->id;
+
+    //     $products = Product::where('published', '1');
+
+    //     if ($request->has('id') && $request->id != null) {
+    //         $products->whereHas('categories', function ($q) use ($category_id) {
+    //             $q->where('category_id', $category_id); // Filter by category ID
+    //         });
+    //     }
+
+    //     // Add the condition to check visibility for Shop ID 1 or no shop association
+    //     $products->where(function ($query) {
+    //         $query->whereHas('visibility', function ($subQuery) {
+    //             $subQuery->where('shop_id', 1); // Products visible to Shop ID 1
+    //         })
+    //             ->orWhereDoesntHave('visibility'); // Products with no specific shop association
+    //     });
+
+    //     $products = $products->get();
+
+    //     echo view('pos.product_listing', compact('products'))->render();
+    // }
+
+    //Optimized
+
+
+    // public function get_product(Request $request)
+    // {
+    //     $detailedProduct  = Product::with('product_addons')->where('id', $request->id)->where('published', 1)->where('approved', 1)->first();
+    //     $keyword = $request->keyword;
+    //     // echo '<pre>';
+    //     //   print_r($detailedProduct);
+    //     // echo '</pre>';
+    //     // exit();
+    //     echo  view('pos.product_detail', compact('detailedProduct', 'keyword'))->render();
+    // }
+
+
+
+
+    public function search(Request $request)
+    {
+        $keyword = $request->keyword;
+
+        // Validate the keyword
+        if (!$keyword) {
+            return redirect()->back()->withErrors(['keyword' => 'Keyword is required']);
+        }
+
+        // Search for all ProductAddons with the provided SKU that are linked to Shop ID 1 or have no shop association
+        $product_addons = ProductAddon::where('sku', $keyword)
+            ->where(function ($query) {
+                $query->whereHas('visibility', function ($subQuery) {
+                    $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                })
+                    ->orWhereDoesntHave('visibility'); // No shop association
+            })
+            ->with(['products' => function ($query) {
+                $query->withPivot('sort_order')
+                    ->orderByRaw('(thumbnail_img IS NULL) DESC');
+            }])
+            ->get();
+
+        // Initialize variables for the result
+        $linked_product_addon = null;
+        $unlinked_product_addon = null;
+        $detailedProduct = null;
+
+        // Filter out the first addon that is linked to a product
+        foreach ($product_addons as $addon) {
+            if ($addon->products->isNotEmpty()) {
+                $linked_product_addon = $addon; // Consider it linked if it has any associated products
+                break;
+            }
+        }
+
+        // Check for unlinked addons if no linked addon is found
+        if (!$linked_product_addon) {
+            $unlinked_product_addon = $product_addons->first(function ($addon) {
+                return $addon->products->isEmpty(); // Unlinked if no products are associated
+            });
+        }
+
+        // Search for a Product directly if no addon is found, considering visibility to Shop ID 1 or no association
+        if (!$linked_product_addon && !$unlinked_product_addon) {
+            $detailedProduct = Product::where('published', '1')
+                ->where('sku', $keyword)
+                ->where(function ($query) {
+                    $query->whereHas('visibility', function ($subQuery) {
+                        $subQuery->where('shop_id', 1); // Visible to Shop ID 1
+                    })
+                        ->orWhereDoesntHave('visibility'); // No shop association
+                })
+                ->first();
+        }
+
+        return view('pos.addon_search', compact('linked_product_addon', 'unlinked_product_addon', 'keyword', 'detailedProduct'));
+    }
+
+
+
+
 
     public function addon_combination_edit(Request $request)
     {
@@ -714,18 +690,6 @@ class PosController extends Controller
 
                     $order_detail->shipping_cost = 0;
 
-
-                    // if (Session::get('shipping', 0) == 0) {
-                    //     $order_detail->shipping_cost = 0;
-                    // } else {
-                    //     if ($cartItem['shipping'] == null) {
-                    //         $order_detail->shipping_cost = 0;
-                    //     } else {
-                    //         $order_detail->shipping_cost = $cartItem['shipping'];
-                    //         $shipping += $cartItem['shipping'];
-                    //     }
-                    // }
-
                     $order_detail->quantity = $cartItem['quantity'];
                     $order_detail->save();
 
@@ -759,35 +723,7 @@ class PosController extends Controller
 
                 $order->save();
 
-                //stores the pdf for invoice
-                // $pdf = PDF::setOptions([
-                //     'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
-                //     'logOutputFile' => storage_path('logs/log.htm'),
-                //     'tempDir' => storage_path('logs/')
-                // ])->loadView('invoices.customer_invoice', compact('order'));
-                // $output = $pdf->output();
-                // file_put_contents('public/invoices/' . 'Order#' . $order->code . '.pdf', $output);
-
-                // $array['view'] = 'emails.invoice';
-                // $array['subject'] = 'Order Placed - ' . $order->code;
-                // $array['from'] = env('MAIL_USERNAME');
-                // $array['content'] = 'Hi. A new order has been placed. Please check the attached invoice.';
-                // $array['file'] = 'public/invoices/Order#' . $order->code . '.pdf';
-                // $array['file_name'] = 'Order#' . $order->code . '.pdf';
-
-                // $order->commission_calculated = 1;
-                // $order->save();
-
-                //sends email to customer with the invoice pdf attached
-                // if (env('MAIL_USERNAME') != null) {
-                //     try {
-                //         Mail::to($request->session()->get('pos_shipping_info')['email'])->queue(new InvoiceEmailManager($array));
-                //         Mail::to(User::where('user_type', 'admin')->first()->email)->queue(new InvoiceEmailManager($array));
-                //     } catch (\Exception $e) {
-                //     }
-                // }
-                //unlink($array['file']);
-
+                
 
                 //send admin email
                 $send_grid = new SendGridUtility;
