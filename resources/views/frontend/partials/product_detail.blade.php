@@ -1,47 +1,4 @@
 <div class="container">
-    <div class="row margin-50">
-        <div class="col-md-12 align-self-center order-1">
-            <ul class="breadcrumb d-block">
-                <li><a href="javascript:void(0)" onclick="loadCategories(0)">Home</a></li>
-                @if($detailedProduct->categories->isNotEmpty())
-                    <li><a href="javascript:void(0)" onclick="loadCategoriesOrProducts({{ $detailedProduct->categories->first()->id }})">Products</a></li>
-                @endif
-                <li>{{ $detailedProduct->name }}</li>
-            </ul>
-
-            <div class="filters">
-                <button class="btn btn-filter" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"> Filter <i
-                        class="fa-solid fa-align-left"></i></button>
-
-                <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-                    id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-                    <div class="offcanvas-header">
-                        <h5 class="offcanvas-title font-weight-bold letter-space-2"
-                            id="offcanvasWithBothOptionsLabel">Filter</h5>
-                        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="offcanvas-body">
-                        <div id="tree">
-                            <!-- BSTreeview will remain same, if needed -->
-                        </div>
-
-                        <div class="bottom-offcanv">
-                            <div class="filter-result">403 products - 2 active filters</div>
-                            <div class="filter-rest"><button class="btn-reset">Rest</button></div>
-                            <div class="filter-submmit">
-                                <button class="btn-submit">Use & close</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
 
     <!-- Image Zoom Code Start -->
     <div class="img-container">

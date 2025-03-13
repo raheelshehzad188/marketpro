@@ -1,5 +1,5 @@
 @extends('frontend.layouts.master')
-@section('title', 'Home')
+@section('title', $name)
 @section('content')
     <div role="main" class="main">
         <div role="main" class="main">
@@ -9,21 +9,20 @@
 
                         <div class="col">
                             <div class="row">
-                                <div class="col-md-12 align-self-center order-1">
-                                    <ul class="breadcrumb d-block">
-                                        <li><a href="javascript:void(0)" onclick="loadCategories(0)">Home</a></li>
-                                    </ul>
-                                    <h2 class="page-title">Helmets</h2>
-                                    <div class="top-categories">
-                                        <ul>
-                                            <!-- Optionally load top categories here -->
-                                        </ul>
-                                    </div>
+                                <div class="col-md-12 align-self-center order-1" id="breedcum"">
+                                <ul class="breadcrumb d-block">
+                                    <li><a href="javascript:void(0)" onclick="loadCategories(0)">Home</a></li>
+                                </ul>
+                                <h2 class="page-title">{{ $name }}</h2>
+                            </div>
+                        </div></div>
+
                                     <div class="filters">
                                         <button class="btn btn-filter" type="button" data-bs-toggle="offcanvas"
                                             data-bs-target="#offcanvasWithBothOptions"
                                             aria-controls="offcanvasWithBothOptions"> Filter <i
                                                 class="fa-solid fa-align-left"></i></button>
+                                    </div>
 
                                         <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
                                             id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
@@ -181,6 +180,7 @@
         }
 
         function loadRootCategories() {
+            load_breedcum('categories','0');
             // Load the root categories on the right-hand side
             $('#product-list').html(ajax_loader);
             $('#product-detail-section').hide();
@@ -195,6 +195,7 @@
         }
 
         function loadCategoriesOrProducts(id) {
+            load_breedcum('categories',id);
             $('#product-list').html(ajax_loader);
             $('#product-detail-section').hide();
             $('#main-content-section').show();
@@ -213,8 +214,24 @@
                 syncWithTree(id, 'category');
             });
         }
+        function load_breedcum(type = '',id = 0)
+        {
+            $('#breedcum').html('');
+            $.get("{{ route('get_breedcum') }}", {
+                id: id,
+                type: type
+            }, function(data) {
+                $('#breedcum').html(data);
+
+                // Sync with tree
+                syncWithTree(id, 'product_list');
+            });
+        }
 
         function loadProducts(id) {
+            load_breedcum('products',id);
+
+
             $('#product-list').html(ajax_loader);
             $('#product-detail-section').hide();
             $('#main-content-section').show();
@@ -230,6 +247,7 @@
         }
 
         function loadProduct(id) {
+            load_breedcum('product',id);
             $('#main-content-section').hide();
             $('#product-detail-section').show().html(ajax_loader);
 

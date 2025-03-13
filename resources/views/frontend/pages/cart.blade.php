@@ -156,7 +156,7 @@
                                 </tbody>
 
                             </table>
-                            <a href="shop-checkout.html"
+                            <a href="{{ url('checkout'); }}"
                                 class="btn btn-light w-100 btn-modern text-color-light bg-color-grey text-color-hover-light bg-color-hover-primary text-uppercase text-3 font-weight-bold border-0 border-radius-5 btn-px-4 py-3">Proceed
                                 to Checkout <i class="fas fa-arrow-right ms-2"></i></a>
 

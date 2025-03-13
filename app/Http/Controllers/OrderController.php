@@ -37,7 +37,9 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request) {}
+    public function index(Request $request) {
+        
+    }
 
     // All Orders
     public function all_orders(Request $request)

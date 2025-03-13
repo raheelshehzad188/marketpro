@@ -1,6 +1,8 @@
+
 @if($products->count() > 0)
     @foreach ($products as $product)
         <div class="col-12 col-sm-6 col-lg-3">
+
             <div class="product mb-0 card c-pointer" data-id="{{ $product->id }}">
                 <div class="product-thumb-info border-0 mb-3">
                     <div class="product-thumb-info-image">

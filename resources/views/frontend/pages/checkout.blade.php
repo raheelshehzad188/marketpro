@@ -276,37 +276,26 @@
                                                         class="text-color-dark text-uppercase font-weight-bold letter-space-1">Product</strong>
                                                 </td>
                                             </tr>
+                                            @foreach ($cartItems as $item)
                                             <tr>
                                                 <td>
                                                     <strong
                                                         class="d-block text-color-dark line-height-1 font-weight-semibold">
-                                                        Black Porto Smartwatch <span class="product-qty">x1</span>
+                                                        {{ $item->product->name }} <span class="product-qty">x{{ $item->quantity }}</span>
                                                     </strong>
-                                                    <span class="text-1">COLOR BLACK</span>
                                                 </td>
                                                 <td class="text-end align-top">
-                                                    <span class="amount font-weight-medium text-color-grey">$15</span>
+                                                    <span class="amount font-weight-medium text-color-grey">${{ number_format($item->quantity*($item->product->unit_price + ($item->addon->unit_price ?? 0)), 2) }}</span>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td class="border-top-0 pt-0">
-                                                    <strong
-                                                        class="d-block text-color-dark line-height-1 font-weight-semibold">
-                                                        Black Porto Smartwatch <span class="product-qty">x1</span>
-                                                    </strong>
-                                                    <span class="text-1">COLOR BLACK</span>
-                                                </td>
-                                                <td class="border-top-0 text-end align-top pt-0">
-                                                    <span class="amount font-weight-medium text-color-grey">$15</span>
-                                                </td>
-                                            </tr>
+                                            @endforeach
                                             <tr class="cart-subtotal">
                                                 <td class="border-top-0">
                                                     <strong
                                                         class="text-color-dark text-uppercase font-weight-bold letter-space-1">Subtotal</strong>
                                                 </td>
                                                 <td class="border-top-0 text-end">
-                                                    <strong><span class="amount font-weight-medium">$431</span></strong>
+                                                    <strong><span class="amount font-weight-medium">${{ number_format($subtotal, 2) }}</span></strong>
                                                 </td>
                                             </tr>
                                             <tr class="shipping">
@@ -343,7 +332,7 @@
                                                 <td class="text-end">
                                                     <strong class="text-color-dark">
                                                         <span
-                                                            class="amount text-color-dark text-5 font-weight-bold">$431</span>
+                                                            class="amount text-color-dark text-5 font-weight-bold">${{ number_format($subtotal, 2) }}</span>
                                                     </strong>
                                                 </td>
                                             </tr>

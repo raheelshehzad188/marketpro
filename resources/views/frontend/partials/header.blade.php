@@ -35,10 +35,16 @@
                         <ul class="header-extra-info d-flex align-items-center me-3">
 
                             <li>
+
                                 <div class="header-extra-info-text">
                                     <i class="fa-regular fa-user text-3"></i>
-                                    <a href="#">Log in</a> /
-                                    <a href="#">Create account</a>
+                                    @if(auth()->check())
+
+                                    <a href="{{ url('my-account')}}">My Account</a>
+                                    @else
+                                    <a href="{{ url('shop/login') }}">Log in</a> /
+                                    <a href="{{ url('shop/login')}}">Create account</a>
+                                    @endif
                                 </div>
                             </li>
                         </ul>
@@ -396,7 +402,7 @@
 
 
                                             <li class="dropdown">
-                                                <a class="dropdown-item" href="#">
+                                                <a class="dropdown-item" href="{{url('exploded_view')}}">
                                                     Exploded view
                                                 </a>
                                             </li>

@@ -35,6 +35,48 @@ class FrontController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function profile()
+    {
+        if(!auth()->check())
+        {
+
+            return redirect()->route('home')->with('error', 'Forbidden request');
+        }
+        $user = Auth::user();
+        return view('frontend.pages.profile', array('user'=>$user));
+
+    }
+    public function all_orders(Request $request)
+    {
+        if(!auth()->check())
+        {
+            return redirect()->route('home')->with('error', 'Forbidden request');
+        }
+        $date = $request->date;
+        $sort_search = null;
+        $delivery_status = null;
+
+        $orders = Order::with('shop')->orderBy('id', 'desc');
+
+
+        if (true) {
+            $orders =  $orders->where('user_id', Auth::user()->id);
+        }
+
+        if ($request->has('search')) {
+            $sort_search = $request->search;
+            $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
+        }
+
+        if ($date != null) {
+            $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
+        }
+
+        $orders = $orders->paginate(15);
+        return view('frontend.pages.orders', compact('orders', 'sort_search', 'delivery_status', 'date'));
+        //return view(, array());
+
+    }
     public function home()
     {
         $domainConfig = app('domainConfig'); // Retrieve the matched domain configuration
@@ -43,6 +85,7 @@ class FrontController extends Controller
         $homeView = $domainConfig['views']['home'];
 
         // Render the domain-specific home view
+        // dd($homeView);
         return view($homeView);
     }
 
@@ -248,14 +291,22 @@ class FrontController extends Controller
     public function explodedView(Request $request, $id = null)
     {
         $type = null;
+        $product = [];
+        $name = 'Exploded view';
+        $category = [];
 
         if (str_contains($request->path(), 'category')) {
+            //die('OKK');
+            $category = Category::where('id', $id)->first();
+            $name = $category->name;
             $type = 'category';
         } elseif (str_contains($request->path(), 'product')) {
+            $product = Product::with('categories', 'product_addons')->findOrFail($id);
+            $name = $product->name;
             $type = 'product';
         }
 
-        return view('frontend.pages.exploded_view', compact('type', 'id'));
+        return view('frontend.pages.exploded_view', compact('type', 'id','product','name','category'));
     }
 
 
@@ -369,12 +420,77 @@ class FrontController extends Controller
     }
 
 
+    public function get_breedcum(Request $request)
+    {
+        $id = $request->id;
+        $type = $request->type;
+        $breed = [];
+        $title = '';
+        if($type == 'categories' && !$id)
+        {
+            $title = 'Exploded View';
+            $breed[] = array('link'=>url('exploded_view'),'title'=>'Exploded view');
+//            $breed[] = array('link'=>'#','click'=>'loadCategories(0)','title'=>'Exploded view');
+
+        }
+        elseif($type == 'categories' && $id)
+        {
+            $category = Category::where('id', $id)->first();
+            $name = $category->name;
+            $title = $name;
+            $breed[] = array('link'=>url('exploded_view'),'title'=>'Exploded view');
+            $breed[] = array('link'=>'#','click'=>'loadCategories('.$id.')','title'=>$name);
+
+        }
+        elseif($type == 'products' && $id)
+        {
+            $product = Category::where('id', $id)->first();;
+            $name = $product->name;
+            $title = $name;
+            $breed[] = array('link'=>url('exploded_view'),'title'=>'Exploded view');
+            $breed[] = array('link'=>'#','click'=>'loadCategoriesOrProducts('.$id.')','title'=>$name);
+
+        }
+        elseif($type == 'products' && $id)
+        {
+            $product = Category::where('id', $id)->first();;
+            $name = $product->name;
+            $title = $name;
+            $breed[] = array('link'=>url('exploded_view'),'title'=>'Exploded view');
+            $breed[] = array('link'=>'#','click'=>'loadCategoriesOrProducts('.$id.')','title'=>$name);
+
+        }
+        elseif($type == 'product' && $id)
+        {
+            $product = Product::where('id', $id)->first();;
+            $name = $product->name;
+            $title = $name;
+            $breed[] = array('link'=>url('exploded_view'),'title'=>'Exploded view');
+            $breed[] = array('link'=>'#','click'=>'loadCategoriesOrProducts('.$id.')','title'=>$name);
+
+        }
+        /*
+         * <ul class="breadcrumb d-block">
+                        <li><a href="javascript:void(0)" onclick="loadCategories(0)">Home</a></li>
+                        <!-- You can append dynamic breadcrumbs here if needed -->
+                        <li><a href="javascript:void(0)" onclick="loadCategoriesOrProducts({{ $detailedProduct->categories->first()->id ?? 0 }})">Products</a></li>
+                        <li>{{ $detailedProduct->name }}</li>
+                    </ul>
+         * */
+
+
+
+        return view('frontend.partials.breedcum', compact('type', 'id','breed','title'));
+
+    }
     public function get_categories(Request $request)
     {
         $id = $request->id;
+        $category = Category::where('id', $id)->first();
         $categories = Category::where('parent_id', $id)->get();
         if ($categories->count() > 0) {
-            return view('frontend.partials.categories', compact('categories'))->render();
+
+            return view('frontend.partials.categories', compact('categories','category'))->render();
         } else {
             return ""; // no categories
         }
@@ -385,7 +501,7 @@ class FrontController extends Controller
         $id = $request->id;
         $category = Category::find($id);
         $products = $category ? $category->products : collect([]);
-        return view('frontend.partials.products', compact('products'))->render();
+        return view('frontend.partials.products', compact('products','category'))->render();
     }
 
     public function get_product(Request $request)
@@ -408,7 +524,30 @@ class FrontController extends Controller
 
     public function checkout()
     {
-        return view('frontend.pages.checkout');
+        $userId = auth()->id();
+        $sessionId = session()->getId();
+
+        $cartItems = CartItem::where(function ($query) use ($userId, $sessionId) {
+            if ($userId) {
+                $query->where('user_id', $userId);
+            } else {
+                $query->where('session_id', $sessionId);
+            }
+        })->with(['product', 'addon'])->get();
+
+        $subtotal = $cartItems->sum(function ($item) {
+            $productPrice = $item->product->unit_price ?? 0;
+            $addonPrice = $item->addon->unit_price ?? 0;
+            return ($productPrice + $addonPrice) * $item->quantity;
+        });
+        return view('frontend.pages.checkout',compact('cartItems', 'subtotal'));
+    }
+    public function all_orders_show($id)
+    {
+
+        $order = Order::findOrFail(decrypt($id));
+        $delivery_boys = array();
+        return view('frontend.pages.order', compact('order', 'delivery_boys'));
     }
 
     public function placeOrder(Request $request)

@@ -342,6 +342,8 @@ class HomeController extends Controller
         $user->first_name = $request->first_name;
         $user->last_name  = $request->last_name;
         $user->phone      = $request->phone;
+        $user->address      = $request->address;
+        $user->company      = $request->company;
 
         if ($request->new_password != null && ($request->new_password == $request->confirm_password)) {
             $user->password = Hash::make($request->new_password);

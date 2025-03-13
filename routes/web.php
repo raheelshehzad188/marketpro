@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\FrontController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Hom;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 
@@ -56,6 +58,7 @@ Route::get('/get_tree', [FrontController::class, 'get_tree'])->name('get_tree');
 Route::get('/get_categories', [FrontController::class, 'get_categories'])->name('get_categories');
 Route::get('/get_products', [FrontController::class, 'get_products'])->name('get_products');
 Route::get('/get_product', [FrontController::class, 'get_product'])->name('get_product');
+Route::get('/get_breedcum', [FrontController::class, 'get_breedcum'])->name('get_breedcum');
 Route::get('/search_product', [FrontController::class, 'search_product'])->name('search_product');
 Route::post('/add_to_cart', [FrontController::class, 'add_to_cart'])->name('add_to_cart');
 
@@ -71,7 +74,9 @@ Route::post('/customer/forgot-password', [FrontController::class, 'forgotPasswor
 
 
 Route::get('/shop/login', [FrontController::class, 'shopLogin'])->name('shop.login');
-
+Route::get('/my-account', [FrontController::class, 'profile'])->name('my-account');
+Route::get('/orders', [FrontController::class, 'all_orders'])->name('orders');
+Route::get('/all_orders/{id}/show', 'FrontController@all_orders_show')->name('front_all_orders.show');
 
 
 Route::get('/basket', [FrontController::class, 'cart'])->name('basket');
@@ -116,7 +121,7 @@ Route::get('/product/{slug}', 'HomeController@product')->name('product');
 Route::post('/product/variant_price', 'HomeController@variant_price')->name('products.variant_price');
 Route::get('/shop/{slug}', 'HomeController@shop')->name('shop.visit');
 Route::get('/shop/{slug}/{type}', 'HomeController@filter_shop')->name('shop.visit.type');
-
+Route::post('/customer/update-profile', 'HomeController@customer_update_profile')->name('customer.profile.update');
 // Route::get('/cart', 'CartController@index')->name('cart');
 // Route::post('/cart/show-cart-modal', 'CartController@showCartModal')->name('cart.showCartModal');
 // Route::post('/cart/addtocart', 'CartController@addToCart')->name('cart.addToCart');
@@ -260,7 +265,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('invoice/{order_id}', 'InvoiceController@invoice_download')->name('invoice.download');
 
-    Route::resource('orders', 'OrderController');
     Route::get('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
     Route::post('/orders/details', 'OrderController@order_details')->name('orders.details');
     Route::post('/orders/update_delivery_status', 'OrderController@update_delivery_status')->name('orders.update_delivery_status');
@@ -415,5 +419,4 @@ Route::get('/addresses/set_default/{id}', 'AddressController@set_default')->name
 // //mobile app balnk page for webview
 // Route::get('/mobile-page/{slug}', 'PageController@mobile_custom_page')->name('mobile.custom-pages');
 
-// //Custom page
-Route::get('/{slug}', 'PageController@show_custom_page')->name('custom-pages.show_custom_page');
+
