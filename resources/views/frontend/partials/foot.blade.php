@@ -127,8 +127,33 @@
             });
         }
     }
+    function load_brands(){
+        //header_brands
+        $.get("{{ route('get_brands') }}", {}, function(data) {
+            $('#header_brands').html(data);
+        });
+
+    }
+    function load_year(){
+        $.get("{{ route('get_years') }}", {brand_id :$('#header_brands').val()}, function(data) {
+            $('#header_year').html(data);
+        });
+    }
+    function load_model(){
+        $.get("{{ route('get_model') }}", {brand_id :$('#header_brands').val(),year_id :$('#header_year').val()}, function(data) {
+            $('#header_model').html(data);
+        });
+    }
+    $('#header_brands').change(function () {
+        load_year();
+        load_model();
+    });
+    $('#header_year').change(function () {
+        load_model();
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
+        load_brands();
         showSwalMessage();
     });
 </script>

@@ -134,14 +134,14 @@
 
                                                                 <div class="col-md-12">
 
-
+                                                                    <form action="{{ url('products'); }}">
                                                                     <div class="row">
                                                                         <h4 class="menu-subheading py-2">
                                                                             Find the right parts for your bike!
                                                                         </h4>
 
                                                                         <div class="col-md-3 col-sm-6">
-                                                                            <select class="form-select py-2"
+                                                                        <select id="header_brands" name="brand[]" class="form-select py-2"
                                                                                 aria-label="Default select example">
                                                                                 <option selected>Select Brand
                                                                                 </option>
@@ -152,37 +152,25 @@
                                                                         </div>
 
                                                                         <div class="col-md-3 col-sm-6">
-                                                                            <select class="form-select py-2"
+                                                                    <select id="header_year" name="year[]" class="form-select py-2"
                                                                                 aria-label="Default select example">
-                                                                                <option selected>Select Year
-                                                                                </option>
-                                                                                <option value="1">2021</option>
-                                                                                <option value="2">2022</option>
-                                                                                <option value="3">2023</option>
                                                                             </select>
                                                                         </div>
 
                                                                         <div class="col-md-3 col-sm-6">
-                                                                            <select class="form-select py-2"
+                                                                            <select id="header_model" name="model[]" class="form-select py-2"
                                                                                 aria-label="Default select example">
-                                                                                <option selected>Select Model
-                                                                                </option>
-                                                                                <option value="1">CV100R
-                                                                                </option>
-                                                                                <option value="2">CV200R
-                                                                                </option>
-                                                                                <option value="3">CV300R
-                                                                                </option>
                                                                             </select>
                                                                         </div>
                                                                         <div class="col-md-3 col-sm-6">
-                                                                            <button type="button"
+                                                                            <button type="submit"
                                                                                 class="btn btn-light btn-modern text-color-light bg-color-grey text-color-hover-light bg-color-hover-primary text-uppercase text-3 font-weight-medium border-0 border-radius-1 btn-px-4 py-2 w-100">Select
                                                                                 Model</button>
 
                                                                         </div>
 
                                                                     </div>
+                                                                    </form>
                                                                 </div>
 
                                                             </div>

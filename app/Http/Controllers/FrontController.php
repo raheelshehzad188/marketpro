@@ -17,6 +17,7 @@ use App\Models\Manufacturer;
 use App\Models\Year;
 use App\Category;
 use App\Models\Brand;
+use App\Models\ModelName;
 use App\Models\CartItem;
 use App\Order;
 use App\OrderDetail;
@@ -178,6 +179,12 @@ class FrontController extends Controller
         if ($request->filled('year')) {
             $query->whereHas('years', function ($q) use ($request) {
                 $q->whereIn('years.id', $request->year); // Specify the table name explicitly
+            });
+        }
+        // MODEL FILTER
+        if ($request->filled('model')) {
+            $query->whereHas('models', function ($q) use ($request) {
+                $q->whereIn('model_names.id', $request->model);
             });
         }
 
@@ -419,6 +426,100 @@ class FrontController extends Controller
         return array_reverse($parentPath);
     }
 
+
+    public function get_model(Request $request)
+    {
+        $domainConfig = app('domainConfig');
+        $shopId = $domainConfig['shop_id'];
+
+        $brandId = $request->input('brand_id');
+        $yearId = $request->input('year_id'); // Year filter
+
+        $models = ModelName::withCount(['products as product_count' => function ($query) use ($shopId, $brandId, $yearId) {
+            $query->whereHas('visibility', function ($subQuery) use ($shopId) {
+                $subQuery->where('shop_id', $shopId);
+            });
+
+            if (!empty($brandId)) {
+                $query->whereHas('brands', function ($brandQuery) use ($brandId) {
+                    $brandQuery->where('brands.id', $brandId);
+                });
+            }
+
+            if (!empty($yearId)) {
+                $query->whereHas('years', function ($yearQuery) use ($yearId) {
+                    $yearQuery->where('years.id', $yearId);
+                });
+            }
+        }]);
+
+// SQL Query with Actual Values
+        $sql = vsprintf(str_replace('?', "'%s'", $models->toSql()), $models->getBindings());
+
+        dd($sql); // Dump and Die to check the SQL
+
+
+
+        ?>
+        <option value="">Select Model</option>
+        <?php
+        foreach ($models as $v)
+        {
+            ?>
+            <option value="<?php echo $v->id ?>"><?php echo $v->id ?>-<?php echo str_replace('"', '', $v->name) ?></option>
+            <?php
+        }
+        exit();
+    }
+
+    public function get_years(Request $request)
+    {
+        $domainConfig = app('domainConfig');
+        $shopId = $domainConfig['shop_id'];
+
+        $brandId = $request->input('brand_id');
+
+
+        $years = Year::withCount(['products as product_count' => function ($query) use ($shopId, $brandId) {
+            $query->whereHas('visibility', function ($subQuery) use ($shopId) {
+                $subQuery->where('shop_id', $shopId);
+            })
+                ->whereHas('brands', function ($brandQuery) use ($brandId) {
+                    $brandQuery->where('brands.id', $brandId);
+                });
+        }])->get();
+        ?>
+        <option value="">Select Year</option>
+        <?php
+        foreach ($years as $v)
+        {
+            ?>
+            <option value="<?php echo $v->id ?>"><?php echo str_replace('"', '', $v->name) ?></option>
+            <?php
+        }
+        exit();
+    }
+
+    public function get_brands(Request $request)
+    {
+        $shopId = $request->shop_id; // Shop ID from request
+
+        $brands = Brand::withCount(['products as product_count' => function ($query) use ($shopId) {
+            $query->whereHas('visibility', function ($subQuery) use ($shopId) {
+                $subQuery->where('shop_id', $shopId);
+            });
+        }])->orderBy('name')->get();
+
+        ?>
+        <option value="">Select Brand</option>
+        <?php
+        foreach ($brands as $brand) {
+            ?>
+            <option value="<?php echo $brand->id ?>"><?php echo str_replace('"', '', $brand->name) ?></option>
+            <?php
+        }
+        exit();
+    }
 
     public function get_breedcum(Request $request)
     {

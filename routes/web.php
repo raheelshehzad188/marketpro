@@ -59,6 +59,9 @@ Route::get('/get_categories', [FrontController::class, 'get_categories'])->name(
 Route::get('/get_products', [FrontController::class, 'get_products'])->name('get_products');
 Route::get('/get_product', [FrontController::class, 'get_product'])->name('get_product');
 Route::get('/get_breedcum', [FrontController::class, 'get_breedcum'])->name('get_breedcum');
+Route::get('/get_years', [FrontController::class, 'get_years'])->name('get_years');
+Route::get('/get_model', [FrontController::class, 'get_model'])->name('get_model');
+Route::get('/get_brands', [FrontController::class, 'get_brands'])->name('get_brands');
 Route::get('/search_product', [FrontController::class, 'search_product'])->name('search_product');
 Route::post('/add_to_cart', [FrontController::class, 'add_to_cart'])->name('add_to_cart');
 
