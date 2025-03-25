@@ -120,6 +120,7 @@ class FrontController extends Controller
             ->get();
 
 
+
         // Retrieve brands, manufacturers, and years, sorted by name
         $brands = Brand::withCount(['products as product_count' => function ($query) use ($shopId) {
             $query->whereHas('visibility', function ($subQuery) use ($shopId) {
@@ -157,32 +158,55 @@ class FrontController extends Controller
                     ->distinct();
             }
         }
+        if ($request->filled('s')) {
+            $search = $request->s;
+            $query->where(function ($q) use ($search) {
+                $q->where('products.name', 'LIKE', "%{$search}%");
+                    //->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
 
 
 
 
         // BRAND FILTER
-        if ($request->filled('brand')) {
+        if ($request->filled('brand')  && $request->brand) {
             $query->whereHas('brands', function ($q) use ($request) {
                 $q->whereIn('brands.id', $request->brand); // Specify the table name explicitly
             });
         }
 
         // MANUFACTURER FILTER
-        if ($request->filled('manufacturer')) {
+        if ($request->filled('manufacturer') && $request->manufacturer) {
             $query->whereHas('manufacturers', function ($q) use ($request) {
                 $q->whereIn('manufacturers.id', $request->manufacturer); // Specify the table name explicitly
             });
         }
 
         // YEAR FILTER
-        if ($request->filled('year')) {
+        $cyears = [];
+        if($request->year) {
+            foreach ($request->year as $year) {
+                if ($year != null && $year != '') {
+                    $cyears[] = $year;
+                }
+            }
+        }
+        if ($request->filled('year')  && $cyears) {
             $query->whereHas('years', function ($q) use ($request) {
                 $q->whereIn('years.id', $request->year); // Specify the table name explicitly
             });
         }
         // MODEL FILTER
-        if ($request->filled('model')) {
+        $cmodel = [];
+        if($request->model) {
+            foreach ($request->model as $model) {
+                if ($model != null && $model != '') {
+                    $cmodel[] = $model;
+                }
+            }
+        }
+        if ($request->filled('model')   && $cmodel) {
             $query->whereHas('models', function ($q) use ($request) {
                 $q->whereIn('model_names.id', $request->model);
             });
@@ -220,7 +244,7 @@ class FrontController extends Controller
         }
 
         $selectedBrandNames = [];
-        if ($request->filled('brand')) {
+        if ($request->filled('brand') && $request->brand) {
             $selectedBrandNames = Brand::whereIn('id', $request->brand)
                 ->orderBy('name')
                 ->pluck('name')
@@ -247,25 +271,59 @@ class FrontController extends Controller
             'Categories' => Category::whereIn('id', $request->category ?? [])->get()->map(function ($category) use ($request) {
                 return [
                     'name' => $category->name,
-                    'removeUrl' => route('products.listing', array_merge($request->except(['category']), ['category' => array_diff($request->category ?? [], [$category->id])])),
+                    'removeUrl' => route('products.listing', array_merge(
+                        $request->except(['category']),
+                        ['category' => array_values(array_diff((array) $request->category ?? [], [$category->id]))]
+                    )),
                 ];
             })->toArray(),
+
             'Brands' => Brand::whereIn('id', $request->brand ?? [])->get()->map(function ($brand) use ($request) {
                 return [
                     'name' => $brand->name,
-                    'removeUrl' => route('products.listing', array_merge($request->except(['brand']), ['brand' => array_diff($request->brand ?? [], [$brand->id])])),
+                    'removeUrl' => route('products.listing', array_merge(
+                        $request->except(['brand']),
+                        ['brand' => array_values(array_diff((array) $request->brand ?? [], [$brand->id]))]
+                    )),
                 ];
             })->toArray(),
+
+
+
             'Manufacturers' => Manufacturer::whereIn('id', $request->manufacturer ?? [])->get()->map(function ($manufacturer) use ($request) {
                 return [
                     'name' => $manufacturer->name,
-                    'removeUrl' => route('products.listing', array_merge($request->except(['manufacturer']), ['manufacturer' => array_diff($request->manufacturer ?? [], [$manufacturer->id])])),
+                    'removeUrl' => route('products.listing', array_merge(
+                        $request->except(['manufacturer']),
+                        ['manufacturer' => array_values(array_diff((array) $request->manufacturer ?? [], [$manufacturer->id]))]
+                    )),
                 ];
             })->toArray(),
+
             'Years' => Year::whereIn('id', $request->year ?? [])->get()->map(function ($year) use ($request) {
                 return [
                     'name' => $year->name,
-                    'removeUrl' => route('products.listing', array_merge($request->except(['year']), ['year' => array_diff($request->year ?? [], [$year->id])])),
+                    'removeUrl' => route('products.listing', array_merge(
+                        $request->except(['year']),
+                        ['year' => array_values(array_diff((array) $request->year ?? [], [$year->id]))]
+                    )),
+                ];
+            })->toArray(),
+            'Models' => ModelName::whereIn('id', $request->model ?? [])->get()->map(function ($model) use ($request) {
+                return [
+                    'name' => $model->name,
+                    'removeUrl' => route('products.listing', array_merge(
+                        $request->except(['model']),
+                        ['model' => array_values(array_diff((array) $request->model ?? [], [$model->id]))]
+                    )),
+                ];
+            })->toArray(),
+            's' => ModelName::whereIn('id', $request->model ?? [])->get()->map(function ($model) use ($request) {
+                return [
+                    'name' => $request->s,
+                    'removeUrl' => route('products.listing', array_merge(
+                        $request->except(['s']),
+                    )),
                 ];
             })->toArray(),
         ];
@@ -274,6 +332,7 @@ class FrontController extends Controller
 
 
 
+//        dd($products);
         return view($domainConfig['views']['product_listing'], [
             'products' => $products,
             'categories' => $categories,
@@ -435,7 +494,8 @@ class FrontController extends Controller
         $brandId = $request->input('brand_id');
         $yearId = $request->input('year_id'); // Year filter
 
-        $models = ModelName::withCount(['products as product_count' => function ($query) use ($shopId, $brandId, $yearId) {
+        // Fetch only models that have at least one product matching the filters
+        $models = ModelName::whereHas('products', function ($query) use ($shopId, $brandId, $yearId) {
             $query->whereHas('visibility', function ($subQuery) use ($shopId) {
                 $subQuery->where('shop_id', $shopId);
             });
@@ -451,47 +511,28 @@ class FrontController extends Controller
                     $yearQuery->where('years.id', $yearId);
                 });
             }
-        }]);
+        })->withCount(['products as product_count' => function ($query) use ($shopId, $brandId, $yearId) {
+            $query->whereHas('visibility', function ($subQuery) use ($shopId) {
+                $subQuery->where('shop_id', $shopId);
+            });
 
-// SQL Query with Actual Values
-        $sql = vsprintf(str_replace('?', "'%s'", $models->toSql()), $models->getBindings());
+            if (!empty($brandId)) {
+                $query->whereHas('brands', function ($brandQuery) use ($brandId) {
+                    $brandQuery->where('brands.id', $brandId);
+                });
+            }
 
-        dd($sql); // Dump and Die to check the SQL
-
-
+            if (!empty($yearId)) {
+                $query->whereHas('years', function ($yearQuery) use ($yearId) {
+                    $yearQuery->where('years.id', $yearId);
+                });
+            }
+        }])->orderBy('name')->get();
 
         ?>
         <option value="">Select Model</option>
         <?php
         foreach ($models as $v)
-        {
-            ?>
-            <option value="<?php echo $v->id ?>"><?php echo $v->id ?>-<?php echo str_replace('"', '', $v->name) ?></option>
-            <?php
-        }
-        exit();
-    }
-
-    public function get_years(Request $request)
-    {
-        $domainConfig = app('domainConfig');
-        $shopId = $domainConfig['shop_id'];
-
-        $brandId = $request->input('brand_id');
-
-
-        $years = Year::withCount(['products as product_count' => function ($query) use ($shopId, $brandId) {
-            $query->whereHas('visibility', function ($subQuery) use ($shopId) {
-                $subQuery->where('shop_id', $shopId);
-            })
-                ->whereHas('brands', function ($brandQuery) use ($brandId) {
-                    $brandQuery->where('brands.id', $brandId);
-                });
-        }])->get();
-        ?>
-        <option value="">Select Year</option>
-        <?php
-        foreach ($years as $v)
         {
             ?>
             <option value="<?php echo $v->id ?>"><?php echo str_replace('"', '', $v->name) ?></option>
@@ -500,9 +541,45 @@ class FrontController extends Controller
         exit();
     }
 
+
+    public function get_years(Request $request)
+    {
+        $domainConfig = app('domainConfig');
+        $shopId = $domainConfig['shop_id'];
+        $brandId = $request->input('brand_id');
+
+        $years = Year::whereHas('products', function ($query) use ($shopId, $brandId) {
+            $query->whereHas('visibility', function ($subQuery) use ($shopId) {
+                $subQuery->where('shop_id', $shopId);
+            })
+                ->whereHas('brands', function ($brandQuery) use ($brandId) {
+                    $brandQuery->where('brands.id', $brandId);
+                });
+        })->withCount(['products as product_count' => function ($query) use ($shopId, $brandId) {
+            $query->whereHas('visibility', function ($subQuery) use ($shopId) {
+                $subQuery->where('shop_id', $shopId);
+            })
+                ->whereHas('brands', function ($brandQuery) use ($brandId) {
+                    $brandQuery->where('brands.id', $brandId);
+                });
+        }])->orderBy('name')->get();
+
+        ?>
+        <option value="">Select Year</option>
+        <?php
+        foreach ($years as $year) {
+            ?>
+            <option value="<?php echo $year->id ?>"><?php echo str_replace('"', '', $year->name) ?></option>
+            <?php
+        }
+        exit();
+    }
+
+
     public function get_brands(Request $request)
     {
-        $shopId = $request->shop_id; // Shop ID from request
+        $domainConfig = app('domainConfig');
+        $shopId = $domainConfig['shop_id'];
 
         $brands = Brand::withCount(['products as product_count' => function ($query) use ($shopId) {
             $query->whereHas('visibility', function ($subQuery) use ($shopId) {
@@ -520,6 +597,7 @@ class FrontController extends Controller
         }
         exit();
     }
+
 
     public function get_breedcum(Request $request)
     {

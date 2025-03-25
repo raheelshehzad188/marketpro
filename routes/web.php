@@ -421,5 +421,5 @@ Route::get('/addresses/set_default/{id}', 'AddressController@set_default')->name
 
 // //mobile app balnk page for webview
 // Route::get('/mobile-page/{slug}', 'PageController@mobile_custom_page')->name('mobile.custom-pages');
-
+Route::get('/{slug}', 'PageController@show_custom_page')->name('custom-pages.show_custom_page');
 

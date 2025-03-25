@@ -31,13 +31,16 @@
                                         <ul>
                                             @foreach ($selectedFilters as $filterType => $filters)
                                                 @foreach ($filters as $filter)
+                                                    @if($filter['name'] != '')
                                                     <li>
+
                                                         <a href="{{ $filter['removeUrl'] }}" class="text-decoration-none">
                                                             {{ $filter['name'] }}
                                                             <i class="fas fa-times text-danger ms-1"></i>
                                                         </a>
 
                                                     </li>
+                                                    @endif
                                                 @endforeach
                                             @endforeach
                                         </ul>

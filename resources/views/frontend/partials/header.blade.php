@@ -17,10 +17,19 @@
 
                 <div class="header-column col-md-6 col-sm-12 search-header">
                     <div class="header-row">
-                        <form role="search" class="d-flex w-100" action="page-search-results.html" method="get">
+                        <form role="search" class="d-flex w-100" action="{{ (!$_GET?url('products'):url()->full()) }}" method="get">
                             <div class="simple-search input-group w-100">
-                                <input class="form-control border-0" id="headerSearch" name="q" type="search"
-                                    value="" placeholder="Search here . . .">
+                                @foreach(request()->query() as $key => $value)
+                                    @if(is_array($value))
+                                        @foreach($value as $subValue)
+                                            <input type="hidden" name="{{ $key }}[]" value="{{ $subValue }}">
+                                        @endforeach
+                                    @else
+                                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                    @endif
+                                @endforeach
+                                <input class="form-control border-0" id="headerSearch" name="s" type="search"
+                                    value="{{(isset($_GET['s'])?$_GET['s']:'')  }}" placeholder="Search here . . .">
                                 <button class="btn btn-light" type="submit">
                                     <i class="fa fa-search header-nav-top-icon"></i>
                                 </button>
@@ -154,12 +163,14 @@
                                                                         <div class="col-md-3 col-sm-6">
                                                                     <select id="header_year" name="year[]" class="form-select py-2"
                                                                                 aria-label="Default select example">
+                                                                        <option value=" ">Select Year</option>
                                                                             </select>
                                                                         </div>
 
                                                                         <div class="col-md-3 col-sm-6">
                                                                             <select id="header_model" name="model[]" class="form-select py-2"
                                                                                 aria-label="Default select example">
+                                                                                <option value=" ">Select Model</option>
                                                                             </select>
                                                                         </div>
                                                                         <div class="col-md-3 col-sm-6">
