@@ -118,6 +118,37 @@
                     <div class="col-lg-7 mb-4 mb-lg-0">
                         <h2 class="text-color-dark font-weight-bold text-5-5 mb-3 text-uppercase letter-space-2">Billing
                             Details</h2>
+                        
+                        <!-- Customer Type Dropdown -->
+                        <div class="row">
+                            <div class="form-group col">
+                                <label class="form-label text-color-dark text-3">Customer Type <span class="text-color-danger">*</span></label>
+                                <div class="custom-select-1">
+                                    <select class="form-select form-control h-auto py-2 text-uppercase" name="customer_type" id="customer_type" required="">
+                                        <option value="">Select Customer Type</option>
+                                        <option value="private">Private</option>
+                                        <option value="company">Company</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Personal Number Field (shown when private is selected) -->
+                        <div class="row" id="personal_number_field" style="display: none;">
+                            <div class="form-group col">
+                                <input type="text" class="form-control h-auto py-2 text-uppercase" name="personal_number"
+                                    id="personal_number" placeholder="Personal Number">
+                            </div>
+                        </div>
+                        
+                        <!-- VAT Number Field (shown when company is selected) -->
+                        <div class="row" id="vat_number_field" style="display: none;">
+                            <div class="form-group col">
+                                <input type="text" class="form-control h-auto py-2 text-uppercase" name="vat_number"
+                                    id="vat_number" placeholder="VAT Number">
+                            </div>
+                        </div>
+                        
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <input type="text" class="form-control h-auto py-2 text-uppercase" name="firstName"
@@ -285,7 +316,7 @@
                                                     </strong>
                                                 </td>
                                                 <td class="text-end align-top">
-                                                    <span class="amount font-weight-medium text-color-grey">${{ number_format($item->quantity*($item->product->unit_price + ($item->addon->unit_price ?? 0)), 2) }}</span>
+                                                    <span class="amount font-weight-medium text-color-grey">{{ number_format($item->quantity*($item->product->unit_price + ($item->addon->unit_price ?? 0)), 0) }} SEK</span>
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -295,33 +326,57 @@
                                                         class="text-color-dark text-uppercase font-weight-bold letter-space-1">Subtotal</strong>
                                                 </td>
                                                 <td class="border-top-0 text-end">
-                                                    <strong><span class="amount font-weight-medium">${{ number_format($subtotal, 2) }}</span></strong>
+                                                    <strong><span class="amount font-weight-medium">{{ number_format($subtotal, 0) }} SEK</span></strong>
                                                 </td>
                                             </tr>
                                             <tr class="shipping">
                                                 <td colspan="2">
                                                     <strong
                                                         class="d-block text-color-dark mb-2 text-uppercase font-weight-bold letter-space-1">Shipping</strong>
+                                                    @php
+                                                        $freeShippingThreshold = get_free_shipping_threshold();
+                                                        $isFreeShippingEligible = $subtotal >= $freeShippingThreshold;
+                                                        $shippingCost = calculate_shipping_cost($subtotal, 'flat-rate');
+                                                    @endphp
+                                                    
+                                                    @if($isFreeShippingEligible)
+                                                        <div class="alert alert-success mb-2 p-2" style="font-size: 0.9rem;">
+                                                            <strong>🎉 Free Shipping Applied!</strong> Your order qualifies for free shipping.
+                                                        </div>
+                                                        <input type="hidden" name="shipping_method" value="free" id="shipping_method_hidden">
+                                                        <div class="d-flex flex-column">
+                                                            <label class="d-flex align-items-center text-color-grey mb-0">
+                                                                <input type="radio" class="me-2" checked disabled>
+                                                                <span class="text-success font-weight-bold">Free Shipping</span>
+                                                            </label>
+                                                        </div>
+                                                    @else
+                                                        <div class="mb-2" style="font-size: 0.85rem; color: #666;">
+                                                            <span>Spend <strong>{{ number_format($freeShippingThreshold - $subtotal, 0) }} SEK</strong> more for free shipping!</span>
+                                                        </div>
                                                     <div class="d-flex flex-column">
                                                         <label class="d-flex align-items-center text-color-grey mb-0"
-                                                            for="shipping_method1">
-                                                            <input id="shipping_method1" type="radio" class="me-2"
-                                                                name="shipping_method" value="free" checked="">
-                                                            Free Shipping
-                                                        </label>
-                                                        <label class="d-flex align-items-center text-color-grey mb-0"
                                                             for="shipping_method2">
-                                                            <input id="shipping_method2" type="radio" class="me-2"
-                                                                name="shipping_method" value="local-pickup">
-                                                            Local Pickup
+                                                                <input id="shipping_method2" type="radio" class="me-2 shipping-method-radio"
+                                                                    name="shipping_method" value="local-pickup" checked="">
+                                                                Local Pickup - Free
                                                         </label>
                                                         <label class="d-flex align-items-center text-color-grey mb-0"
                                                             for="shipping_method3">
-                                                            <input id="shipping_method3" type="radio" class="me-2"
+                                                                <input id="shipping_method3" type="radio" class="me-2 shipping-method-radio"
                                                                 name="shipping_method" value="flat-rate">
-                                                            Flat Rate: $5.00
+                                                                Flat Rate: <span id="flat_rate_amount">{{ number_format($shippingCost, 0) }} SEK</span>
                                                         </label>
                                                     </div>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr class="shipping-cost-row" style="display: none;">
+                                                <td>
+                                                    <strong class="text-color-dark text-uppercase font-weight-bold">Shipping Cost</strong>
+                                                </td>
+                                                <td class="text-end">
+                                                    <strong><span class="amount font-weight-medium" id="shipping_cost_display">0 SEK</span></strong>
                                                 </td>
                                             </tr>
                                             <tr class="total">
@@ -332,7 +387,7 @@
                                                 <td class="text-end">
                                                     <strong class="text-color-dark">
                                                         <span
-                                                            class="amount text-color-dark text-5 font-weight-bold">${{ number_format($subtotal, 2) }}</span>
+                                                            class="amount text-color-dark text-5 font-weight-bold" id="grand_total_display">{{ number_format($subtotal, 2) }} SEK</span>
                                                     </strong>
                                                 </td>
                                             </tr>
@@ -349,12 +404,51 @@
                                                                 checked="">
                                                             Cash On Delivery
                                                         </label>
+                                                        @if(get_setting('paypal_payment') == 1)
                                                         <label class="d-flex align-items-center text-color-grey mb-0"
                                                             for="payment_method2">
                                                             <input id="payment_method2" type="radio" class="me-2"
                                                                 name="payment_method" value="paypal">
                                                             PayPal
                                                         </label>
+                                                        @endif
+                                                        @if(get_setting('stripe_payment') == 1)
+                                                        <label class="d-flex align-items-center text-color-grey mb-0"
+                                                            for="payment_method_stripe">
+                                                            <input id="payment_method_stripe" type="radio" class="me-2"
+                                                                name="payment_method" value="stripe">
+                                                            Stripe
+                                                        </label>
+                                                        @endif
+                                                        @if(\App\PaymentGateways\ManualInvoiceGateway::isEnabled())
+                                                        <label class="d-flex align-items-center text-color-grey mb-0"
+                                                            for="payment_method3">
+                                                            <input id="payment_method3" type="radio" class="me-2"
+                                                                name="payment_method" value="invoice">
+                                                            Invoice
+                                                        </label>
+                                                        @endif
+                                                        @if(\App\PaymentGateways\ManualSwishGateway::isEnabled())
+                                                        <label class="d-flex align-items-center text-color-grey mb-0"
+                                                            for="payment_method4">
+                                                            <input id="payment_method4" type="radio" class="me-2"
+                                                                name="payment_method" value="swish">
+                                                            Swish
+                                                        </label>
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    <!-- Invoice Info Box -->
+                                                    <div id="invoice_info_box" class="mt-3 p-3 bg-light border-radius-0" style="display: none;">
+                                                        <p class="mb-0 text-2"><strong>Invoice Payment:</strong> Your order will be processed and an invoice will be sent to your email address. Please ensure you have provided the required information based on your customer type.</p>
+                                                    </div>
+                                                    
+                                                    <!-- Swish Info Box -->
+                                                    <div id="swish_info_box" class="mt-3 p-3 bg-light border-radius-0" style="display: none;">
+                                                        <p class="mb-0 text-2"><strong>Swish Payment:</strong> Click the button below to view Swish payment instructions.</p>
+                                                        <button type="button" class="btn btn-light btn-modern text-color-light bg-color-grey bg-color-hover-primary text-uppercase text-2 font-weight-bold border-0 border-radius-5 btn-px-3 py-2 mt-2" id="show_swish_popup_btn">
+                                                            View Swish Instructions
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -367,6 +461,26 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                    
+                                    <!-- Terms & Conditions Checkbox -->
+                                    <div class="row mt-3 mb-3">
+                                        <div class="col">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="accept_terms" name="accept_terms" value="1" required>
+                                                <label class="form-label custom-control-label cur-pointer text-2" for="accept_terms">
+                                                    I have read and agree to the 
+                                                    <a href="{{ route('terms-and-conditions') }}" target="_blank" class="text-color-primary text-decoration-underline font-weight-bold">
+                                                        Terms & Conditions
+                                                    </a>
+                                                    <span class="text-color-danger">*</span>
+                                                </label>
+                                            </div>
+                                            <div id="terms_error" class="text-danger text-2 mt-1" style="display: none;">
+                                                <small>You must accept the Terms & Conditions to proceed.</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
                                     <button type="submit"
                                         class="btn btn-light w-100 btn-modern text-color-light bg-color-grey bg-color-hover-primary text-uppercase text-3 font-weight-bold border-0 border-radius-5 ws-nowrap btn-px-4 py-3 ms-2">
                                         Place Order <i class="fas fa-arrow-right ms-2"></i>
@@ -379,6 +493,40 @@
             </form>
         </div>
     </div>
+    
+    <!-- Swish Payment Popup Modal -->
+    <div class="modal fade" id="swishPaymentModal" tabindex="-1" aria-labelledby="swishPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="swishPaymentModalLabel">Swish Payment Instructions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong class="text-color-dark">Swish Number:</strong>
+                        <p class="mb-0" id="swish_number_display">{{ \App\PaymentGateways\ManualSwishGateway::getSwishNumber() }}</p>
+                    </div>
+                        <div class="mb-3">
+                            <strong class="text-color-dark">Amount:</strong>
+                            <p class="mb-0" id="swish_amount_display">{{ number_format($subtotal, 0) }} SEK</p>
+                        </div>
+                    <div class="mb-3">
+                        <strong class="text-color-dark">Message to write:</strong>
+                        <p class="mb-0" id="swish_order_reference_display">{{ $nextOrderReference ?? 'Order #XYZ' }}</p>
+                    </div>
+                    <div class="alert alert-warning mb-3">
+                        <strong class="text-color-dark">Important:</strong> Please write the order number in your Swish message. Otherwise we cannot match the payment.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light btn-modern text-color-light bg-color-grey bg-color-hover-primary text-uppercase text-2 font-weight-bold border-0 border-radius-5 btn-px-4 py-2" id="swish_payment_sent_btn">
+                        I have sent the payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('style')
@@ -388,12 +536,195 @@
 @section('script')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Free Shipping Configuration
+            const FREE_SHIPPING_THRESHOLD = {{ get_free_shipping_threshold() }};
+            const FLAT_RATE_SHIPPING = 50; // SEK
+            const subtotal = {{ $subtotal }};
+            const isFreeShippingEligible = subtotal >= FREE_SHIPPING_THRESHOLD;
+            
+            // Shipping calculation function
+            function calculateShipping(method) {
+                if (isFreeShippingEligible) {
+                    return 0;
+                }
+                if (method === 'local-pickup') {
+                    return 0;
+                }
+                if (method === 'flat-rate') {
+                    return FLAT_RATE_SHIPPING;
+                }
+                return FLAT_RATE_SHIPPING; // Default
+            }
+            
+            // Update totals function
+            function updateTotals() {
+                const selectedShippingMethod = document.querySelector('input[name="shipping_method"]:checked')?.value || 'flat-rate';
+                const shippingCost = calculateShipping(selectedShippingMethod);
+                const grandTotal = subtotal + shippingCost;
+                
+                // Update shipping cost display
+                const shippingCostDisplay = document.getElementById('shipping_cost_display');
+                const shippingCostRow = document.querySelector('.shipping-cost-row');
+                const grandTotalDisplay = document.getElementById('grand_total_display');
+                
+                if (shippingCostDisplay) {
+                    shippingCostDisplay.textContent = shippingCost > 0 ? shippingCost.toFixed(0) + ' SEK' : 'Free';
+                }
+                
+                if (shippingCostRow) {
+                    if (shippingCost > 0 && !isFreeShippingEligible) {
+                        shippingCostRow.style.display = '';
+                    } else {
+                        shippingCostRow.style.display = 'none';
+                    }
+                }
+                
+                if (grandTotalDisplay) {
+                    grandTotalDisplay.textContent = grandTotal.toFixed(2) + ' SEK';
+                }
+            }
+            
+            // Initialize totals on page load
+            updateTotals();
+            
+            // Listen for shipping method changes
+            const shippingMethodRadios = document.querySelectorAll('.shipping-method-radio, input[name="shipping_method"]');
+            shippingMethodRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateTotals();
+                });
+            });
+            
             // Toggle password fields when "Create an account" is checked
             const createAccountCheckbox = document.getElementById('createAccount');
             if (createAccountCheckbox) {
                 createAccountCheckbox.addEventListener('change', function() {
                     document.getElementById('password-field').style.display = this.checked ? 'flex' :
                         'none';
+                });
+            }
+
+            // Customer Type Change Handler
+            const customerTypeSelect = document.getElementById('customer_type');
+            const personalNumberField = document.getElementById('personal_number_field');
+            const vatNumberField = document.getElementById('vat_number_field');
+            const personalNumberInput = document.getElementById('personal_number');
+            const vatNumberInput = document.getElementById('vat_number');
+
+            if (customerTypeSelect) {
+                customerTypeSelect.addEventListener('change', function() {
+                    const selectedType = this.value;
+                    const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+                    
+                    // Hide both fields first
+                    personalNumberField.style.display = 'none';
+                    vatNumberField.style.display = 'none';
+                    personalNumberInput.removeAttribute('required');
+                    vatNumberInput.removeAttribute('required');
+                    
+                    // Show appropriate field based on customer type and payment method
+                    if (paymentMethod !== 'swish') {
+                        if (selectedType === 'private') {
+                            personalNumberField.style.display = 'block';
+                            if (paymentMethod === 'invoice') {
+                                personalNumberInput.setAttribute('required', 'required');
+                            }
+                        } else if (selectedType === 'company') {
+                            vatNumberField.style.display = 'block';
+                            if (paymentMethod === 'invoice') {
+                                vatNumberInput.setAttribute('required', 'required');
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Payment Method Change Handler
+            const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+            const invoiceInfoBox = document.getElementById('invoice_info_box');
+            const swishInfoBox = document.getElementById('swish_info_box');
+            const placeOrderBtn = document.querySelector('button[type="submit"]');
+            let swishPaymentConfirmed = false;
+
+            paymentMethodRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const selectedMethod = this.value;
+                    const customerType = customerTypeSelect?.value;
+                    
+                    // Hide all info boxes
+                    invoiceInfoBox.style.display = 'none';
+                    swishInfoBox.style.display = 'none';
+                    swishPaymentConfirmed = false;
+                    
+                    // Reset required attributes
+                    personalNumberInput.removeAttribute('required');
+                    vatNumberInput.removeAttribute('required');
+                    
+                    // Show/hide customer type fields based on payment method
+                    if (selectedMethod === 'swish') {
+                        // Hide customer type fields for Swish
+                        personalNumberField.style.display = 'none';
+                        vatNumberField.style.display = 'none';
+                        swishInfoBox.style.display = 'block';
+                        placeOrderBtn.disabled = true;
+                    } else if (selectedMethod === 'invoice') {
+                        // Show invoice info box
+                        invoiceInfoBox.style.display = 'block';
+                        placeOrderBtn.disabled = false;
+                        
+                        // Show appropriate field based on customer type
+                        if (customerType === 'private') {
+                            personalNumberField.style.display = 'block';
+                            personalNumberInput.setAttribute('required', 'required');
+                        } else if (customerType === 'company') {
+                            vatNumberField.style.display = 'block';
+                            vatNumberInput.setAttribute('required', 'required');
+                        }
+                    } else {
+                        // For other payment methods, show fields based on customer type
+                        placeOrderBtn.disabled = false;
+                        if (customerType === 'private') {
+                            personalNumberField.style.display = 'block';
+                        } else if (customerType === 'company') {
+                            vatNumberField.style.display = 'block';
+                        }
+                    }
+                });
+            });
+
+            // Swish Popup Handler
+            const showSwishPopupBtn = document.getElementById('show_swish_popup_btn');
+            const swishPaymentModal = new bootstrap.Modal(document.getElementById('swishPaymentModal'));
+            const swishPaymentSentBtn = document.getElementById('swish_payment_sent_btn');
+            const swishOrderReferenceDisplay = document.getElementById('swish_order_reference_display');
+            const swishAmountDisplay = document.getElementById('swish_amount_display');
+
+            // Order reference from backend
+            const orderReference = '{{ $nextOrderReference ?? "Order #XYZ" }}';
+            
+            if (showSwishPopupBtn) {
+                showSwishPopupBtn.addEventListener('click', function() {
+                    // Update amount dynamically
+                    const subtotal = {{ $subtotal }};
+                    swishAmountDisplay.textContent = subtotal.toFixed(0) + ' SEK';
+                    
+                    // Update Swish number from backend
+                    const swishNumber = '{{ \App\PaymentGateways\ManualSwishGateway::getSwishNumber() }}';
+                    document.getElementById('swish_number_display').textContent = swishNumber;
+                    
+                    // Update order reference
+                    swishOrderReferenceDisplay.textContent = orderReference;
+                    
+                    // Show modal
+                    swishPaymentModal.show();
+                });
+            }
+
+            if (swishPaymentSentBtn) {
+                swishPaymentSentBtn.addEventListener('click', function() {
+                    swishPaymentModal.hide();
+                    swishPaymentConfirmed = true;
+                    placeOrderBtn.disabled = false;
                 });
             }
 
@@ -477,9 +808,29 @@
             }
             // AJAX Checkout Submission
             const checkoutForm = document.getElementById('checkout-form');
+            const acceptTermsCheckbox = document.getElementById('accept_terms');
+            const termsErrorDiv = document.getElementById('terms_error');
+            
             if (checkoutForm) {
                 checkoutForm.addEventListener('submit', function(e) {
                     e.preventDefault();
+                    
+                    // Validate Terms & Conditions checkbox
+                    if (!acceptTermsCheckbox || !acceptTermsCheckbox.checked) {
+                        termsErrorDiv.style.display = 'block';
+                        acceptTermsCheckbox.focus();
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Terms & Conditions Required',
+                            text: 'You must accept the Terms & Conditions to proceed with your order.',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    } else {
+                        termsErrorDiv.style.display = 'none';
+                    }
+                    
                     let checkoutData = new FormData(checkoutForm);
 
                     Swal.fire({

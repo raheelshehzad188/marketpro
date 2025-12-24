@@ -49,7 +49,8 @@
                                     <i class="fa-regular fa-user text-3"></i>
                                     @if(auth()->check())
 
-                                    <a href="{{ url('my-account')}}">My Account</a>
+                                    <a href="{{ url('my-account')}}">My Account</a> /
+                                    <a href="{{ url('customer/logout') }}">Logout</a>
                                     @else
                                     <a href="{{ url('shop/login') }}">Log in</a> /
                                     <a href="{{ url('shop/login')}}">Create account</a>

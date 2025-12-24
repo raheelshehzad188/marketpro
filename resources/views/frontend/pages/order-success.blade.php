@@ -29,6 +29,29 @@
                 <center>
                     <p class="thank-you-text">
                         Your order has been placed successfully. Order Code: <strong>#{{ $order->code }}</strong>
+                        @if($order->order_reference)
+                        <br>Order Reference: <strong>{{ $order->order_reference }}</strong>
+                        @endif
+                        @if($order->payment_method || $order->payment_type)
+                        <br>Payment Method: 
+                        <strong>
+                            @if($order->payment_method)
+                                @php
+                                    $paymentMethods = [
+                                        'cash-on-delivery' => 'Cash on Delivery',
+                                        'paypal' => 'PayPal',
+                                        'stripe' => 'Stripe',
+                                        'invoice' => 'Invoice',
+                                        'swish' => 'Swish'
+                                    ];
+                                    $displayMethod = $paymentMethods[$order->payment_method] ?? ucfirst(str_replace('-', ' ', $order->payment_method));
+                                @endphp
+                                {{ $displayMethod }}
+                            @elseif($order->payment_type)
+                                {{ $order->payment_type }}
+                            @endif
+                        </strong>
+                        @endif
                     </p>
                 </center>
             </div>

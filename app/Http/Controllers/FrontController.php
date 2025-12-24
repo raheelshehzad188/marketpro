@@ -82,6 +82,12 @@ class FrontController extends Controller
     {
         $domainConfig = app('domainConfig'); // Retrieve the matched domain configuration
 
+        // Check if domainConfig exists and has the required structure
+        if (!$domainConfig || !isset($domainConfig['views']['home'])) {
+            // Fallback to default home view if domain config is not available
+            return view('frontend.pages.home');
+        }
+
         // Access the domain-specific home view
         $homeView = $domainConfig['views']['home'];
 
@@ -95,6 +101,13 @@ class FrontController extends Controller
     {
         // Get the domain configuration
         $domainConfig = app('domainConfig');
+        
+        // Check if domainConfig exists
+        if (!$domainConfig || !isset($domainConfig['shop_id'])) {
+            // Fallback to default shop_id or handle error
+            return redirect()->route('home')->with('error', 'Domain configuration not found.');
+        }
+        
         $shopId = $domainConfig['shop_id'];
 
         // Retrieve visible parent categories with nested children
@@ -333,7 +346,10 @@ class FrontController extends Controller
 
 
 //        dd($products);
-        return view($domainConfig['views']['product_listing'], [
+        // Check if product_listing view exists in domainConfig
+        $productListingView = $domainConfig['views']['product_listing'] ?? 'frontend.pages.product_listing';
+        
+        return view($productListingView, [
             'products' => $products,
             'categories' => $categories,
             'brands' => $brands,
@@ -489,6 +505,11 @@ class FrontController extends Controller
     public function get_model(Request $request)
     {
         $domainConfig = app('domainConfig');
+        
+        if (!$domainConfig || !isset($domainConfig['shop_id'])) {
+            return response('<option value="">Select Model</option>', 200);
+        }
+        
         $shopId = $domainConfig['shop_id'];
 
         $brandId = $request->input('brand_id');
@@ -545,6 +566,11 @@ class FrontController extends Controller
     public function get_years(Request $request)
     {
         $domainConfig = app('domainConfig');
+        
+        if (!$domainConfig || !isset($domainConfig['shop_id'])) {
+            return response('<option value="">Select Year</option>', 200);
+        }
+        
         $shopId = $domainConfig['shop_id'];
         $brandId = $request->input('brand_id');
 
@@ -579,6 +605,11 @@ class FrontController extends Controller
     public function get_brands(Request $request)
     {
         $domainConfig = app('domainConfig');
+        
+        if (!$domainConfig || !isset($domainConfig['shop_id'])) {
+            return response('<option value="">Select Brand</option>', 200);
+        }
+        
         $shopId = $domainConfig['shop_id'];
 
         $brands = Brand::withCount(['products as product_count' => function ($query) use ($shopId) {
@@ -701,6 +732,12 @@ class FrontController extends Controller
 
 
 
+    public function termsAndConditions()
+    {
+        $termsContent = get_setting('terms_and_conditions', '');
+        return view('frontend.pages.terms-and-conditions', compact('termsContent'));
+    }
+
     public function checkout()
     {
         $userId = auth()->id();
@@ -719,7 +756,15 @@ class FrontController extends Controller
             $addonPrice = $item->addon->unit_price ?? 0;
             return ($productPrice + $addonPrice) * $item->quantity;
         });
-        return view('frontend.pages.checkout',compact('cartItems', 'subtotal'));
+        
+        // Generate next order reference for display in Swish popup
+        $nextOrderReference = generate_order_reference();
+        
+        // Check if free shipping applies
+        $freeShippingThreshold = get_free_shipping_threshold();
+        $isFreeShippingEligible = $subtotal >= $freeShippingThreshold;
+        
+        return view('frontend.pages.checkout',compact('cartItems', 'subtotal', 'nextOrderReference', 'isFreeShippingEligible', 'freeShippingThreshold'));
     }
     public function all_orders_show($id)
     {
@@ -734,8 +779,8 @@ class FrontController extends Controller
         $sessionIdBeforeLogin = session()->getId();
 
         try {
-            // Validate common billing fields and payment method.
-            $validated = $request->validate([
+            // Base validation rules
+            $validationRules = [
                 'firstName'      => 'required|string|max:255',
                 'lastName'       => 'required|string|max:255',
                 'email'          => 'required|email',
@@ -744,8 +789,25 @@ class FrontController extends Controller
                 'city'           => 'required|string|max:255',
                 'country'        => 'required|string|max:255',
                 'zip'            => 'required|string|max:10',
-                'payment_method' => 'required|in:cash-on-delivery',
-            ]);
+                'payment_method' => 'required|in:cash-on-delivery,paypal,stripe,invoice,swish',
+                'customer_type'  => 'required|in:private,company',
+                'accept_terms'   => 'required|accepted', // Must be checked (value = 1)
+            ];
+
+            // Add conditional validation based on payment method and customer type
+            $paymentMethod = $request->payment_method;
+            $customerType = $request->customer_type;
+
+            if ($paymentMethod === 'invoice') {
+                if ($customerType === 'private') {
+                    $validationRules['personal_number'] = 'required|string|max:255';
+                } elseif ($customerType === 'company') {
+                    $validationRules['vat_number'] = 'required|string|max:255';
+                }
+            }
+            // For Swish, no validation needed for personal_number/vat_number
+
+            $validated = $request->validate($validationRules);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         }
@@ -862,24 +924,63 @@ class FrontController extends Controller
             $taxTotal += $itemTax * $item->quantity;
         }
 
-        // Retrieve shipping cost and coupon discount from session.
-        $shippingCost  = Session::get('shipping', 0);
+        // Calculate shipping cost based on subtotal and selected method
+        $shippingMethod = $request->shipping_method ?? 'flat-rate';
+        $shippingCost = calculate_shipping_cost($subtotal, $shippingMethod);
+        
+        // If free shipping is eligible (subtotal >= 3000 SEK), force shipping cost to 0
+        $freeShippingThreshold = get_free_shipping_threshold();
+        if ($subtotal >= $freeShippingThreshold) {
+            $shippingCost = 0;
+            $shippingMethod = 'free';
+        }
+        
+        // Retrieve coupon discount from session.
         $couponDiscount = Session::get('pos_discount', 0);
+
+        // Generate order reference
+        $orderReference = generate_order_reference();
 
         // Create the Order.
         $order = new Order();
         $order->user_id = $userId; // Guest orders: user_id remains null.
         $order->code = date('Ymd-His') . rand(10, 99);
+        $order->order_reference = $orderReference;
         $order->date = now();
-        $order->payment_status = 'unpaid'; // For COD.
+        $order->customer_type = $request->customer_type;
+        $order->personal_number = $request->personal_number ?? null;
+        $order->vat_number = $request->vat_number ?? null;
+        $order->payment_method = $request->payment_method;
+        
+        // Set payment details based on payment method
+        $paymentMethod = $request->payment_method;
+        if ($paymentMethod === 'cash-on-delivery') {
+            $order->payment_status = 'unpaid';
         $order->payment_type = 'Cash';
         $order->payment_details = 'Cash on Delivery';
+        } elseif ($paymentMethod === 'invoice') {
+            $order->payment_status = 'unpaid';
+            $order->payment_type = 'Invoice';
+            $order->payment_details = 'Invoice payment - will be sent via email';
+        } elseif ($paymentMethod === 'swish') {
+            $order->payment_status = 'unpaid';
+            $order->payment_type = 'Swish';
+            $order->payment_details = 'Swish payment - manual verification required';
+        } else {
+            // For other payment methods (PayPal, etc.)
+            $order->payment_status = 'unpaid';
+            $order->payment_type = ucfirst(str_replace('-', ' ', $paymentMethod));
+            $order->payment_details = ucfirst(str_replace('-', ' ', $paymentMethod));
+        }
 
-        // Save billing and shipping details as JSON.
-        $order->shipping_address = json_encode([
+        // Save billing and shipping details as JSON, including shipping method and cost
+        $shippingAddressData = [
             'billing'  => $billingDetails,
             'shipping' => $shippingDetails,
-        ]);
+            'shipping_method' => $shippingMethod,
+            'shipping_cost' => $shippingCost,
+        ];
+        $order->shipping_address = json_encode($shippingAddressData);
 
         if ($order->save()) {
             // Create OrderDetail records for each cart item.

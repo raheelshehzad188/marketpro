@@ -63,71 +63,135 @@ class AizUploadController extends Controller
         return view('uploader.aiz-uploader');
     }
     public function upload(Request $request){
-        $type = array(
-            "jpg"=>"image",
-            "jpeg"=>"image",
-            "png"=>"image",
-            "svg"=>"image",
-            "webp"=>"image",
-            "gif"=>"image",
-            "mp4"=>"video",
-            "mpg"=>"video",
-            "mpeg"=>"video",
-            "webm"=>"video",
-            "ogg"=>"video",
-            "avi"=>"video",
-            "mov"=>"video",
-            "flv"=>"video",
-            "swf"=>"video",
-            "mkv"=>"video",
-            "wmv"=>"video",
-            "wma"=>"audio",
-            "aac"=>"audio",
-            "wav"=>"audio",
-            "mp3"=>"audio",
-            "zip"=>"archive",
-            "rar"=>"archive",
-            "7z"=>"archive",
-            "doc"=>"document",
-            "txt"=>"document",
-            "docx"=>"document",
-            "pdf"=>"document",
-            "csv"=>"document",
-            "xml"=>"document",
-            "ods"=>"document",
-            "xlr"=>"document",
-            "xls"=>"document",
-            "xlsx"=>"document"
-        );
+        try {
+            $type = array(
+                "jpg"=>"image",
+                "jpeg"=>"image",
+                "png"=>"image",
+                "svg"=>"image",
+                "webp"=>"image",
+                "gif"=>"image",
+                "mp4"=>"video",
+                "mpg"=>"video",
+                "mpeg"=>"video",
+                "webm"=>"video",
+                "ogg"=>"video",
+                "avi"=>"video",
+                "mov"=>"video",
+                "flv"=>"video",
+                "swf"=>"video",
+                "mkv"=>"video",
+                "wmv"=>"video",
+                "wma"=>"audio",
+                "aac"=>"audio",
+                "wav"=>"audio",
+                "mp3"=>"audio",
+                "zip"=>"archive",
+                "rar"=>"archive",
+                "7z"=>"archive",
+                "doc"=>"document",
+                "txt"=>"document",
+                "docx"=>"document",
+                "pdf"=>"document",
+                "csv"=>"document",
+                "xml"=>"document",
+                "ods"=>"document",
+                "xlr"=>"document",
+                "xls"=>"document",
+                "xlsx"=>"document"
+            );
 
-        if($request->hasFile('aiz_file')){
+            if(!$request->hasFile('aiz_file')){
+                return response()->json(['error' => 'No file uploaded'], 400);
+            }
+
             $upload = new Upload;
             $extension = strtolower($request->file('aiz_file')->getClientOriginalExtension());
 
-            if(isset($type[$extension])){
-                $upload->file_original_name = null;
-                $arr = explode('.', $request->file('aiz_file')->getClientOriginalName());
-                for($i=0; $i < count($arr)-1; $i++){
-                    if($i == 0){
-                        $upload->file_original_name .= $arr[$i];
-                    }
-                    else{
-                        $upload->file_original_name .= ".".$arr[$i];
+            if(!isset($type[$extension])){
+                return response()->json(['error' => 'File type not allowed'], 400);
+            }
+
+            // Get original file name
+            $upload->file_original_name = null;
+            $arr = explode('.', $request->file('aiz_file')->getClientOriginalName());
+            for($i=0; $i < count($arr)-1; $i++){
+                if($i == 0){
+                    $upload->file_original_name .= $arr[$i];
+                }
+                else{
+                    $upload->file_original_name .= ".".$arr[$i];
+                }
+            }
+
+            // Ensure uploads directory exists with proper permissions
+            $uploadDir = public_path('uploads/all');
+            if (!file_exists($uploadDir)) {
+                if (!mkdir($uploadDir, 0777, true)) {
+                    return response()->json(['error' => 'Failed to create upload directory'], 500);
+                }
+                // Set permissions explicitly
+                chmod($uploadDir, 0777);
+            } else {
+                // Ensure directory is writable
+                if (!is_writable($uploadDir)) {
+                    // Try to make it writable
+                    if (!chmod($uploadDir, 0777)) {
+                        return response()->json(['error' => 'Upload directory is not writable and could not be fixed'], 500);
                     }
                 }
+            }
 
-                $path = $request->file('aiz_file')->store('uploads/all', 'local');
-                $size = $request->file('aiz_file')->getSize();
+            // Generate unique filename
+            $fileName = uniqid() . '_' . time() . '.' . $extension;
+            $path = 'uploads/all/' . $fileName;
+            $fullPath = public_path($path);
 
-                // Return MIME type ala mimetype extension
-                $finfo = finfo_open(FILEINFO_MIME_TYPE); 
+            // Move uploaded file to destination using copy + unlink method
+            try {
+                $uploadedFile = $request->file('aiz_file');
+                $tempPath = $uploadedFile->getRealPath();
+                
+                // Use copy instead of move for better compatibility
+                if (!copy($tempPath, $fullPath)) {
+                    return response()->json(['error' => 'Failed to copy uploaded file. Check directory permissions.'], 500);
+                }
+                
+                // Verify file was copied successfully
+                if (!file_exists($fullPath)) {
+                    return response()->json(['error' => 'File was not copied successfully'], 500);
+                }
+                
+                // Set file permissions
+                chmod($fullPath, 0644);
+                
+            } catch (\Exception $e) {
+                \Log::error('File copy error: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to save uploaded file: ' . $e->getMessage()], 500);
+            }
 
-                // Get the MIME type of the file
-                $file_mime = finfo_file($finfo, base_path('public/').$path);
+            // Verify file was moved successfully
+            if (!file_exists($fullPath)) {
+                \Log::error('File not found after move: ' . $fullPath);
+                return response()->json(['error' => 'File storage failed'], 500);
+            }
 
-                if($type[$extension] == 'image' && get_setting('disable_image_optimization') != 1){
-                    try {
-                        $img = Image::make($request->file('aiz_file')->getRealPath())->encode();
+            $size = filesize($fullPath);
+
+            // Get MIME type from stored file
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $file_mime = finfo_file($finfo, $fullPath);
+            if (!$file_mime) {
+                // Fallback to uploaded file MIME type
+                $file_mime = finfo_file($finfo, $request->file('aiz_file')->getRealPath());
+            }
+            finfo_close($finfo);
+
+            // Image optimization
+            if($type[$extension] == 'image' && get_setting('disable_image_optimization') != 1){
+                try {
+                    if (file_exists($fullPath)) {
+                        $img = Image::make($fullPath)->encode();
                         $height = $img->height();
                         $width = $img->width();
                         if($width > $height && $width > 1500){
@@ -139,43 +203,70 @@ class AizUploadController extends Controller
                                 $constraint->aspectRatio();
                             });
                         }
-                        $img->save(base_path('public/').$path);
+                        $img->save($fullPath);
                         clearstatcache();
-                        $size = $img->filesize();
-
-                    } catch (\Exception $e) {
-                        //dd($e);
+                        $size = filesize($fullPath);
                     }
+                } catch (\Exception $e) {
+                    \Log::error('Image optimization error: ' . $e->getMessage());
                 }
-                
-                if (env('FILESYSTEM_DRIVER') == 's3') {
+            }
+            
+            // Handle S3 storage if configured
+            if (env('FILESYSTEM_DRIVER') == 's3') {
+                try {
                     Storage::disk('s3')->put(
                         $path,
-                        file_get_contents(base_path('public/').$path),
+                        file_get_contents($fullPath),
                         [
                             'visibility' => 'public',
                             'ContentType' =>  $extension == 'svg' ? 'image/svg+xml' : $file_mime
                         ]
                     );
                     if($arr[0] != 'updates') {
-                        unlink(base_path('public/').$path);
+                        @unlink($fullPath);
                     }
+                } catch (\Exception $e) {
+                    \Log::error('S3 upload error: ' . $e->getMessage());
                 }
-
-                $upload->extension = $extension;
-                $upload->file_name = $path;
-                $upload->user_id = Auth::user()->id;
-                $upload->type = $type[$upload->extension];
-                $upload->file_size = $size;
-                $upload->save();
             }
-            return '{}';
+
+            // Save upload record
+            $upload->extension = $extension;
+            $upload->file_name = $path;
+            $upload->user_id = Auth::user()->id;
+            $upload->type = $type[$extension];
+            $upload->file_size = $size;
+            
+            if($upload->save()){
+                return response()->json(['success' => true, 'id' => $upload->id]);
+            } else {
+                return response()->json(['error' => 'Failed to save upload record'], 500);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Upload error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json(['error' => 'Upload failed: ' . $e->getMessage()], 500);
         }
     }
 
     public function get_uploaded_files(Request $request)
     {
-        $uploads = Upload::where('user_id', Auth::user()->id);
+        // For admin/staff users, show all admin-uploaded images
+        // For sellers, show only their own images
+        if (auth()->user()->user_type == 'admin' || auth()->user()->user_type == 'staff') {
+            // Show all uploads from admin/staff users (or all uploads for admin)
+            $uploads = Upload::query();
+            // Optionally filter to only admin/staff uploads:
+            // $uploads = Upload::whereHas('user', function($query) {
+            //     $query->whereIn('user_type', ['admin', 'staff']);
+            // });
+        } else {
+            // For sellers, show only their own uploads
+            $uploads = Upload::where('user_id', Auth::user()->id);
+        }
+        
         if ($request->search != null) {
             $uploads->where('file_original_name', 'like', '%'.$request->search.'%');
         }

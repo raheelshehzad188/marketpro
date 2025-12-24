@@ -69,6 +69,7 @@ Route::post('/add_to_cart', [FrontController::class, 'add_to_cart'])->name('add_
 Route::get('/checkout', [FrontController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [FrontController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/order-success/{order}', [FrontController::class, 'orderSuccess'])->name('order.success');
+Route::get('/terms-and-conditions', [FrontController::class, 'termsAndConditions'])->name('terms-and-conditions');
 
 Route::get('/customer/logout', [FrontController::class, 'logout'])->name('customer.logout');
 Route::post('/customer/login', [FrontController::class, 'login'])->name('customer.login');

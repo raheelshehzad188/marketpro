@@ -506,7 +506,18 @@
                 @endif
 
                 <!-- Setup & Configurations -->
-                {{-- @if (Auth::user()->user_type == 'admin' || in_array('14', json_decode(Auth::user()->staff->role->permissions)))
+                @php
+                    $showSetupConfig = false;
+                    if (Auth::user()->user_type == 'admin') {
+                        $showSetupConfig = true;
+                    } elseif (Auth::user()->user_type == 'staff' && isset(Auth::user()->staff) && Auth::user()->staff && isset(Auth::user()->staff->role) && Auth::user()->staff->role) {
+                        $permissions = json_decode(Auth::user()->staff->role->permissions ?? '[]', true);
+                        if (is_array($permissions) && in_array('14', $permissions)) {
+                            $showSetupConfig = true;
+                        }
+                    }
+                @endphp
+                @if ($showSetupConfig)
                     <li class="aiz-side-nav-item">
                         <a href="#" class="aiz-side-nav-link">
                             <i class="las la-dharmachakra aiz-side-nav-icon"></i>
@@ -525,27 +536,33 @@
                                     <span class="aiz-side-nav-text">{{translate('Features activation')}}</span>
                                 </a>
                             </li>
+                            @if(Route::has('languages.index'))
                             <li class="aiz-side-nav-item">
                                 <a href="{{route('languages.index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['languages.index', 'languages.create', 'languages.store', 'languages.show', 'languages.edit'])}}">
                                     <span class="aiz-side-nav-text">{{translate('Languages')}}</span>
                                 </a>
                             </li>
+                            @endif
 
+                            @if(Route::has('currency.index'))
                             <li class="aiz-side-nav-item">
                                 <a href="{{route('currency.index')}}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('Currency')}}</span>
                                 </a>
                             </li>
+                            @endif
                             <li class="aiz-side-nav-item">
                                 <a href="{{route('tax.index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['tax.index', 'tax.create', 'tax.store', 'tax.show', 'tax.edit'])}}">
                                     <span class="aiz-side-nav-text">{{translate('Vat & TAX')}}</span>
                                 </a>
                             </li>
+                            @if(Route::has('pick_up_points.index'))
                             <li class="aiz-side-nav-item">
                                 <a href="{{route('pick_up_points.index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['pick_up_points.index','pick_up_points.create','pick_up_points.edit'])}}">
                                     <span class="aiz-side-nav-text">{{translate('Pickup point')}}</span>
                                 </a>
                             </li>
+                            @endif
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('smtp_settings.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('SMTP Settings')}}</span>
@@ -554,6 +571,11 @@
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('payment_method.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('Payment Methods')}}</span>
+                                </a>
+                            </li>
+                            <li class="aiz-side-nav-item">
+                                <a href="{{ route('terms_and_conditions.index') }}" class="aiz-side-nav-link">
+                                    <span class="aiz-side-nav-text">{{translate('Terms & Conditions')}}</span>
                                 </a>
                             </li>
                             <li class="aiz-side-nav-item">
@@ -567,24 +589,30 @@
                                 </a>
                             </li>
 
+                            @if(Route::has('facebook_chat.index') || Route::has('facebook-comment'))
                             <li class="aiz-side-nav-item">
                                 <a href="javascript:void(0);" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('Facebook')}}</span>
                                     <span class="aiz-side-nav-arrow"></span>
                                 </a>
                                 <ul class="aiz-side-nav-list level-3">
+                                    @if(Route::has('facebook_chat.index'))
                                     <li class="aiz-side-nav-item">
                                         <a href="{{ route('facebook_chat.index') }}" class="aiz-side-nav-link">
                                             <span class="aiz-side-nav-text">{{translate('Facebook Chat')}}</span>
                                         </a>
                                     </li>
+                                    @endif
+                                    @if(Route::has('facebook-comment'))
                                     <li class="aiz-side-nav-item">
                                         <a href="{{ route('facebook-comment') }}" class="aiz-side-nav-link">
                                             <span class="aiz-side-nav-text">{{translate('Facebook Comment')}}</span>
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </li>
+                            @endif
 
                             <li class="aiz-side-nav-item">
                                 <a href="javascript:void(0);" class="aiz-side-nav-link">
@@ -644,7 +672,7 @@
 
                         </ul>
                     </li>
-                @endif --}}
+                @endif
 
 
                 <!-- Staffs -->

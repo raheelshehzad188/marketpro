@@ -45,6 +45,13 @@
                             <td class="text-right text-info text-bold"> {{ $order->code }}</td>
                         </tr>
 
+                        @if($order->order_reference)
+                        <tr>
+                            <td class="text-main text-bold">{{ translate('Order Reference') }}</td>
+                            <td class="text-right text-info text-bold"> {{ $order->order_reference }}</td>
+                        </tr>
+                        @endif
+
                         <tr>
                             <td class="text-main text-bold">{{ translate('Order Date') }} </td>
                             <td class="text-right">{{ date('d-m-Y h:i A', $order->date) }}</td>
@@ -58,6 +65,49 @@
                             </td>
                         </tr>
 
+                        @if($order->payment_method || $order->payment_type)
+                        <tr>
+                            <td class="text-main text-bold">{{ translate('Payment Method') }}</td>
+                            <td class="text-right">
+                                @if($order->payment_method)
+                                    @php
+                                        $paymentMethods = [
+                                            'cash-on-delivery' => 'Cash on Delivery',
+                                            'paypal' => 'PayPal',
+                                            'stripe' => 'Stripe',
+                                            'invoice' => 'Invoice',
+                                            'swish' => 'Swish'
+                                        ];
+                                        $displayMethod = $paymentMethods[$order->payment_method] ?? ucfirst(str_replace('-', ' ', $order->payment_method));
+                                    @endphp
+                                    <strong class="text-info">{{ $displayMethod }}</strong>
+                                @elseif($order->payment_type)
+                                    <strong class="text-info">{{ $order->payment_type }}</strong>
+                                @endif
+                            </td>
+                        </tr>
+                        @endif
+
+                        @if($order->customer_type)
+                        <tr>
+                            <td class="text-main text-bold">{{ translate('Customer Type') }}</td>
+                            <td class="text-right">{{ ucfirst($order->customer_type) }}</td>
+                        </tr>
+                        @endif
+
+                        @if($order->personal_number)
+                        <tr>
+                            <td class="text-main text-bold">{{ translate('Personal Number') }}</td>
+                            <td class="text-right">{{ $order->personal_number }}</td>
+                        </tr>
+                        @endif
+
+                        @if($order->vat_number)
+                        <tr>
+                            <td class="text-main text-bold">{{ translate('VAT Number') }}</td>
+                            <td class="text-right">{{ $order->vat_number }}</td>
+                        </tr>
+                        @endif
 
                         <tr>
                             <td class="text-main text-bold">

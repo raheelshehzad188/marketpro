@@ -147,6 +147,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/general-setting', 'BusinessSettingsController@general_setting')->name('general_setting.index');
     Route::get('/activation', 'BusinessSettingsController@activation')->name('activation.index');
     Route::get('/payment-method', 'BusinessSettingsController@payment_method')->name('payment_method.index');
+    Route::post('/payment_method_update', 'BusinessSettingsController@payment_method_update')->name('payment_method.update');
+    Route::post('/payment_method_update_manual', 'BusinessSettingsController@payment_method_update_manual')->name('payment_method.update_manual');
+    Route::get('/terms-and-conditions', 'BusinessSettingsController@terms_and_conditions')->name('terms_and_conditions.index');
     Route::get('/file_system', 'BusinessSettingsController@file_system')->name('file_system.index');
     Route::get('/social-login', 'BusinessSettingsController@social_login')->name('social_login.index');
     Route::get('/smtp-settings', 'BusinessSettingsController@smtp_settings')->name('smtp_settings.index');

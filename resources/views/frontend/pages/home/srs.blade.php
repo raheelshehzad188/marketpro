@@ -97,12 +97,30 @@
         <section class="banner-section hide-mobile">
             <div class="container">
                 <div class="row text-center text-md-start">
-                    @if (get_setting('advert_banner_image') != null)
-                        @foreach (json_decode(get_setting('advert_banner_image'), true) as $key => $imageId)
-                            <a href="{{ json_decode(get_setting('advert_banner_link'), true)[$key] ?? '#' }}">
-                                <img src="{{ uploaded_asset($imageId) }}" class="img-fluid" alt="Advert Banner">
-                            </a>
-                        @endforeach
+                    @php
+                        $advertBannerImage = get_setting('advert_banner_image');
+                        $advertBannerLink = get_setting('advert_banner_link');
+                        // Handle both single value (new format) and array (old format for backward compatibility)
+                        $imageId = null;
+                        if ($advertBannerImage != null && $advertBannerImage != '') {
+                            if (is_numeric($advertBannerImage)) {
+                                // Single integer value (new format)
+                                $imageId = $advertBannerImage;
+                            } else {
+                                // Try to decode as JSON array (old format)
+                                $decoded = json_decode($advertBannerImage, true);
+                                if (is_array($decoded) && !empty($decoded)) {
+                                    $imageId = reset($decoded); // Get first image from array
+                                } elseif (is_numeric($decoded)) {
+                                    $imageId = $decoded;
+                                }
+                            }
+                        }
+                    @endphp
+                    @if ($imageId)
+                        <a href="{{ $advertBannerLink ?? '#' }}">
+                            <img src="{{ uploaded_asset($imageId) }}" class="img-fluid" alt="Advert Banner">
+                        </a>
                     @else
                         <!-- Default Placeholder Banner -->
                         <img src="{{ asset('frontend/img/srs-images/banner.png') }}" class="img-fluid"
@@ -211,38 +229,89 @@
                 <div class="masonry-loader masonry-loader-loaded">
                     <div class="row products product-thumb-info-list" data-plugin-masonry=""
                         data-plugin-options="{'layoutMode': 'fitRows'}">
-                        @foreach (range(1, 8) as $i)
-                            <div class="col-12 col-sm-6 col-lg-3">
-                                <div class="product mb-0">
-                                    <div class="product-thumb-info border-0 mb-3">
-                                        <a href="shop-product-sidebar-left.html">
-                                            <div class="product-thumb-info-image">
-                                                <img src="{{ asset('frontend/img/srs-images/product' . $i . '.png') }}"
-                                                    alt="" class="img-fluid">
+                        @php
+                            $featuredProductImages = get_setting('featured_product_images') ? json_decode(get_setting('featured_product_images'), true) : [];
+                            $featuredProductNames = get_setting('featured_product_names') ? json_decode(get_setting('featured_product_names'), true) : [];
+                            $featuredProductLinks = get_setting('featured_product_links') ? json_decode(get_setting('featured_product_links'), true) : [];
+                            $featuredProductPrices = get_setting('featured_product_prices') ? json_decode(get_setting('featured_product_prices'), true) : [];
+                        @endphp
+                        @if(!empty($featuredProductImages))
+                            @foreach($featuredProductImages as $key => $imageId)
+                                @php
+                                    $productImage = \App\Upload::find($imageId);
+                                    $productName = isset($featuredProductNames[$key]) ? $featuredProductNames[$key] : 'Product ' . ($key + 1);
+                                    $productLink = isset($featuredProductLinks[$key]) && $featuredProductLinks[$key] ? $featuredProductLinks[$key] : '#';
+                                    $productPrice = isset($featuredProductPrices[$key]) ? $featuredProductPrices[$key] : '';
+                                @endphp
+                                @if($productImage)
+                                    <div class="col-12 col-sm-6 col-lg-3">
+                                        <div class="product mb-0">
+                                            <div class="product-thumb-info border-0 mb-3">
+                                                <a href="{{ $productLink }}">
+                                                    <div class="product-thumb-info-image">
+                                                        <img src="{{ my_asset($productImage->file_name) }}"
+                                                            alt="{{ $productName }}" class="img-fluid">
+                                                    </div>
+                                                </a>
                                             </div>
-                                        </a>
-                                    </div>
-                                    <div class="d-flex justify-content-center">
-                                        <div>
-                                            <h3
-                                                class="text-3-5 font-weight-medium font-alternative text-transform-none line-height-3 mb-0 text-center">
-                                                <a href="shop-product-sidebar-right.html"
-                                                    class="text-color-dark text-color-hover-primary product-title">Product
-                                                    {{ $i }}</a>
-                                            </h3>
+                                            <div class="d-flex justify-content-center">
+                                                <div>
+                                                    <h3
+                                                        class="text-3-5 font-weight-medium font-alternative text-transform-none line-height-3 mb-0 text-center">
+                                                        <a href="{{ $productLink }}"
+                                                            class="text-color-dark text-color-hover-primary product-title">{{ $productName }}</a>
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div title="Rated 5 out of 5">
+                                                <input type="text" class="d-none" value="5" title=""
+                                                    data-plugin-star-rating=""
+                                                    data-plugin-options="{'displayOnly': true, 'color': 'default', 'size':'xs'}">
+                                            </div>
+                                            @if($productPrice)
+                                                <p class="price text-5 mb-3">
+                                                    <span class="sale text-color-dark font-weight-semi-bold">{{ $productPrice }}</span>
+                                                </p>
+                                            @endif
                                         </div>
                                     </div>
-                                    <div title="Rated 5 out of 5">
-                                        <input type="text" class="d-none" value="5" title=""
-                                            data-plugin-star-rating=""
-                                            data-plugin-options="{'displayOnly': true, 'color': 'default', 'size':'xs'}">
+                                @endif
+                            @endforeach
+                        @else
+                            <!-- Default Static Products (Fallback) -->
+                            @foreach (range(1, 8) as $i)
+                                <div class="col-12 col-sm-6 col-lg-3">
+                                    <div class="product mb-0">
+                                        <div class="product-thumb-info border-0 mb-3">
+                                            <a href="shop-product-sidebar-left.html">
+                                                <div class="product-thumb-info-image">
+                                                    <img src="{{ asset('frontend/img/srs-images/product' . $i . '.png') }}"
+                                                        alt="" class="img-fluid">
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="d-flex justify-content-center">
+                                            <div>
+                                                <h3
+                                                    class="text-3-5 font-weight-medium font-alternative text-transform-none line-height-3 mb-0 text-center">
+                                                    <a href="shop-product-sidebar-right.html"
+                                                        class="text-color-dark text-color-hover-primary product-title">Product
+                                                        {{ $i }}</a>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div title="Rated 5 out of 5">
+                                            <input type="text" class="d-none" value="5" title=""
+                                                data-plugin-star-rating=""
+                                                data-plugin-options="{'displayOnly': true, 'color': 'default', 'size':'xs'}">
+                                        </div>
+                                        <p class="price text-5 mb-3">
+                                            <span class="sale text-color-dark font-weight-semi-bold">25,50kr</span>
+                                        </p>
                                     </div>
-                                    <p class="price text-5 mb-3">
-                                        <span class="sale text-color-dark font-weight-semi-bold">25,50kr</span>
-                                    </p>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>

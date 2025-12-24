@@ -131,105 +131,32 @@
                 <div class="card-body">
                     <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="form-group">
-                            <label>{{ translate('Banner Image & Link') }}</label>
-                            <div class="advert-banner-target">
-                                <input type="hidden" name="types[]" value="advert_banner_image">
-                                <input type="hidden" name="types[]" value="advert_banner_link">
-
-                                @if (get_setting('advert_banner_image') != null)
-                                    @foreach (json_decode(get_setting('advert_banner_image'), true) as $key => $value)
-                                        <div class="p-row">
-                                            <div class="row gutters-5">
-                                                <div class="col-md-5">
-                                                    <div class="form-group">
-                                                        <div class="input-group" data-toggle="aizuploader"
-                                                            data-type="image">
-                                                            <div class="input-group-prepend">
-                                                                <div
-                                                                    class="input-group-text bg-soft-secondary font-weight-medium">
-                                                                    {{ translate('Browse') }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-control file-amount">
-                                                                {{ translate('Choose File') }}
-                                                            </div>
-                                                            <input type="hidden" name="types[]"
-                                                                value="advert_banner_image">
-                                                            <input type="hidden" name="advert_banner_image[]"
-                                                                class="selected-files"
-                                                                value="{{ json_decode(get_setting('advert_banner_image'), true)[$key] }}">
-                                                        </div>
-                                                        <div class="file-preview box sm"></div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Banner Link Input -->
-                                                <div class="col-md-5">
-                                                    <div class="form-group">
-                                                        <input type="hidden" name="types[]" value="advert_banner_link">
-                                                        <input type="text" class="form-control" placeholder="http://"
-                                                            name="advert_banner_link[]"
-                                                            value="{{ json_decode(get_setting('advert_banner_link'), true)[$key] }}">
-                                                    </div>
-                                                </div>
-
-                                                <!-- Remove Button -->
-                                                <div class="col-md-auto">
-                                                    <div class="form-group">
-                                                        <button type="button"
-                                                            class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
-                                                            data-toggle="remove-parent" data-parent=".p-row">
-                                                            <i class="las la-times"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-from-label">{{ translate('Banner Image') }}</label>
+                            <div class="col-sm-10">
+                                <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text bg-soft-secondary font-weight-medium">
+                                            {{ translate('Browse') }}
                                         </div>
-                                    @endforeach
-                                @endif
-                            </div>
-
-                            <!-- Add New Button -->
-                            <button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
-                                data-content='
-                    <div class="p-row">
-                        <div class="row gutters-5">
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <div class="input-group" data-toggle="aizuploader" data-type="image">
-                                        <div class="input-group-prepend">
-                                            <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
-                                        </div>
-                                        <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                        <input type="hidden" name="types[]" value="advert_banner_image">
-                                        <input type="hidden" name="advert_banner_image[]" class="selected-files" value="">
                                     </div>
-                                    <div class="file-preview box sm"></div>
+                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                    <input type="hidden" name="types[]" value="advert_banner_image">
+                                    <input type="hidden" name="advert_banner_image" class="selected-files"
+                                        value="{{ get_setting('advert_banner_image') }}">
                                 </div>
-                            </div>
-
-                            <!-- Banner Link Input -->
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <input type="hidden" name="types[]" value="advert_banner_link">
-                                    <input type="text" class="form-control" placeholder="http://" name="advert_banner_link[]" value="">
-                                </div>
-                            </div>
-
-                            <!-- Remove Button -->
-                            <div class="col-md-auto">
-                                <div class="form-group">
-                                    <button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".p-row">
-                                        <i class="las la-times"></i>
-                                    </button>
-                                </div>
+                                <div class="file-preview box sm"></div>
                             </div>
                         </div>
-                    </div>'
-                                data-target=".advert-banner-target">
-                                {{ translate('Add New') }}
-                            </button>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-from-label">{{ translate('Banner Link') }}</label>
+                            <div class="col-sm-10">
+                                <input type="hidden" name="types[]" value="advert_banner_link">
+                                <input type="text" class="form-control" placeholder="http://"
+                                    name="advert_banner_link"
+                                    value="{{ get_setting('advert_banner_link') }}">
+                            </div>
                         </div>
 
                         <div class="text-right">
@@ -507,6 +434,164 @@
                             </div>
                         </div>'
                                 data-target=".additional-category-boxes-target">
+                                {{ translate('Add New') }}
+                            </button>
+                        </div>
+
+                        <!-- Update Button -->
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+
+            {{-- Featured Products --}}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ translate('Featured Products') }}</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <label>{{ translate('Featured Products') }}</label>
+                            <div class="featured-products-target">
+                                <input type="hidden" name="types[]" value="featured_product_images">
+                                <input type="hidden" name="types[]" value="featured_product_names">
+                                <input type="hidden" name="types[]" value="featured_product_links">
+                                <input type="hidden" name="types[]" value="featured_product_prices">
+
+                                @if (get_setting('featured_product_images') != null)
+                                    @foreach (json_decode(get_setting('featured_product_images'), true) as $key => $value)
+                                        <div class="p-row">
+                                            <div class="row gutters-5">
+                                                <!-- Image Upload -->
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <div class="input-group" data-toggle="aizuploader"
+                                                            data-type="image">
+                                                            <div class="input-group-prepend">
+                                                                <div
+                                                                    class="input-group-text bg-soft-secondary font-weight-medium">
+                                                                    {{ translate('Browse') }}</div>
+                                                            </div>
+                                                            <div class="form-control file-amount">
+                                                                {{ translate('Choose File') }}</div>
+                                                            <input type="hidden" name="types[]"
+                                                                value="featured_product_images">
+                                                            <input type="hidden" name="featured_product_images[]"
+                                                                class="selected-files"
+                                                                value="{{ json_decode(get_setting('featured_product_images'), true)[$key] }}">
+                                                        </div>
+                                                        <div class="file-preview box sm"></div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Product Name -->
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]" value="featured_product_names">
+                                                        <input type="text" class="form-control"
+                                                            placeholder="{{ translate('Product Name') }}"
+                                                            name="featured_product_names[]"
+                                                            value="{{ json_decode(get_setting('featured_product_names'), true)[$key] ?? '' }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Product Link -->
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]" value="featured_product_links">
+                                                        <input type="text" class="form-control" placeholder="http://"
+                                                            name="featured_product_links[]"
+                                                            value="{{ json_decode(get_setting('featured_product_links'), true)[$key] ?? '' }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Product Price -->
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="types[]" value="featured_product_prices">
+                                                        <input type="text" class="form-control" placeholder="{{ translate('Price') }}"
+                                                            name="featured_product_prices[]"
+                                                            value="{{ json_decode(get_setting('featured_product_prices'), true)[$key] ?? '' }}">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Remove Button -->
+                                                <div class="col-md-auto">
+                                                    <div class="form-group">
+                                                        <button type="button"
+                                                            class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger"
+                                                            data-toggle="remove-parent" data-parent=".p-row">
+                                                            <i class="las la-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- Add New Button -->
+                            <button type="button" class="btn btn-soft-secondary btn-sm" data-toggle="add-more"
+                                data-content='
+                        <div class="p-row">
+                            <div class="row gutters-5">
+                                <!-- Image Upload -->
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
+                                            </div>
+                                            <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                            <input type="hidden" name="types[]" value="featured_product_images">
+                                            <input type="hidden" name="featured_product_images[]" class="selected-files" value="">
+                                        </div>
+                                        <div class="file-preview box sm"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Name -->
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <input type="hidden" name="types[]" value="featured_product_names">
+                                        <input type="text" class="form-control" placeholder="{{ translate('Product Name') }}" name="featured_product_names[]" value="">
+                                    </div>
+                                </div>
+
+                                <!-- Product Link -->
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <input type="hidden" name="types[]" value="featured_product_links">
+                                        <input type="text" class="form-control" placeholder="http://" name="featured_product_links[]" value="">
+                                    </div>
+                                </div>
+
+                                <!-- Product Price -->
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <input type="hidden" name="types[]" value="featured_product_prices">
+                                        <input type="text" class="form-control" placeholder="{{ translate('Price') }}" name="featured_product_prices[]" value="">
+                                    </div>
+                                </div>
+
+                                <!-- Remove Button -->
+                                <div class="col-md-auto">
+                                    <div class="form-group">
+                                        <button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".p-row">
+                                            <i class="las la-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>'
+                                data-target=".featured-products-target">
                                 {{ translate('Add New') }}
                             </button>
                         </div>

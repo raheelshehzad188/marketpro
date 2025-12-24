@@ -66,6 +66,11 @@ class BusinessSettingsController extends Controller
         return view('backend.setup_configurations.payment_method');
     }
 
+    public function terms_and_conditions(Request $request)
+    {
+        return view('backend.setup_configurations.terms_and_conditions');
+    }
+
     public function file_system(Request $request)
     {
 
@@ -92,6 +97,52 @@ class BusinessSettingsController extends Controller
             } else {
                 $business_settings->value = 0;
                 $business_settings->save();
+            }
+        }
+
+        Artisan::call('cache:clear');
+
+        flash(translate("Settings updated successfully"))->success();
+        return back();
+    }
+
+    /**
+     * Update manual payment gateways (Invoice, Swish)
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function payment_method_update_manual(Request $request)
+    {
+        $paymentMethod = $request->payment_method;
+
+        // Handle enable/disable toggle
+        if ($paymentMethod === 'invoice') {
+            $business_settings = BusinessSetting::where('type', 'invoice_enabled')->first();
+            if ($business_settings == null) {
+                $business_settings = new BusinessSetting();
+                $business_settings->type = 'invoice_enabled';
+            }
+            $business_settings->value = $request->has('invoice_enabled') ? 1 : 0;
+            $business_settings->save();
+        } elseif ($paymentMethod === 'swish') {
+            // Handle Swish enabled toggle
+            $business_settings = BusinessSetting::where('type', 'swish_enabled')->first();
+            if ($business_settings == null) {
+                $business_settings = new BusinessSetting();
+                $business_settings->type = 'swish_enabled';
+            }
+            $business_settings->value = $request->has('swish_enabled') ? 1 : 0;
+            $business_settings->save();
+
+            // Handle Swish number
+            if ($request->has('swish_number')) {
+                $swish_number_setting = BusinessSetting::where('type', 'swish_number')->first();
+                if ($swish_number_setting == null) {
+                    $swish_number_setting = new BusinessSetting();
+                    $swish_number_setting->type = 'swish_number';
+                }
+                $swish_number_setting->value = $request->swish_number ?? '0709425194';
+                $swish_number_setting->save();
             }
         }
 

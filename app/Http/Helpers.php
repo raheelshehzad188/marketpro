@@ -859,3 +859,67 @@ if (!function_exists('addon_is_activated')) {
         return $activation == null ? false : true;
     }
 }
+
+// Generate unique order reference
+if (!function_exists('generate_order_reference')) {
+    function generate_order_reference()
+    {
+        // Get the last order to determine the next number
+        // Try App\Models\Order first, fallback to App\Order
+        $lastOrder = null;
+        if (class_exists('\App\Models\Order')) {
+            $lastOrder = \App\Models\Order::orderBy('id', 'desc')->first();
+        } elseif (class_exists('\App\Order')) {
+            $lastOrder = \App\Order::orderBy('id', 'desc')->first();
+        }
+
+        $nextNumber = $lastOrder ? ($lastOrder->id + 1) : 1;
+        
+        return "Order #" . $nextNumber;
+    }
+}
+
+if (!function_exists('calculate_shipping_cost')) {
+    /**
+     * Calculate shipping cost based on cart subtotal
+     * Free shipping if subtotal >= 3000 SEK
+     * 
+     * @param float $subtotal Cart subtotal in SEK
+     * @param string $shippingMethod Selected shipping method
+     * @return float Shipping cost
+     */
+    function calculate_shipping_cost($subtotal, $shippingMethod = 'flat-rate')
+    {
+        // Free shipping threshold: 3000 SEK
+        $freeShippingThreshold = 3000;
+        
+        // If subtotal meets threshold, free shipping is automatically applied
+        if ($subtotal >= $freeShippingThreshold) {
+            return 0;
+        }
+        
+        // Otherwise, calculate based on selected method
+        if ($shippingMethod === 'free') {
+            // Prevent free shipping if threshold not met - use flat rate instead
+            return 50; // Default to flat rate if free shipping not eligible
+        } elseif ($shippingMethod === 'local-pickup') {
+            return 0; // Local pickup is free
+        } elseif ($shippingMethod === 'flat-rate') {
+            return 50; // Flat rate: 50 SEK (adjust as needed)
+        }
+        
+        return 50; // Default flat rate
+    }
+}
+
+if (!function_exists('get_free_shipping_threshold')) {
+    /**
+     * Get the free shipping threshold amount
+     * 
+     * @return float Free shipping threshold in SEK
+     */
+    function get_free_shipping_threshold()
+    {
+        return 3000; // 3000 SEK
+    }
+}

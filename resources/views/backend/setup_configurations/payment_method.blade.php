@@ -86,6 +86,8 @@
             </div>
         </div>
 
+        {{-- Commented out other payment gateways - keeping only PayPal, Stripe, Invoice, Swish --}}
+        {{--
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header ">
@@ -697,6 +699,74 @@
                             </div>
                             <div class="col-md-8">
                                 <input type="text" class="form-control" name="RAZOR_SECRET" value="{{  env('RAZOR_SECRET') }}" placeholder="{{ translate('RAZOR SECRET') }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        --}}
+
+        <!-- Invoice Payment Gateway -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6">{{translate('Invoice Payment')}}</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{ route('payment_method.update_manual') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="payment_method" value="invoice">
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{translate('Enable Invoice Payment')}}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input value="1" name="invoice_enabled" type="checkbox" @if (get_setting('invoice_enabled') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                            <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Swish Payment Gateway -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6">{{translate('Swish Payment')}}</h5>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="{{ route('payment_method.update_manual') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="payment_method" value="swish">
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{translate('Enable Swish Payment')}}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input value="1" name="swish_enabled" type="checkbox" @if (get_setting('swish_enabled') == 1) checked @endif>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <input type="hidden" name="types[]" value="swish_number">
+                            <div class="col-md-4">
+                                <label class="col-from-label">{{translate('Swish Number')}}</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="swish_number" value="{{ get_setting('swish_number', '0709425194') }}" placeholder="{{ translate('Swish Number') }}" required>
                             </div>
                         </div>
                         <div class="form-group mb-0 text-right">
