@@ -24,6 +24,22 @@ class AppServiceProvider extends ServiceProvider
     $currentDomain = request()->getHost();
 
     $domainConfig = collect(config('domains'))->firstWhere('domain', $currentDomain);
+    
+    // If no domain config found, use a default configuration
+    if (!$domainConfig) {
+        $domainConfig = [
+            'domain' => $currentDomain,
+            'shop_id' => 1, // Default shop ID
+            'views' => [
+                'home' => 'frontend.pages.home',
+                'product_listing' => 'frontend.pages.product_listing',
+            ],
+            'settings' => [
+                'site_name' => 'TM Racing',
+                'theme_color' => 'blue',
+            ],
+        ];
+    }
 
     // Share globally
     View::share('currentDomain', $currentDomain);

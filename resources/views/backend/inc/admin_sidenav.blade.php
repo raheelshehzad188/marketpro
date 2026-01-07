@@ -66,12 +66,13 @@
                                     <span class="aiz-side-nav-text">{{ translate('All Products') }}</span>
                                 </a>
                             </li>
-                            <li class="aiz-side-nav-item">
+                            {{-- Product Addons - REMOVED (Extra Feature) --}}
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('product-addons.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['product-addons.index', 'product-addons.create', 'product-addons.edit']) }}">
                                     <span class="aiz-side-nav-text">{{ translate('Addons') }}</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('categories.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['categories.index', 'categories.create', 'categories.edit']) }}">
@@ -115,12 +116,13 @@
                                 </a>
                             </li>
 
-                            <li class="aiz-side-nav-item">
+                            {{-- Coupons - REMOVED (Extra Feature) --}}
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('coupon.index') }}"
                                     class="aiz-side-nav-link {{ areActiveRoutes(['coupon.index', 'coupon.create', 'coupon.edit']) }}">
                                     <span class="aiz-side-nav-text">{{ translate('Coupon') }}</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
 
                             {{-- <li class="aiz-side-nav-item">
@@ -314,7 +316,8 @@
                         </ul>
                     </li>
                 @endif --}}
-                @if (Auth::user()->user_type == 'admin' || in_array('23', json_decode(Auth::user()->staff->role->permissions)))
+                {{-- Blog System - REMOVED (Extra Feature) --}}
+                {{-- @if (Auth::user()->user_type == 'admin' || in_array('23', json_decode(Auth::user()->staff->role->permissions)))
                     <!--Blog System-->
                     <li class="aiz-side-nav-item">
                         <a href="#" class="aiz-side-nav-link">
@@ -337,7 +340,7 @@
                             </li>
                         </ul>
                     </li>
-                @endif
+                @endif --}}
 
                 {{-- @if (Auth::user()->user_type == 'admin' || in_array('23', json_decode(Auth::user()->staff->role->permissions)))
                     <!--Blog System-->
@@ -657,7 +660,8 @@
                                             <span class="aiz-side-nav-text">{{translate('Shipping Configuration')}}</span>
                                         </a>
                                     </li>
-                                    <li class="aiz-side-nav-item">
+                                    {{-- Countries & Cities - REMOVED (Extra Feature) --}}
+                                    {{-- <li class="aiz-side-nav-item">
                                         <a href="{{route('countries.index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['countries.index','countries.edit','countries.update'])}}">
                                             <span class="aiz-side-nav-text">{{translate('Shipping Countries')}}</span>
                                         </a>
@@ -666,7 +670,7 @@
                                         <a href="{{route('cities.index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['cities.index','cities.edit','cities.update'])}}">
                                             <span class="aiz-side-nav-text">{{translate('Shipping Cities')}}</span>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                 </ul>
                             </li>
 

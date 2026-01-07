@@ -230,52 +230,52 @@
                     <div class="row products product-thumb-info-list" data-plugin-masonry=""
                         data-plugin-options="{'layoutMode': 'fitRows'}">
                         @php
-                            $featuredProductImages = get_setting('featured_product_images') ? json_decode(get_setting('featured_product_images'), true) : [];
-                            $featuredProductNames = get_setting('featured_product_names') ? json_decode(get_setting('featured_product_names'), true) : [];
-                            $featuredProductLinks = get_setting('featured_product_links') ? json_decode(get_setting('featured_product_links'), true) : [];
-                            $featuredProductPrices = get_setting('featured_product_prices') ? json_decode(get_setting('featured_product_prices'), true) : [];
+                            // Fetch featured products from database
+                            $featuredProducts = \App\Product::where('featured', 1)
+                                ->where('published', 1)
+                                ->limit(8)
+                                ->get();
                         @endphp
-                        @if(!empty($featuredProductImages))
-                            @foreach($featuredProductImages as $key => $imageId)
+                        @if($featuredProducts->count() > 0)
+                            @foreach($featuredProducts as $product)
                                 @php
-                                    $productImage = \App\Upload::find($imageId);
-                                    $productName = isset($featuredProductNames[$key]) ? $featuredProductNames[$key] : 'Product ' . ($key + 1);
-                                    $productLink = isset($featuredProductLinks[$key]) && $featuredProductLinks[$key] ? $featuredProductLinks[$key] : '#';
-                                    $productPrice = isset($featuredProductPrices[$key]) ? $featuredProductPrices[$key] : '';
+                                    $productName = $product->getTranslation('name');
+                                    $productSlug = $product->slug;
+                                    $productPrice = single_price($product->unit_price);
+                                    $productImage = $product->thumbnail_img ? uploaded_asset($product->thumbnail_img) : asset('frontend/img/srs-images/product1.png');
+                                    $productLink = route('product', $product->slug);
                                 @endphp
-                                @if($productImage)
-                                    <div class="col-12 col-sm-6 col-lg-3">
-                                        <div class="product mb-0">
-                                            <div class="product-thumb-info border-0 mb-3">
-                                                <a href="{{ $productLink }}">
-                                                    <div class="product-thumb-info-image">
-                                                        <img src="{{ my_asset($productImage->file_name) }}"
-                                                            alt="{{ $productName }}" class="img-fluid">
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <div class="d-flex justify-content-center">
-                                                <div>
-                                                    <h3
-                                                        class="text-3-5 font-weight-medium font-alternative text-transform-none line-height-3 mb-0 text-center">
-                                                        <a href="{{ $productLink }}"
-                                                            class="text-color-dark text-color-hover-primary product-title">{{ $productName }}</a>
-                                                    </h3>
+                                <div class="col-12 col-sm-6 col-lg-3">
+                                    <div class="product mb-0">
+                                        <div class="product-thumb-info border-0 mb-3">
+                                            <a href="{{ $productLink }}">
+                                                <div class="product-thumb-info-image">
+                                                    <img src="{{ $productImage }}"
+                                                        alt="{{ $productName }}" class="img-fluid">
                                                 </div>
-                                            </div>
-                                            <div title="Rated 5 out of 5">
-                                                <input type="text" class="d-none" value="5" title=""
-                                                    data-plugin-star-rating=""
-                                                    data-plugin-options="{'displayOnly': true, 'color': 'default', 'size':'xs'}">
-                                            </div>
-                                            @if($productPrice)
-                                                <p class="price text-5 mb-3">
-                                                    <span class="sale text-color-dark font-weight-semi-bold">{{ $productPrice }}</span>
-                                                </p>
-                                            @endif
+                                            </a>
                                         </div>
+                                        <div class="d-flex justify-content-center">
+                                            <div>
+                                                <h3
+                                                    class="text-3-5 font-weight-medium font-alternative text-transform-none line-height-3 mb-0 text-center">
+                                                    <a href="{{ $productLink }}"
+                                                        class="text-color-dark text-color-hover-primary product-title">{{ $productName }}</a>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div title="Rated 5 out of 5">
+                                            <input type="text" class="d-none" value="5" title=""
+                                                data-plugin-star-rating=""
+                                                data-plugin-options="{'displayOnly': true, 'color': 'default', 'size':'xs'}">
+                                        </div>
+                                        @if($productPrice)
+                                            <p class="price text-5 mb-3">
+                                                <span class="sale text-color-dark font-weight-semi-bold">{{ $productPrice }}</span>
+                                            </p>
+                                        @endif
                                     </div>
-                                @endif
+                                </div>
                             @endforeach
                         @else
                             <!-- Default Static Products (Fallback) -->

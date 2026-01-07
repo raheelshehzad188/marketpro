@@ -135,25 +135,25 @@
                             <label class="col-sm-2 col-from-label">{{ translate('Banner Image') }}</label>
                             <div class="col-sm-10">
                                 <div class="input-group" data-toggle="aizuploader" data-type="image">
-                                    <div class="input-group-prepend">
+                                                            <div class="input-group-prepend">
                                         <div class="input-group-text bg-soft-secondary font-weight-medium">
-                                            {{ translate('Browse') }}
-                                        </div>
-                                    </div>
+                                                                    {{ translate('Browse') }}
+                                                                </div>
+                                                            </div>
                                     <div class="form-control file-amount">{{ translate('Choose File') }}</div>
                                     <input type="hidden" name="types[]" value="advert_banner_image">
                                     <input type="hidden" name="advert_banner_image" class="selected-files"
                                         value="{{ get_setting('advert_banner_image') }}">
-                                </div>
-                                <div class="file-preview box sm"></div>
-                            </div>
-                        </div>
+                                                        </div>
+                                                        <div class="file-preview box sm"></div>
+                                                    </div>
+                                                </div>
 
                         <div class="form-group row">
                             <label class="col-sm-2 col-from-label">{{ translate('Banner Link') }}</label>
                             <div class="col-sm-10">
-                                <input type="hidden" name="types[]" value="advert_banner_link">
-                                <input type="text" class="form-control" placeholder="http://"
+                                                        <input type="hidden" name="types[]" value="advert_banner_link">
+                                                        <input type="text" class="form-control" placeholder="http://"
                                     name="advert_banner_link"
                                     value="{{ get_setting('advert_banner_link') }}">
                             </div>

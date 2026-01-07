@@ -121,11 +121,9 @@ Route::get('/sitemap.xml', function () {
 // Route::get('/category/{category_slug}', 'SearchController@listingByCategory')->name('products.category');
 // Route::get('/brand/{brand_slug}', 'SearchController@listingByBrand')->name('products.brand');
 
+// Product & Shop Routes - SIMPLIFIED
 Route::get('/product/{slug}', 'HomeController@product')->name('product');
-Route::post('/product/variant_price', 'HomeController@variant_price')->name('products.variant_price');
-Route::get('/shop/{slug}', 'HomeController@shop')->name('shop.visit');
-Route::get('/shop/{slug}/{type}', 'HomeController@filter_shop')->name('shop.visit.type');
-Route::post('/customer/update-profile', 'HomeController@customer_update_profile')->name('customer.profile.update');
+// Removed: variant_price, shop routes, customer update profile (Extra Features)
 // Route::get('/cart', 'CartController@index')->name('cart');
 // Route::post('/cart/show-cart-modal', 'CartController@showCartModal')->name('cart.showCartModal');
 // Route::post('/cart/addtocart', 'CartController@addToCart')->name('cart.addToCart');
@@ -222,7 +220,8 @@ Route::post('/customer/update-profile', 'HomeController@customer_update_profile'
 //     Route::get('/all-notifications', 'NotificationController@index')->name('all-notifications');
 // });
 
-Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy')->name('customer_products.destroy');
+// Customer Products - REMOVED (Extra Feature)
+// Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy')->name('customer_products.destroy');
 
 // Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user']], function () {
 //     Route::get('/products', 'HomeController@seller_product_list')->name('seller.products');
@@ -273,7 +272,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/orders/details', 'OrderController@order_details')->name('orders.details');
     Route::post('/orders/update_delivery_status', 'OrderController@update_delivery_status')->name('orders.update_delivery_status');
     Route::post('/orders/update_payment_status', 'OrderController@update_payment_status')->name('orders.update_payment_status');
-    Route::post('/orders/delivery-boy-assign', 'OrderController@assign_delivery_boy')->name('orders.delivery-boy-assign');
+    // Delivery Boy - REMOVED (Extra Feature)
+// Route::post('/orders/delivery-boy-assign', 'OrderController@assign_delivery_boy')->name('orders.delivery-boy-assign');
 });
 //     Route::resource('/reviews', 'ReviewController');
 
@@ -325,8 +325,9 @@ Route::post('/knobby-products-upload', [ProductController::class, 'uploadKnobbyD
 Route::get('/product-bulk-link/index', 'ProductBulkUploadController@product_link')->name('bulk_product_link.index');
 Route::post('/bulk-product-link', 'ProductBulkUploadController@bulk_link')->name('bulk_product_link');
 
-Route::post('/language', 'LanguageController@changeLanguage')->name('language.change');
-Route::post('/currency', 'CurrencyController@changeCurrency')->name('currency.change');
+// Language & Currency - REMOVED (Extra Feature)
+// Route::post('/language', 'LanguageController@changeLanguage')->name('language.change');
+// Route::post('/currency', 'CurrencyController@changeCurrency')->name('currency.change');
 
 //     Route::get('/product-csv-download/{type}', 'ProductBulkUploadController@import_product')->name('product_csv.download');
 //     Route::get('/vendor-product-csv-download/{id}', 'ProductBulkUploadController@import_vendor_product')->name('import_vendor_product.download');

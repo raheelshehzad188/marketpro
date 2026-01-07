@@ -83,9 +83,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     // Route::get('/leads', 'UserResultController@index')->name('leads.index');
     // Route::get('/leads/destroy/{id}', 'UserResultController@destroy')->name('lead.destroy');
 
-    Route::resource('product-addons', 'ProductAddonController');
-    Route::get('/product-addons/edit/{id}', 'ProductAddonController@edit')->name('product-addons.edit');
-    Route::get('/product-addons/destroy/{id}', 'ProductAddonController@destroy')->name('product-addons.destroy');
+    //Product Addons - REMOVED (Extra Feature)
+    // Route::resource('product-addons', 'ProductAddonController');
+    // Route::get('/product-addons/edit/{id}', 'ProductAddonController@edit')->name('product-addons.edit');
+    // Route::get('/product-addons/destroy/{id}', 'ProductAddonController@destroy')->name('product-addons.destroy');
 
     Route::get('brands/{id}', [BrandController::class, 'destroy'])->name('brands.destroy');
     Route::resource('brands', BrandController::class)->except(['show']);
@@ -128,15 +129,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::post('/customers/update/{id}', 'CustomerController@update')->name('customers.update');
 
 
-    Route::get('customers_ban/{customer}', 'CustomerController@ban')->name('customers.ban');
-    Route::get('/customers/login/{id}', 'CustomerController@login')->name('customers.login');
+    //Customer Management - SIMPLIFIED
     Route::get('/customers/destroy/{id}', 'CustomerController@destroy')->name('customers.destroy');
-    Route::post('/bulk-customer-delete', 'CustomerController@bulk_customer_delete')->name('bulk-customer-delete');
+    // Removed: ban, login as customer, bulk delete (Extra Features)
 
 
-    Route::get('/newsletter', 'NewsletterController@index')->name('newsletters.index');
-    Route::post('/newsletter/send', 'NewsletterController@send')->name('newsletters.send');
-    Route::post('/newsletter/test/smtp', 'NewsletterController@testEmail')->name('test.smtp');
+    //Newsletter - REMOVED (Extra Feature)
+    // Route::get('/newsletter', 'NewsletterController@index')->name('newsletters.index');
+    // Route::post('/newsletter/send', 'NewsletterController@send')->name('newsletters.send');
+    // Route::post('/newsletter/test/smtp', 'NewsletterController@testEmail')->name('test.smtp');
 
     // Route for saving website settings
     Route::post('/settings/update', [BusinessSettingsController::class, 'saveNavigationSettings'])->name('business_settings.update2');
@@ -187,10 +188,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::post('tax-status', 'TaxController@change_tax_status')->name('taxes.tax-status');
 
 
-    Route::get('/verification/form', 'BusinessSettingsController@seller_verification_form')->name('seller_verification_form.index');
-    Route::post('/verification/form', 'BusinessSettingsController@seller_verification_form_update')->name('seller_verification_form.update');
-    Route::get('/vendor_commission', 'BusinessSettingsController@vendor_commission')->name('business_settings.vendor_commission');
-    Route::post('/vendor_commission_update', 'BusinessSettingsController@vendor_commission_update')->name('business_settings.vendor_commission.update');
+    //Seller Verification & Commission - REMOVED (Extra Feature)
+    // Route::get('/verification/form', 'BusinessSettingsController@seller_verification_form')->name('seller_verification_form.index');
+    // Route::post('/verification/form', 'BusinessSettingsController@seller_verification_form_update')->name('seller_verification_form.update');
+    // Route::get('/vendor_commission', 'BusinessSettingsController@vendor_commission')->name('business_settings.vendor_commission');
+    // Route::post('/vendor_commission_update', 'BusinessSettingsController@vendor_commission_update')->name('business_settings.vendor_commission.update');
 
     // Route::resource('/languages', 'LanguageController');
     // Route::post('/languages/{id}/update', 'LanguageController@update')->name('languages.update');
@@ -209,12 +211,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('/custom-pages/edit/{id}', 'PageController@edit')->name('custom-pages.edit');
     Route::get('/custom-pages/destroy/{id}', 'PageController@destroy')->name('custom-pages.destroy');
 
-    Route::resource('roles', 'RoleController');
-    Route::get('/roles/edit/{id}', 'RoleController@edit')->name('roles.edit');
-    Route::get('/roles/destroy/{id}', 'RoleController@destroy')->name('roles.destroy');
+    //Roles & Staff - REMOVED (Extra Feature - keeping simple)
+    // Route::resource('roles', 'RoleController');
+    // Route::get('/roles/edit/{id}', 'RoleController@edit')->name('roles.edit');
+    // Route::get('/roles/destroy/{id}', 'RoleController@destroy')->name('roles.destroy');
 
-    Route::resource('staffs', 'StaffController');
-    Route::get('/staffs/destroy/{id}', 'StaffController@destroy')->name('staffs.destroy');
+    // Route::resource('staffs', 'StaffController');
+    // Route::get('/staffs/destroy/{id}', 'StaffController@destroy')->name('staffs.destroy');
 
     // Route::resource('flash_deals', 'FlashDealController');
     // Route::get('/flash_deals/edit/{id}', 'FlashDealController@edit')->name('flash_deals.edit');
@@ -224,9 +227,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     // Route::post('/flash_deals/product_discount', 'FlashDealController@product_discount')->name('flash_deals.product_discount');
     // Route::post('/flash_deals/product_discount_edit', 'FlashDealController@product_discount_edit')->name('flash_deals.product_discount_edit');
 
-    //Subscribers
-    Route::get('/subscribers', 'SubscriberController@index')->name('subscribers.index');
-    Route::get('/subscribers/destroy/{id}', 'SubscriberController@destroy')->name('subscriber.destroy');
+    //Subscribers - REMOVED (Extra Feature)
+    // Route::get('/subscribers', 'SubscriberController@index')->name('subscribers.index');
+    // Route::get('/subscribers/destroy/{id}', 'SubscriberController@destroy')->name('subscriber.destroy');
 
     // Route::get('/orders', 'OrderController@admin_orders')->name('orders.index.admin');
     // Route::get('/orders/{id}/show', 'OrderController@show')->name('orders.show');
@@ -244,32 +247,30 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::post('/bulk-order-status', 'OrderController@bulk_order_status')->name('bulk-order-status');
 
 
-    // Pickup point orders
-    Route::get('orders_by_pickup_point', 'OrderController@pickup_point_order_index')->name('pick_up_point.order_index');
-    Route::get('/orders_by_pickup_point/{id}/show', 'OrderController@pickup_point_order_sales_show')->name('pick_up_point.order_show');
+    // Pickup point orders - REMOVED (Extra Feature)
+    // Route::get('orders_by_pickup_point', 'OrderController@pickup_point_order_index')->name('pick_up_point.order_index');
+    // Route::get('/orders_by_pickup_point/{id}/show', 'OrderController@pickup_point_order_sales_show')->name('pick_up_point.order_show');
 
     Route::get('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
     Route::post('/bulk-order-delete', 'OrderController@bulk_order_delete')->name('bulk-order-delete');
 
-    Route::post('/pay_to_seller', 'CommissionController@pay_to_seller')->name('commissions.pay_to_seller');
+    //Commission - REMOVED (Extra Feature)
+    // Route::post('/pay_to_seller', 'CommissionController@pay_to_seller')->name('commissions.pay_to_seller');
 
-    //Reports
+    //Reports - SIMPLIFIED (Keeping only essential reports)
     Route::get('/stock_report', 'ReportController@stock_report')->name('stock_report.index');
     Route::get('/in_house_sale_report', 'ReportController@in_house_sale_report')->name('in_house_sale_report.index');
-    Route::get('/seller_sale_report', 'ReportController@seller_sale_report')->name('seller_sale_report.index');
-    Route::get('/wish_report', 'ReportController@wish_report')->name('wish_report.index');
-    Route::get('/user_search_report', 'ReportController@user_search_report')->name('user_search_report.index');
-    Route::get('/wallet-history', 'ReportController@wallet_transaction_history')->name('wallet-history.index');
+    // Removed: seller_sale_report, wish_report, user_search_report, wallet-history (Extra Features)
 
-    //Blog Section
-    Route::resource('blog-category', 'BlogCategoryController');
-    Route::get('/blog-category/destroy/{id}', 'BlogCategoryController@destroy')->name('blog-category.destroy');
-    Route::resource('blog', 'BlogController');
-    Route::get('/blog/destroy/{id}', 'BlogController@destroy')->name('blog.destroy');
-    Route::post('/blog/change-status', 'BlogController@change_status')->name('blog.change-status');
+    //Blog Section - REMOVED (Extra Feature)
+    // Route::resource('blog-category', 'BlogCategoryController');
+    // Route::get('/blog-category/destroy/{id}', 'BlogCategoryController@destroy')->name('blog-category.destroy');
+    // Route::resource('blog', 'BlogController');
+    // Route::get('/blog/destroy/{id}', 'BlogController@destroy')->name('blog.destroy');
+    // Route::post('/blog/change-status', 'BlogController@change_status')->name('blog.change-status');
 
 
-    //Portolio Section
+    //Portolio Section - REMOVED (Extra Feature)
     //  Route::resource('portfolio-category', 'PortfolioCategoryController');
     //  Route::get('/portfolio-category/destroy/{id}', 'PortfolioCategoryController@destroy')->name('portfolio-category.destroy');
     //  Route::resource('portfolio', 'PortfolioController');
@@ -278,18 +279,18 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     //  Route::post('/portfolio/change-feature', 'PortfolioController@change_feature')->name('portfolio.change-feature');
 
 
-    //Coupons
-    Route::resource('coupon', 'CouponController');
-    Route::get('/coupon/destroy/{id}', 'CouponController@destroy')->name('coupon.destroy');
+    //Coupons - REMOVED (Extra Feature)
+    // Route::resource('coupon', 'CouponController');
+    // Route::get('/coupon/destroy/{id}', 'CouponController@destroy')->name('coupon.destroy');
 
-    //Reviews
+    //Reviews - REMOVED (Extra Feature)
     //  Route::get('/reviews', 'ReviewController@index')->name('reviews.index');
     //  Route::post('/reviews/published', 'ReviewController@updatePublished')->name('reviews.published');
 
-    //Support_Ticket
-    Route::get('support_ticket/', 'SupportTicketController@admin_index')->name('support_ticket.admin_index');
-    Route::get('support_ticket/{id}/show', 'SupportTicketController@admin_show')->name('support_ticket.admin_show');
-    Route::post('support_ticket/reply', 'SupportTicketController@admin_store')->name('support_ticket.admin_store');
+    //Support_Ticket - REMOVED (Extra Feature)
+    // Route::get('support_ticket/', 'SupportTicketController@admin_index')->name('support_ticket.admin_index');
+    // Route::get('support_ticket/{id}/show', 'SupportTicketController@admin_show')->name('support_ticket.admin_show');
+    // Route::post('support_ticket/reply', 'SupportTicketController@admin_store')->name('support_ticket.admin_store');
 
     //Pickup_Points
     //  Route::resource('pick_up_points', 'PickupPointController');
@@ -314,20 +315,22 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     // Route::post('/colors/update/{id}', 'AttributeController@update_color')->name('colors.update');
     // Route::get('/colors/destroy/{id}', 'AttributeController@destroy_color')->name('colors.destroy');
 
-    Route::resource('addons', 'AddonController');
-    Route::post('/addons/activation', 'AddonController@activation')->name('addons.activation');
+    //Addons - REMOVED (Extra Feature)
+    // Route::resource('addons', 'AddonController');
+    // Route::post('/addons/activation', 'AddonController@activation')->name('addons.activation');
 
-    Route::get('/customer-bulk-upload/index', 'CustomerBulkUploadController@index')->name('customer_bulk_upload.index');
-    Route::post('/bulk-user-upload', 'CustomerBulkUploadController@user_bulk_upload')->name('bulk_user_upload');
-    Route::post('/bulk-customer-upload', 'CustomerBulkUploadController@customer_bulk_file')->name('bulk_customer_upload');
-    Route::get('/user', 'CustomerBulkUploadController@pdf_download_user')->name('pdf.download_user');
-    //Customer Package
+    //Customer Bulk Upload - REMOVED (Extra Feature)
+    // Route::get('/customer-bulk-upload/index', 'CustomerBulkUploadController@index')->name('customer_bulk_upload.index');
+    // Route::post('/bulk-user-upload', 'CustomerBulkUploadController@user_bulk_upload')->name('bulk_user_upload');
+    // Route::post('/bulk-customer-upload', 'CustomerBulkUploadController@customer_bulk_file')->name('bulk_customer_upload');
+    // Route::get('/user', 'CustomerBulkUploadController@pdf_download_user')->name('pdf.download_user');
+    //Customer Package - REMOVED (Extra Feature)
 
-    Route::resource('customer_packages', 'CustomerPackageController');
-    Route::get('/customer_packages/edit/{id}', 'CustomerPackageController@edit')->name('customer_packages.edit');
-    Route::get('/customer_packages/destroy/{id}', 'CustomerPackageController@destroy')->name('customer_packages.destroy');
+    // Route::resource('customer_packages', 'CustomerPackageController');
+    // Route::get('/customer_packages/edit/{id}', 'CustomerPackageController@edit')->name('customer_packages.edit');
+    // Route::get('/customer_packages/destroy/{id}', 'CustomerPackageController@destroy')->name('customer_packages.destroy');
 
-    //Classified Products
+    //Classified Products - REMOVED (Extra Feature)
     // Route::get('/classified_products', 'CustomerProductController@customer_product_index')->name('classified_products');
     // Route::post('/classified_products/published', 'CustomerProductController@updatePublished')->name('classified_products.published');
 
@@ -338,12 +341,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     // Route::resource('pages', 'PageController');
     // Route::get('/pages/destroy/{id}', 'PageController@destroy')->name('pages.destroy');
 
-    Route::resource('countries', 'CountryController');
-    Route::post('/countries/status', 'CountryController@updateStatus')->name('countries.status');
+    //Countries & Cities - REMOVED (Extra Feature)
+    // Route::resource('countries', 'CountryController');
+    // Route::post('/countries/status', 'CountryController@updateStatus')->name('countries.status');
 
-    Route::resource('cities', 'CityController');
-    Route::get('/cities/edit/{id}', 'CityController@edit')->name('cities.edit');
-    Route::get('/cities/destroy/{id}', 'CityController@destroy')->name('cities.destroy');
+    // Route::resource('cities', 'CityController');
+    // Route::get('/cities/edit/{id}', 'CityController@edit')->name('cities.edit');
+    // Route::get('/cities/destroy/{id}', 'CityController@destroy')->name('cities.destroy');
 
     Route::view('/system/update', 'backend.system.update')->name('system_update');
     Route::view('/system/server-status', 'backend.system.server_status')->name('system_server');
@@ -353,13 +357,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::resource('/uploaded-files', 'AizUploadController');
     Route::get('/uploaded-files/destroy/{id}', 'AizUploadController@destroy')->name('uploaded-files.destroy');
 
-    Route::get('/all-notification', 'NotificationController@index')->name('admin.all-notification');
+    //Notifications - REMOVED (Extra Feature)
+    // Route::get('/all-notification', 'NotificationController@index')->name('admin.all-notification');
 
-    //Attribute Value
-    Route::post('/store-attribute-value', 'AttributeController@store_attribute_value')->name('store-attribute-value');
-    Route::get('/edit-attribute-value/{id}', 'AttributeController@edit_attribute_value')->name('edit-attribute-value');
-    Route::post('/update-attribute-value/{id}', 'AttributeController@update_attribute_value')->name('update-attribute-value');
-    Route::get('/destroy-attribute-value/{id}', 'AttributeController@destroy_attribute_value')->name('destroy-attribute-value');
+    //Attribute Value - REMOVED (Extra Feature)
+    // Route::post('/store-attribute-value', 'AttributeController@store_attribute_value')->name('store-attribute-value');
+    // Route::get('/edit-attribute-value/{id}', 'AttributeController@edit_attribute_value')->name('edit-attribute-value');
+    // Route::post('/update-attribute-value/{id}', 'AttributeController@update_attribute_value')->name('update-attribute-value');
+    // Route::get('/destroy-attribute-value/{id}', 'AttributeController@destroy_attribute_value')->name('destroy-attribute-value');
 });
 
 

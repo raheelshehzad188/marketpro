@@ -95,7 +95,7 @@
                             {{-- <th data-breakpoints="md">{{translate('Total Stock')}}</th> --}}
                             {{-- <th data-breakpoints="lg">{{translate('Todays Deal')}}</th> --}}
                             <th data-breakpoints="sm">{{ translate('Published') }}</th>
-                            <th data-breakpoints="lg">{{ translate('Featured') }}</th>
+                            <th data-breakpoints="sm">{{ translate('Featured') }}</th>
                             <th data-breakpoints="sm" class="text-right">{{ translate('Options') }}</th>
                         </tr>
                     </thead>
