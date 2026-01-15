@@ -27,21 +27,6 @@
                             </div>
                         </div>
 
-                        <!-- Nav Type -->
-                        <div class="form-group row">
-                            <label class="col-md-3 col-form-label">{{ translate('Nav Type') }}</label>
-                            <div class="col-md-9">
-                                <select class="form-control aiz-selectpicker" name="nav_type" required>
-                                    <option value="cross_gear" {{ $megaNav->nav_type == 'cross_gear' ? 'selected' : '' }}>
-                                        {{ translate('Cross Gear') }}
-                                    </option>
-                                    <option value="cross_parts" {{ $megaNav->nav_type == 'cross_parts' ? 'selected' : '' }}>
-                                        {{ translate('Cross Parts') }}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-
                         <!-- Item Role: Parent or Child -->
                         <div class="form-group row">
                             <label class="col-md-3 col-form-label">{{ translate('Item Role') }}</label>
@@ -64,42 +49,6 @@
                                     treeview-type="category"
                                     :selectedCategories="$selectParentCategoryId"
                                     :selectedCategoryNames="$selectParentCategoryName" />
-                            </div>
-                        </div>
-
-                        <!-- Visibility -->
-                        <div class="form-group row">
-                            <label for="visibility" class="col-lg-3 col-form-label">{{ translate('Visibility') }}</label>
-                            <div class="col-lg-9">
-                                <select class="aiz-selectpicker w-100" id="visibility" name="visibility[]" multiple>
-                                    @foreach (App\Models\Shop::all() as $shop)
-                                        <option value="{{ $shop->id }}"
-                                            {{ in_array($shop->id, $visibilityShopIds) ? 'selected' : '' }}>
-                                            {{ $shop->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Icon -->
-                        <div class="form-group row">
-                            <label class="col-md-3 col-form-label">{{ translate('Icon') }}
-                                <small>({{ translate('32x32') }})</small></label>
-                            <div class="col-md-9">
-                                <div class="input-group" data-toggle="aizuploader" data-type="image">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text bg-soft-secondary font-weight-medium">
-                                            {{ translate('Browse') }}</div>
-                                    </div>
-                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                    <input type="hidden" name="icon" class="selected-files" value="{{ $megaNav->icon }}">
-                                </div>
-                                <div class="file-preview box sm">
-                                    @if($megaNav->icon)
-                                        <img src="{{ uploaded_asset($megaNav->icon) }}" alt="{{ translate('icon') }}" class="img-thumbnail">
-                                    @endif
-                                </div>
                             </div>
                         </div>
 

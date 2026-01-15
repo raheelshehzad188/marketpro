@@ -37,8 +37,8 @@
                         <th data-breakpoints="lg">{{ translate('Order Level') }}</th>
                         <th data-breakpoints="sm">{{ translate('Level') }}</th>
                         <th data-breakpoints="sm">{{ translate('Icon') }}</th>
-                        <th data-breakpoints="sm">{{ translate('Visibility') }}</th>
                         <th data-breakpoints="sm">{{ translate('Published') }}</th>
+                        <th data-breakpoints="sm">{{ translate('Featured') }}</th>
                         <th width="10%" class="text-right">{{ translate('Options') }}</th>
                     </tr>
                 </thead>
@@ -69,20 +69,18 @@
                                 @endif
                             </td>
                             <td>
-                                @if (!empty($category->visibilityShops))
-                                    @foreach ($category->visibilityShops as $shopId => $shopName)
-                                        <span class="badge badge-inline badge-{{ $badgeClasses[$shopId] ?? 'soft-info' }}">{{ $shopName }}</span>
-                                    @endforeach
-                                @else
-                                    <span class="badge badge-inline badge-soft-success">
-                                        {{ translate('All Shops') }}
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
                                 <label class="aiz-switch aiz-switch-success mb-0">
                                     <input onchange="update_published(this)" value="{{ $category->id }}" type="checkbox"
                                         <?php if ($category->published == 1) {
+                                            echo 'checked';
+                                        } ?>>
+                                    <span class="slider round"></span>
+                                </label>
+                            </td>
+                            <td>
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input onchange="update_featured(this)" value="{{ $category->id }}" type="checkbox"
+                                        <?php if ($category->featured == 1) {
                                             echo 'checked';
                                         } ?>>
                                     <span class="slider round"></span>

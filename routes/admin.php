@@ -47,9 +47,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
         Route::get('/{id}/edit', [MegaNavController::class, 'edit'])->name('edit'); // Show edit form
         Route::patch('/{id}', [MegaNavController::class, 'update'])->name('update'); // Update mega nav item
         Route::delete('/{id}', [MegaNavController::class, 'destroy'])->name('destroy'); // Delete mega nav item
-
-        // Additional route for updating visibility of mega nav items
-        Route::post('/update-visibility', [MegaNavController::class, 'updateVisibility'])->name('updateVisibility');
     });
 
 
@@ -145,6 +142,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
 
     Route::post('/business-settings/update', 'BusinessSettingsController@update')->name('business_settings.update');
     Route::post('/business-settings/update/activation', 'BusinessSettingsController@updateActivationSettings')->name('business_settings.update.activation');
+    Route::post('/business-settings/load-home-dummy-data', 'BusinessSettingsController@loadHomePageDummyData')->name('business_settings.load_home_dummy_data');
     Route::get('/general-setting', 'BusinessSettingsController@general_setting')->name('general_setting.index');
     Route::get('/activation', 'BusinessSettingsController@activation')->name('activation.index');
     Route::get('/payment-method', 'BusinessSettingsController@payment_method')->name('payment_method.index');

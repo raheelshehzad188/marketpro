@@ -345,14 +345,12 @@ class ProductController extends Controller
      */
     public function create()
     {
-        // $categories = Category::where('parent_id', 0)
-        //     ->where('digital', 0)
-        //     ->with('childrenCategories')
-        //     ->get();
+        $categories = Category::where('parent_id', 0)
+            ->where('published', 1)
+            ->with(['childrenCategories.categories'])
+            ->get();
 
-        $topLevelNodes = Category::where('parent_id', 0)->where('published', 1)->get();
-
-        return view('backend.product.products.create', compact('topLevelNodes'));
+        return view('backend.product.products.create', compact('categories'));
     }
 
     public function add_more_choice_option(Request $request)
@@ -378,21 +376,16 @@ class ProductController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'short_name' => 'nullable|string|max:255',
-            'other_name' => 'nullable|string|max:255',
-            'article_group' => 'nullable|string|max:255',
             'thumbnail_img' => 'nullable|string|max:255',
             'unit_price' => 'nullable|numeric',
-            'fake_price' => 'nullable|numeric',
             'description' => 'nullable|string',
             'current_stock' => 'nullable|integer',
             'sku' => 'nullable|string|max:255',
-            'visibility' => 'sometimes|array',
-            'visibility.*' => 'exists:shops,id',
-            'selectedCategories_addons' => 'nullable|string',
-            'selectedCategories_treeview1' => 'nullable|string',
-            'selectedCategories_related_products' => 'nullable|string',
-            'selectedCategories_related_addons' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'slug' => 'nullable|string|max:255',
+            'brand_id' => 'nullable|exists:brands,id',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         if ($validator->fails()) {
@@ -403,55 +396,26 @@ class ProductController extends Controller
 
         $product = new Product;
         $product->name = $request->name;
-        $product->short_name = $request->short_name;
-        $product->other_name = $request->other_name;
-        $product->article_group = $request->article_group;
         $product->thumbnail_img = $request->thumbnail_img;
         $product->unit_price = $request->unit_price;
-        $product->fake_price = $request->fake_price;
         $product->description = $request->description;
-        $product->current_stock = $request->current_stock;
+        $product->current_stock = $request->current_stock ?? 0;
         $product->sku = $request->sku;
-        $product->save();
-
-        // Handling product addons
-        $addons = array_filter(explode(',', $request->input('selectedCategories_addons')));
-        if (!empty($addons)) {
-            foreach ($addons as $addon) {
-                \DB::table('product_addon_pivot')->insert([
-                    'product_id' => $product->id,
-                    'product_addon_id' => $addon,
-                    'sort_order' => $request->sort_order[$addon] ?? 0,
-                ]);
-            }
-        }
-
-        // Handling product categories
-        $categoryIds = array_filter(explode(',', $request->input('selectedCategories_treeview1')));
-        if (!empty($categoryIds)) {
-            $product->categories()->attach($categoryIds);
-        }
-
-        // Handling related products
-        $relatedProductIds = array_filter(explode(',', $request->input('selectedCategories_related_products')));
-        if (!empty($relatedProductIds)) {
-            $product->relevantProducts()->sync($relatedProductIds);
-        }
-
-        // Handling related addons
-        $relatedAddonIds = array_filter(explode(',', $request->input('selectedCategories_related_addons')));
-        if (!empty($relatedAddonIds)) {
-            $product->relatedAddons()->sync($relatedAddonIds);
-        }
-
-        // Handling product visibility
-        if ($request->has('visibility') && !empty($request->input('visibility'))) {
-            $product->visibility()->sync($request->input('visibility'));
+        $product->brand_id = $request->brand_id;
+        $product->category_id = $request->category_id;
+        
+        // SEO Fields
+        $product->meta_title = $request->meta_title;
+        $product->meta_description = $request->meta_description;
+        
+        // Generate slug if not provided
+        if (empty($request->slug)) {
+            $product->slug = \Str::slug($request->name) . '-' . \Str::random(5);
         } else {
-            // Set visibility to all shops if visibility is not provided or is empty
-            $allShopIds = Shop::pluck('id')->all();
-            $product->visibility()->sync($allShopIds);
+            $product->slug = \Str::slug($request->slug);
         }
+        
+        $product->save();
 
         flash(translate('Product has been inserted successfully'))->success();
 
@@ -485,37 +449,15 @@ class ProductController extends Controller
         $lang = $request->lang;
         $tags = json_decode($product->tags);
 
-        $topLevelNodes = Category::where('parent_id', 0)->where('published', 1)->get();
-        $selected_category_names = $product->categories()->get();
-        $selected_categories = $product->categories()->pluck('category_id')->toArray();
-        $selected_addons = $product->product_addons()->pluck('product_addon_id')->toArray();
-        $selected_addon_names = $product->product_addons()->get();
-
-        $relatedProductIds = $product->relevantProducts()->pluck('relevant_product_id');
-        $relatedProductIdsArray = $relatedProductIds->toArray();
-        $selected_related_product_names = $product->relevantProducts()->get();
-
-        $relatedAddonIds = $product->relatedAddons()->pluck('addon_id');
-        $relatedAddonIdsArray = $relatedAddonIds->toArray();
-        $selected_related_addon_names = $product->relatedAddons()->get();
-
-        // Fetching visibility shop_ids
-        $visibilityShopIds = $product->visibility()->pluck('shop_id')->toArray();
+        $categories = Category::where('parent_id', 0)
+            ->where('published', 1)
+            ->with(['childrenCategories.categories'])
+            ->get();
 
         return view('backend.product.products.edit', compact(
             'product',
-            'topLevelNodes',
-            'tags',
-            'lang',
-            'selected_categories',
-            'selected_category_names',
-            'selected_addons',
-            'selected_addon_names',
-            'relatedProductIdsArray',
-            'selected_related_product_names',
-            'relatedAddonIdsArray',
-            'selected_related_addon_names',
-            'visibilityShopIds' // Pass the visibility shop IDs to the template
+            'categories',
+            'lang'
         ));
     }
 
@@ -534,58 +476,26 @@ class ProductController extends Controller
         $product  = Product::findOrFail($id);
 
         $product->name = $request->name;
-
-        $product->short_name = $request->short_name;
-        $product->other_name = $request->other_name;
-        $product->article_group = $request->article_group;
-
-        $product->thumbnail_img          = $request->thumbnail_img;
-        $product->unit_price     = $request->unit_price;
-        $product->fake_price     = $request->fake_price;
+        $product->thumbnail_img = $request->thumbnail_img;
+        $product->unit_price = $request->unit_price;
         $product->description = $request->description;
-
-        $product->current_stock = $request->current_stock;
+        $product->current_stock = $request->current_stock ?? 0;
         $product->sku = $request->sku;
-
-
-        $product->created_at = date('Y-m-d h:i', strtotime($request->created_at));
-
-
-        $addons = array_filter(explode(',', $request->input('selectedCategories_addons')));
-        if (!empty($addons)) {
-            \DB::table('product_addon_pivot')->where('product_id', $id)->delete();
-            foreach ($addons as  $addon) {
-                \DB::table('product_addon_pivot')->insert([
-                    'product_id' => $id,
-                    'product_addon_id' => $addon,
-                    'sort_order' => $request->sort_order[$addon]
-                ]);
-            }
+        $product->brand_id = $request->brand_id;
+        $product->category_id = $request->category_id;
+        
+        // SEO Fields
+        $product->meta_title = $request->meta_title;
+        $product->meta_description = $request->meta_description;
+        
+        // Update slug if provided
+        if (!empty($request->slug)) {
+            $product->slug = \Str::slug($request->slug);
+        } elseif (empty($product->slug)) {
+            $product->slug = \Str::slug($request->name) . '-' . \Str::random(5);
         }
-
-        $relatedProductIds = array_filter(explode(',', $request->input('selectedCategories_related_products')));
-        $product->relevantProducts()->sync($relatedProductIds);
-
-        $relatedAddonIds = array_filter(explode(',', $request->input('selectedCategories_related_addons')));
-        $product->relatedAddons()->sync($relatedAddonIds);
-
-
-
 
         $product->save();
-        $categoryIds = explode(',', $request->input('selectedCategories_treeview1'));
-        $product->categories()->sync($categoryIds);
-
-
-        // Handling product visibility
-        if ($request->has('visibility') && !empty($request->input('visibility'))) {
-            $product->visibility()->sync($request->input('visibility'));
-        } else {
-            // Set visibility to all shops if visibility is not provided or is empty
-            $allShopIds = Shop::pluck('id')->all();
-            $product->visibility()->sync($allShopIds);
-        }
-
 
         flash(translate('Product has been updated successfully'))->success();
 

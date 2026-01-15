@@ -82,17 +82,34 @@ class PageController extends Controller
     {
         $lang = $request->lang;
         $page_name = $request->page;
+        
+        // If editing home page (id = 1 or page = 'home'), create/use home page record
+        if ($id == 1 || $page_name == 'home') {
+            $page = Page::where('id', 1)->orWhere('type', 'home_page')->first();
+            
+            // Create home page if it doesn't exist
+            if ($page == null) {
+                $page = new Page;
+                $page->id = 1;
+                $page->title = 'Home';
+                $page->slug = '';
+                $page->type = 'home_page';
+                $page->save();
+            }
+            
+            return view('backend.website_settings.pages.home_page_edit', compact('page', 'lang'));
+        }
+        
         $page = Page::where('id', $id)->first();
 
          // Fetching visibility shop_ids
-         $visibilityShopIds = $page->visibility()->pluck('id')->toArray();
+        $visibilityShopIds = $page ? $page->visibility()->pluck('id')->toArray() : [];
+        
         if ($page != null) {
-            if ($page_name == 'home') {
-                return view('backend.website_settings.pages.home_page_edit', compact('page', 'lang'));
-            } elseif ($page->type  == 'home_mxe') {
+            if ($page->type == 'home_mxe') {
                 return view('backend.website_settings.pages.home_page_mxe_edit', compact('page', 'lang'));
             } else {
-                return view('backend.website_settings.pages.edit', compact('page', 'lang','visibilityShopIds'));
+                return view('backend.website_settings.pages.edit', compact('page', 'lang'));
             }
         }
         abort(404);
@@ -121,18 +138,6 @@ class PageController extends Controller
         $page->keywords         = $request->keywords;
         $page->meta_image       = $request->meta_image;
         $page->save();
-
-
-
-        // Handling product visibility
-        if ($request->has('visibility') && !empty($request->input('visibility'))) {
-            $page->visibility()->sync($request->input('visibility'));
-        } else {
-            // Set visibility to all shops if visibility is not provided or is empty
-            $allShopIds = Shop::pluck('id')->all();
-            $page->visibility()->sync($allShopIds);
-        }
-
 
         flash(translate('Page has been updated successfully'))->success();
         return redirect()->route('website.pages');

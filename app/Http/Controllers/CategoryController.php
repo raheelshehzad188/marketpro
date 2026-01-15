@@ -30,11 +30,6 @@ class CategoryController extends Controller
         }
         $categories = $categories->paginate(15);
 
-        // Fetch visibility information for each category
-        foreach ($categories as $category) {
-            $category->visibilityShops = $category->visibility()->pluck('name', 'id')->toArray();
-        }
-
         return view('backend.product.categories.index', compact('categories', 'sort_search'));
     }
 
@@ -100,15 +95,6 @@ class CategoryController extends Controller
 
         $category->save();
 
-        // Handling visibility
-        if ($request->has('visibility') && !empty($request->input('visibility'))) {
-            $category->visibility()->sync($request->input('visibility'));
-        } else {
-            // Set visibility to all shops if visibility is not provided or is empty
-            $allShopIds = Shop::pluck('id')->all();
-            $category->visibility()->sync($allShopIds);
-        }
-
         flash(translate('Category has been inserted successfully'))->success();
         return redirect()->route('categories.index');
     }
@@ -145,10 +131,7 @@ class CategoryController extends Controller
         $selectCategoryId = array($category->parent_id);
         $selectCategoryName = Category::where('id', $category->parent_id)->get();
 
-        // Fetch visibility information
-        $visibilityShopIds = $category->visibility()->pluck('shops.id')->toArray();
-
-        return view('backend.product.categories.edit', compact('category', 'categories', 'lang', 'topLevelNodes', 'selectCategoryId', 'selectCategoryName', 'visibilityShopIds'));
+        return view('backend.product.categories.edit', compact('category', 'categories', 'lang', 'topLevelNodes', 'selectCategoryId', 'selectCategoryName'));
     }
 
 
@@ -205,15 +188,6 @@ class CategoryController extends Controller
         $category->created_at = date('Y-m-d h:i', strtotime($request->created_at));
 
         $category->save();
-
-        // Handling visibility
-        if ($request->has('visibility') && !empty($request->input('visibility'))) {
-            $category->visibility()->sync($request->input('visibility'));
-        } else {
-            // Set visibility to all shops if visibility is not provided or is empty
-            $allShopIds = Shop::pluck('id')->all();
-            $category->visibility()->sync($allShopIds);
-        }
 
         Cache::forget('featured_categories');
         flash(translate('Category has been updated successfully'))->success();

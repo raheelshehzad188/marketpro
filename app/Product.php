@@ -29,6 +29,7 @@ class Product extends Model
         'variations',
         'thumbnail_img',
         'meta_title',
+        'meta_description',        // Added for SEO
         'description',
         'short_name',
         'other_name',

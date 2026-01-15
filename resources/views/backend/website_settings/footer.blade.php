@@ -102,69 +102,106 @@
                 <div class="col-lg-12">
                     <div class="card shadow-none bg-light">
     					<div class="card-header">
-    						<h6 class="mb-0">{{ translate('Link Widget One') }}</h6>
+    						<h6 class="mb-0">{{ translate('Footer Description') }}</h6>
     					</div>
     					<div class="card-body">
                             <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
     							<div class="form-group">
-    								<label>{{ translate('Title') }} ({{ translate('Translatable') }})</label>
-    								<input type="hidden" name="types[][{{ $lang }}]" value="widget_one">
-    								<input type="text" class="form-control" placeholder="Widget title" name="widget_one" value="{{ get_setting('widget_one',null,$lang) }}">
-    							</div>
-    			                <div class="form-group">
-    								<label>{{ translate('Links') }} - ({{ translate('Translatable') }} {{ translate('Label') }})</label>
-    								<div class="w3-links-target">
-    									<input type="hidden" name="types[][{{ $lang }}]" value="widget_one_labels">
-    									<input type="hidden" name="types[]" value="widget_one_links">
-    									@if (get_setting('widget_one_labels',null,$lang) != null)
-    										@foreach (json_decode(get_setting('widget_one_labels',null,$lang), true) as $key => $value)
-    											<div class="row gutters-5">
-    												<div class="col-4">
-    													<div class="form-group">
-    														<input type="text" class="form-control" placeholder="{{translate('Label')}}" name="widget_one_labels[]" value="{{ $value }}">
-    													</div>
-    												</div>
-    												<div class="col">
-    													<div class="form-group">
-    														<input type="text" class="form-control" placeholder="http://" name="widget_one_links[]" value="{{ json_decode(get_setting('widget_one_links'), true)[$key] }}">
-    													</div>
-    												</div>
-    												<div class="col-auto">
-    													<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-    														<i class="las la-times"></i>
-    													</button>
-    												</div>
-    											</div>
-    										@endforeach
-    									@endif
-    								</div>
-    								<button
-    									type="button"
-    									class="btn btn-soft-secondary btn-sm"
-    									data-toggle="add-more"
-    									data-content='<div class="row gutters-5">
-    										<div class="col-4">
-    											<div class="form-group">
-    												<input type="text" class="form-control" placeholder="{{translate('Label')}}" name="widget_one_labels[]">
-    											</div>
-    										</div>
-    										<div class="col">
-    											<div class="form-group">
-    												<input type="text" class="form-control" placeholder="http://" name="widget_one_links[]">
-    											</div>
-    										</div>
-    										<div class="col-auto">
-    											<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-    												<i class="las la-times"></i>
-    											</button>
-    										</div>
-    									</div>'
-    									data-target=".w3-links-target">
-    									{{ translate('Add New') }}
-    								</button>
+    								<label>{{ translate('Footer Description') }}</label>
+    								<input type="hidden" name="types[]" value="footer_description">
+    								<textarea class="form-control" rows="3" placeholder="{{ translate('Footer Description') }}" name="footer_description">{{ get_setting('footer_description', "We're Grocery Shop, an innovative team of food suppliers.") }}</textarea>
     							</div>
     							<div class="text-right">
+    								<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
+    							</div>
+    						</form>
+    					</div>
+    				</div>
+                </div>
+                <div class="col-lg-12 mt-3">
+                    <div class="card shadow-none bg-light">
+    					<div class="card-header">
+    						<h6 class="mb-0">{{ translate('Footer Navigation Sections') }}</h6>
+    					</div>
+    					<div class="card-body">
+                            <form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="types[]" value="footer_navigation">
+                                
+                                @php
+                                    $footerNav = get_setting('footer_navigation');
+                                    $footerMenus = [];
+                                    if (!empty($footerNav)) {
+                                        $footerMenus = json_decode($footerNav, true);
+                                    }
+                                    if (empty($footerMenus) || !is_array($footerMenus)) {
+                                        $footerMenus = [
+                                            'Information' => [
+                                                'Become a Vendor' => '#',
+                                                'Affiliate Program' => '#',
+                                                'Privacy Policy' => route('terms-and-conditions'),
+                                            ],
+                                            'Customer Support' => [
+                                                'Help Center' => '#',
+                                                'Contact Us' => url('/contact'),
+                                            ],
+                                            'My Account' => [
+                                                'My Account' => route('my-account'),
+                                                'Order History' => route('orders'),
+                                            ]
+                                        ];
+                                    }
+                                @endphp
+                                
+                                <div class="footer-nav-sections">
+                                    @foreach($footerMenus as $sectionTitle => $links)
+                                        <div class="footer-nav-section mb-4 p-3 border rounded">
+                                            <div class="row gutters-5 mb-3">
+                                                <div class="col-md-4">
+                                                    <label class="fw-600">{{ translate('Section Title') }}</label>
+                                                    <input type="text" class="form-control section-title" value="{{ $sectionTitle }}" placeholder="{{ translate('Section Title') }}">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <label class="fw-600">{{ translate('Links') }}</label>
+                                                    <div class="section-links">
+                                                        @foreach($links as $linkText => $linkUrl)
+                                                            <div class="row gutters-5 mb-2 link-row">
+                                                                <div class="col-5">
+                                                                    <input type="text" class="form-control link-text" placeholder="{{ translate('Link Text') }}" value="{{ $linkText }}">
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <input type="text" class="form-control link-url" placeholder="http://" value="{{ $linkUrl }}">
+                                                                </div>
+                                                                <div class="col-1">
+                                                                    <button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-danger remove-link" data-toggle="remove-parent" data-parent=".link-row">
+                                                                        <i class="las la-times"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                    <button type="button" class="btn btn-soft-secondary btn-sm mt-2 add-link-btn">
+                                                        <i class="las la-plus"></i> {{ translate('Add Link') }}
+                                                    </button>
+                                                </div>
+                                                <div class="col-12 text-right mt-2">
+                                                    <button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-danger remove-section" data-toggle="remove-parent" data-parent=".footer-nav-section">
+                                                        <i class="las la-times"></i> {{ translate('Remove Section') }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
+                                <button type="button" class="btn btn-soft-primary btn-sm mt-3" id="add-footer-section">
+                                    <i class="las la-plus"></i> {{ translate('Add New Section') }}
+                                </button>
+                                
+                                <input type="hidden" name="footer_navigation" id="footer_navigation_json" value="{{ $footerNav }}">
+                                
+    							<div class="text-right mt-3">
     								<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
     							</div>
     						</form>
@@ -278,4 +315,95 @@
             </div>
         </form>
 	</div>
+@endsection
+
+@section('script')
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Add new footer section
+        $('#add-footer-section').on('click', function() {
+            var newSection = `
+                <div class="footer-nav-section mb-4 p-3 border rounded">
+                    <div class="row gutters-5 mb-3">
+                        <div class="col-md-4">
+                            <label class="fw-600">{{ translate('Section Title') }}</label>
+                            <input type="text" class="form-control section-title" value="" placeholder="{{ translate('Section Title') }}">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="fw-600">{{ translate('Links') }}</label>
+                            <div class="section-links">
+                                <div class="row gutters-5 mb-2 link-row">
+                                    <div class="col-5">
+                                        <input type="text" class="form-control link-text" placeholder="{{ translate('Link Text') }}" value="">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control link-url" placeholder="http://" value="">
+                                    </div>
+                                    <div class="col-1">
+                                        <button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-danger remove-link" data-toggle="remove-parent" data-parent=".link-row">
+                                            <i class="las la-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-soft-secondary btn-sm mt-2 add-link-btn">
+                                <i class="las la-plus"></i> {{ translate('Add Link') }}
+                            </button>
+                        </div>
+                        <div class="col-12 text-right mt-2">
+                            <button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-danger remove-section" data-toggle="remove-parent" data-parent=".footer-nav-section">
+                                <i class="las la-times"></i> {{ translate('Remove Section') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('.footer-nav-sections').append(newSection);
+        });
+
+        // Add new link to section
+        $(document).on('click', '.add-link-btn', function() {
+            var linkRow = `
+                <div class="row gutters-5 mb-2 link-row">
+                    <div class="col-5">
+                        <input type="text" class="form-control link-text" placeholder="{{ translate('Link Text') }}" value="">
+                    </div>
+                    <div class="col-6">
+                        <input type="text" class="form-control link-url" placeholder="http://" value="">
+                    </div>
+                    <div class="col-1">
+                        <button type="button" class="btn btn-icon btn-circle btn-sm btn-soft-danger remove-link" data-toggle="remove-parent" data-parent=".link-row">
+                            <i class="las la-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            $(this).closest('.footer-nav-section').find('.section-links').append(linkRow);
+        });
+
+        // Update footer navigation JSON before form submit
+        $('form').on('submit', function(e) {
+            var footerNav = {};
+            
+            $('.footer-nav-section').each(function() {
+                var sectionTitle = $(this).find('.section-title').val();
+                if (sectionTitle) {
+                    var links = {};
+                    $(this).find('.link-row').each(function() {
+                        var linkText = $(this).find('.link-text').val();
+                        var linkUrl = $(this).find('.link-url').val();
+                        if (linkText && linkUrl) {
+                            links[linkText] = linkUrl;
+                        }
+                    });
+                    if (Object.keys(links).length > 0) {
+                        footerNav[sectionTitle] = links;
+                    }
+                }
+            });
+            
+            $('#footer_navigation_json').val(JSON.stringify(footerNav));
+        });
+    });
+</script>
 @endsection

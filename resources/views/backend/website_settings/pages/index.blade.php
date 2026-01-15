@@ -12,7 +12,12 @@
     <div class="card">
         <div class="card-header">
             <h6 class="mb-0 fw-600">{{ translate('All Pages') }}</h6>
-            <a href="{{ route('custom-pages.create') }}" class="btn btn-primary">{{ translate('Add New Page') }}</a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('custom-pages.edit', ['id' => 1, 'lang' => env('DEFAULT_LANGUAGE', 'en'), 'page' => 'home']) }}" class="btn btn-success">
+                    <i class="las la-home"></i> {{ translate('Edit Home Page') }}
+                </a>
+                <a href="{{ route('custom-pages.create') }}" class="btn btn-primary">{{ translate('Add New Page') }}</a>
+            </div>
         </div>
         <div class="card-body">
             <table class="table aiz-table mb-0">
@@ -20,13 +25,28 @@
                     <tr>
                         <th data-breakpoints="lg">#</th>
                         <th>{{ translate('Name') }}</th>
-                        <th data-breakpoints="sm">{{ translate('Visibility') }}</th>
                         <th data-breakpoints="md">{{ translate('URL') }}</th>
                         <th class="text-right">{{ translate('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (\App\Page::with('visibility')->get() as $key => $page)
+                    {{-- Home Page Row --}}
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <a href="{{ url('/') }}" class="text-reset" target="_blank">
+                                <strong>{{ translate('Home Page') }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ url('/') }}</td>
+                        <td class="text-right">
+                            <a href="{{ route('custom-pages.edit', ['id' => 1, 'lang' => env('DEFAULT_LANGUAGE', 'en'), 'page' => 'home']) }}"
+                                class="btn btn-icon btn-circle btn-sm btn-soft-primary" title="Edit">
+                                <i class="las la-pen"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @foreach (\App\Page::all() as $key => $page)
                         <tr>
                             <td>{{ $key + 2 }}</td>
 
@@ -39,22 +59,6 @@
                                         class="text-reset">{{ $page->title }}</a></td>
                                 <td>{{ url('/') }}/{{ $page->slug }}</td>
                             @endif
-
-
-                            <td>
-                                @if ($page->visibility && $page->visibility->isNotEmpty())
-                                    @foreach ($page->visibility as $shop)
-                                        <span class="badge badge-inline badge-soft-info">{{ $shop->name }}</span>
-                                    @endforeach
-                                @else
-                                    <span class="badge badge-inline badge-soft-success">
-                                        {{ translate('All Shops') }}
-                                    </span>
-                                @endif
-                            </td>
-
-
-
 
                             <td class="text-right">
                                 @if ($page->type == 'home_page')

@@ -80,20 +80,24 @@ class FrontController extends Controller
     }
     public function home()
     {
-        $domainConfig = app('domainConfig'); // Retrieve the matched domain configuration
-
+        $domainConfig = null; // Retrieve the matched domain configuration
+        
+        // Get featured products (limit to 12 products)
+        $featuredProducts = Product::orderBy('created_at', 'desc')
+            ->limit(12)
+            ->get();
+        
         // Check if domainConfig exists and has the required structure
         if (!$domainConfig || !isset($domainConfig['views']['home'])) {
             // Fallback to default home view if domain config is not available
-            return view('frontend.pages.home');
+            return view('frontend.pages.home', compact('featuredProducts'));
         }
 
         // Access the domain-specific home view
         $homeView = $domainConfig['views']['home'];
 
         // Render the domain-specific home view
-        // dd($homeView);
-        return view($homeView);
+        return view($homeView, compact('featuredProducts'));
     }
 
 
@@ -360,13 +364,28 @@ class FrontController extends Controller
     }
 
 
-    public function productDetails($id)
+    public function productDetails($slug)
     {
-        // Retrieve the product by ID
-        $product = Product::findOrFail($id);
+        // Retrieve the product by slug
+        $product = Product::where('slug', $slug)->firstOrFail();
 
-        // Return a placeholder view for now (can be customized later)
-        return view('frontend.pages.product_details', compact('product'));
+        // Get similar products (from same category, limit 8)
+        $similarProducts = Product::where('id', '!=', $product->id)
+            ->whereHas('categories', function($query) use ($product) {
+                $query->whereIn('categories.id', $product->categories->pluck('id'));
+            })
+            ->limit(8)
+            ->get();
+
+        // If no similar products from same category, get random products
+        if ($similarProducts->count() < 4) {
+            $randomProducts = Product::where('id', '!=', $product->id)
+                ->limit(8 - $similarProducts->count())
+                ->get();
+            $similarProducts = $similarProducts->merge($randomProducts);
+        }
+
+        return view('frontend.pages.product_details', compact('product', 'similarProducts'));
     }
 
 
@@ -764,7 +783,7 @@ class FrontController extends Controller
         $freeShippingThreshold = get_free_shipping_threshold();
         $isFreeShippingEligible = $subtotal >= $freeShippingThreshold;
         
-        return view('frontend.pages.checkout',compact('cartItems', 'subtotal', 'nextOrderReference', 'isFreeShippingEligible', 'freeShippingThreshold'));
+        return view('frontend.pages.checkout-marketpro',compact('cartItems', 'subtotal', 'nextOrderReference', 'isFreeShippingEligible', 'freeShippingThreshold'));
     }
     public function all_orders_show($id)
     {

@@ -155,22 +155,8 @@
         @endforeach
 
 
-        if ($('#lang-change').length > 0) {
-            $('#lang-change .dropdown-menu a').each(function() {
-                $(this).on('click', function(e) {
-                    e.preventDefault();
-                    var $this = $(this);
-                    var locale = $this.data('flag');
-                    $.post('{{ route('language.change') }}', {
-                        _token: '{{ csrf_token() }}',
-                        locale: locale
-                    }, function(data) {
-                        location.reload();
-                    });
-
-                });
-            });
-        }
+        // Language Change - REMOVED (Extra Feature)
+        // Route removed, language switching disabled
 
 
 

@@ -561,7 +561,8 @@ if (!function_exists('api_asset')) {
     function api_asset($id)
     {
         if (($asset = \App\Upload::find($id)) != null) {
-            return $asset->file_name;
+            // Return full URL instead of just path
+            return my_asset($asset->file_name);
         }
         return "";
     }
@@ -764,7 +765,8 @@ if (!function_exists('get_images_path')) {
         $images = get_images($given_ids, $with_trashed);
         if (!$images->isEmpty()) {
             foreach ($images as $image) {
-                $paths[] = !is_null($image) ? $image->file_name : "";
+                // Return full URL instead of just path
+                $paths[] = !is_null($image) ? my_asset($image->file_name) : "";
             }
         }
 

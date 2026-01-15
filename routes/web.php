@@ -41,7 +41,7 @@ Route::get('/aiz-uploader/download/{id}', 'AizUploadController@attachment_downlo
 Route::get('/', [FrontController::class, 'home'])->name('home');
 
 Route::get('/products', [FrontController::class, 'productListing'])->name('products.listing');
-Route::get('/products/{id}', [FrontController::class, 'productDetails'])->name('products.details');
+Route::get('/products/{slug}', [FrontController::class, 'productDetails'])->name('products.details');
 
 Route::get('exploded_view', [FrontController::class, 'explodedView'])->name('exploded_view');
 Route::get('exploded_view/category/{id}', [FrontController::class, 'explodedView'])->name('exploded_view.category');
@@ -89,6 +89,7 @@ Route::get('/basket', [FrontController::class, 'cart'])->name('basket');
 
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 Route::post('/cart/update/{cartItemId}', [CartController::class, 'updateCart'])->name('cart.update');
+Route::get('/cart/mini-cart', [CartController::class, 'getMiniCart'])->name('cart.mini-cart');
 //Route::delete('/cart/remove/{cartItemId}', [CartController::class, 'removeFromCart'])->name('cart.remove');
 // Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
 
@@ -259,8 +260,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/products/update/{id}', 'ProductController@update')->name('products.update');
     Route::get('/products/destroy/{id}', 'ProductController@destroy')->name('products.destroy');
     Route::get('/products/duplicate/{id}', 'ProductController@duplicate')->name('products.duplicate');
-    Route::post('/products/sku_combination', 'ProductController@sku_combination')->name('products.sku_combination');
-    Route::post('/products/sku_combination_edit', 'ProductController@sku_combination_edit')->name('products.sku_combination_edit');
+    // SKU Combinations - REMOVED (Variations not needed for simple products)
+    // Route::post('/products/sku_combination', 'ProductController@sku_combination')->name('products.sku_combination');
+    // Route::post('/products/sku_combination_edit', 'ProductController@sku_combination_edit')->name('products.sku_combination_edit');
     Route::post('/products/seller/featured', 'ProductController@updateSellerFeatured')->name('products.seller.featured');
     Route::post('/products/published', 'ProductController@updatePublished')->name('products.published');
 

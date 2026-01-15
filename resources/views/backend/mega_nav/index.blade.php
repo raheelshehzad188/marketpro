@@ -17,31 +17,6 @@
         <div class="card-header d-block d-md-flex">
             <h5 class="mb-0 h6">{{ translate('Mega Nav Items') }}</h5>
             <form id="sort_mega_nav" action="" method="GET" class="d-flex flex-wrap">
-                <!-- Nav Type Filter -->
-                <div class="form-group mb-0 mr-2">
-                    <select class="form-control aiz-selectpicker" name="nav_type" onchange="this.form.submit()">
-                        <option value="">{{ translate('Select Nav Type') }}</option>
-                        <option value="cross_gear" {{ request('nav_type') == 'cross_gear' ? 'selected' : '' }}>
-                            {{ translate('Cross Gear') }}
-                        </option>
-                        <option value="cross_parts" {{ request('nav_type') == 'cross_parts' ? 'selected' : '' }}>
-                            {{ translate('Cross Parts') }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Shop Filter -->
-                <div class="form-group mb-0 mr-2">
-                    <select class="form-control aiz-selectpicker" name="shop_id" onchange="this.form.submit()">
-                        <option value="">{{ translate('Select Shop') }}</option>
-                        @foreach (App\Models\Shop::all() as $shop)
-                            <option value="{{ $shop->id }}" {{ request('shop_id') == $shop->id ? 'selected' : '' }}>
-                                {{ $shop->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <!-- Parent Filter -->
                 <div class="form-group mb-0">
                     <select class="form-control aiz-selectpicker" name="parent_id" onchange="this.form.submit()">
@@ -68,9 +43,7 @@
                     <tr>
                         <th data-breakpoints="lg">#</th>
                         <th>{{ translate('Name') }}</th>
-                        <th>{{ translate('Nav Type') }}</th>
                         <th data-breakpoints="sm">{{ translate('Parent Category') }}</th>
-                        <th data-breakpoints="sm">{{ translate('Visibility') }}</th>
                         <th width="10%" class="text-right">{{ translate('Options') }}</th>
                     </tr>
                 </thead>
@@ -79,7 +52,6 @@
                         <tr>
                             <td>{{ $key + 1 + ($megaNavItems->currentPage() - 1) * $megaNavItems->perPage() }}</td>
                             <td>{{ $megaNav->category->name }}</td>
-                            <td>{{ ucfirst($megaNav->nav_type) }}</td>
                             <td>
                                 @php
                                     $parent = \App\Category::find($megaNav->parent_id);
@@ -87,23 +59,7 @@
                                 @if ($parent)
                                     {{ $parent->name }}
                                 @else
-                                    —
-                                @endif
-                            </td>
-                            <td>
-                                @if (!empty($megaNav->visibility))
-                                    @foreach ($megaNav->visibility as $shopId)
-                                        @php
-                                            $shop = \App\Models\Shop::find($shopId);
-                                        @endphp
-                                        @if ($shop)
-                                            <span class="badge badge-inline badge-soft-info">{{ $shop->name }}</span>
-                                        @endif
-                                    @endforeach
-                                @else
-                                    <span class="badge badge-inline badge-soft-success">
-                                        {{ translate('All Shops') }}
-                                    </span>
+                                    <span class="badge badge-inline badge-soft-success">{{ translate('Parent') }}</span>
                                 @endif
                             </td>
                             <td class="text-right">
@@ -135,20 +91,4 @@
 @endsection
 
 @section('script')
-    <script type="text/javascript">
-        function update_visibility(el) {
-            let visibility = el.checked ? 1 : 0;
-            $.post('{{ route('mega_nav.updateVisibility') }}', {
-                _token: '{{ csrf_token() }}',
-                id: el.value,
-                visibility: visibility
-            }, function(data) {
-                if (data.success) {
-                    AIZ.plugins.notify('success', '{{ translate('Visibility updated successfully') }}');
-                } else {
-                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
-                }
-            });
-        }
-    </script>
 @endsection

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="aiz-titlebar text-left mt-2 mb-3">
-        <h1 class="mb-0 h6">{{ translate('Edit Product') }}</h5>
+        <h1 class="mb-0 h6">{{ translate('Edit Product') }}</h1>
     </div>
     <div class="">
         <form class="form form-horizontal mar-top" action="{{ route('products.update', $product->id) }}" method="POST"
@@ -13,13 +13,15 @@
                     <input type="hidden" name="id" value="{{ $product->id }}">
                     <input type="hidden" name="lang" value="{{ $lang }}">
                     @csrf
+                    
+                    <!-- Product Information -->
                     <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">{{ translate('Product Information') }}</h5>
+                        </div>
                         <div class="card-body">
-
                             <div class="form-group row">
-                                <label class="col-lg-3 col-from-label">{{ translate('Product Name') }} <i
-                                        class="las la-language text-danger"
-                                        title="{{ translate('Translatable') }}"></i></label>
+                                <label class="col-lg-3 col-from-label">{{ translate('Product Name') }} <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
                                     <input type="text" class="form-control" name="name"
                                         placeholder="{{ translate('Product Name') }}"
@@ -27,86 +29,57 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <label class="col-lg-3 col-from-label">{{ translate('Other Name') }}</label>
+                            <div class="form-group row" id="category">
+                                <label class="col-lg-3 col-from-label">{{ translate('Category') }} <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                    <input type="text" class="form-control" name="other_name"
-                                        placeholder="{{ translate('Other Name') }}" value="{{ $product->other_name }}">
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-lg-3 col-from-label">{{ translate('Short Name') }}</label>
-                                <div class="col-lg-8">
-                                    <input type="text" class="form-control" name="short_name"
-                                        placeholder="{{ translate('Short Name') }}" value="{{ $product->short_name }}">
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label class="col-lg-3 col-from-label">{{ translate('Article Group') }} <i
-                                        class="las la-language text-danger"
-                                        title="{{ translate('Translatable') }}"></i></label>
-                                <div class="col-lg-8">
-                                    <input type="text" class="form-control" name="article_group"
-                                        placeholder="{{ translate('Article Group') }}"
-                                        value="{{ $product->article_group }}">
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="visibility" class="col-lg-3 col-from-label">Visibility</label>
-                                <div class="col-lg-8">
-                                    <select class="aiz-selectpicker w-100" id="visibility" data-selected="{{ json_encode($visibilityShopIds)}}" name="visibility[]" multiple>
-                                        @foreach (App\Models\Shop::all() as $shop)
-                                            <option value="{{ $shop->id }}">{{ $shop->name }}</option>
+                                    <select class="form-control aiz-selectpicker" name="category_id" id="category_id" data-live-search="true" required>
+                                        <option value="">{{ translate('Select Category') }}</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                            @foreach ($category->childrenCategories as $childCategory)
+                                                <option value="{{ $childCategory->id }}" {{ $product->category_id == $childCategory->id ? 'selected' : '' }}>
+                                                    &nbsp;&nbsp;{{ $childCategory->name }}
+                                                </option>
+                                                @if($childCategory->categories)
+                                                    @foreach ($childCategory->categories as $subChildCategory)
+                                                        <option value="{{ $subChildCategory->id }}" {{ $product->category_id == $subChildCategory->id ? 'selected' : '' }}>
+                                                            &nbsp;&nbsp;&nbsp;&nbsp;{{ $subChildCategory->name }}
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            @endforeach
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="form-group row" id="category">
-                                <label class="col-lg-3 col-from-label">{{ translate('Category') }}</label>
-                                <div class="col-lg-8">
-                                    {{-- <select class="form-control aiz-selectpicker" multiple name="category[]"
-                                        id="category_id" data-selected="{{ json_encode($selected_categories) }}"
-                                        data-live-search="true" required>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}">
-                                                {{ $category->name }}</option>
-                                            @foreach ($category->childrenCategories as $childCategory)
-                                                @include('categories.child_category', [
-                                                    'child_category' => $childCategory,
-                                                ])
-                                            @endforeach
-                                        @endforeach
-                                    </select> --}}
-
-                                    <x-treeview :nodes="$topLevelNodes" treeview-id="treeview1" :selectedCategories="$selected_categories"
-                                        :selectedCategoryNames="$selected_category_names" treeview-type="category" />
-
-
-                                </div>
-                            </div>
-
                             <div class="form-group row">
-                                <label class="col-lg-3 col-from-label">{{ translate('Create Date') }}</label>
+                                <label class="col-lg-3 col-from-label">{{ translate('Brand') }}</label>
                                 <div class="col-lg-8">
-                                    <input type="date" class="form-control" name="created_at"
-                                        placeholder="{{ translate('Create Date') }}"
-                                        value="{{ date('Y-m-d', strtotime($product->created_at)) }}">
+                                    <select class="form-control aiz-selectpicker" name="brand_id" data-live-search="true">
+                                        <option value="">{{ translate('Select Brand') }}</option>
+                                        @foreach (\App\Models\Brand::all() as $brand)
+                                            <option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>
+                                                {{ $brand->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Product Images -->
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0 h6">{{ translate('Product Images') }}</h5>
                         </div>
                         <div class="card-body">
                             <div class="form-group row">
-                                <label class="col-md-3 col-form-label" for="signinSrEmail">{{ translate('Main Image') }}
-                                </label>
+                                <label class="col-md-3 col-form-label">{{ translate('Main Image') }}
+                                    <small>(300x300)</small></label>
                                 <div class="col-md-8">
                                     <div class="input-group" data-toggle="aizuploader" data-type="image">
                                         <div class="input-group-prepend">
@@ -121,172 +94,101 @@
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
 
+                    <!-- Price & Stock -->
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0 h6">{{ translate('Related Products & Addons') }}</h5>
+                            <h5 class="mb-0 h6">{{ translate('Product Price & Stock') }}</h5>
                         </div>
                         <div class="card-body">
-                            <div class="form-group row gutters-5">
-                                <div class="col-lg-3">
-                                    <input type="text" class="form-control" value="{{ translate('Products') }}"
-                                        disabled>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-from-label">{{ translate('Unit Price') }} <span class="text-danger">*</span></label>
+                                <div class="col-lg-6">
+                                    <input type="number" step="0.01" placeholder="{{ translate('Unit price') }}"
+                                        name="unit_price" class="form-control" value="{{ $product->unit_price }}" required>
                                 </div>
-                                <div class="col-lg-8">
-
-                                    <x-treeview :nodes="$topLevelNodes" treeview-id="related_products" :selectedCategories="$relatedProductIdsArray"
-                                        :selectedCategoryNames="$selected_related_product_names" treeview-type="product" />
-
-                                    {{-- <select name="related_products[]" id="" data-selected-text-format="count"
-                                        data-actions-box="true" data-live-search="true"
-                                        class="form-control aiz-selectpicker" multiple
-                                        data-selected="{{ json_encode($relatedProductIdsArray) }}"
-                                        data-placeholder="{{ translate('Choose Products') }}">
-                                        @foreach (\App\Product::where('id', '!=', $product->id)->get() as $key => $p)
-<option value="{{ $p->id }}">
-                                                {{ $p->name }}
-                                            </option>
-@endforeach
-                                    </select> --}}
-                                </div>
-
                             </div>
 
-                            <div class="form-group row gutters-5">
-                                <div class="col-lg-3">
-                                    <input type="text" class="form-control" value="{{ translate('Addons') }}"
-                                        disabled>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-from-label">{{ translate('Quantity') }}</label>
+                                <div class="col-lg-6">
+                                    <input type="number" lang="en" value="{{ $product->current_stock }}"
+                                        step="1" placeholder="{{ translate('Quantity') }}"
+                                        name="current_stock" class="form-control">
                                 </div>
-                                <div class="col-lg-8">
-                                    <x-treeview :nodes="$topLevelNodes" treeview-id="related_addons" :selectedCategories="$relatedAddonIdsArray"
-                                        :selectedCategoryNames="$selected_related_addon_names" treeview-type="addon" />
+                            </div>
 
-
-                                    {{-- <select name="related_addons[]" id="" data-selected-text-format="count"
-                                        data-actions-box="true" data-live-search="true"
-                                        class="form-control aiz-selectpicker" multiple
-                                        data-selected="{{ json_encode($relatedAddonIdsArray) }}"
-                                        data-placeholder="{{ translate('Choose Addons') }}">
-                                        @foreach (\App\ProductAddon::all() as $key => $addon)
-                                            <option value="{{ $addon->id }}">
-                                                {{ $addon->name }} - {{ $addon->sku }}
-                                            </option>
-                                        @endforeach
-                                    </select> --}}
+                            <div class="form-group row">
+                                <label class="col-md-3 col-from-label">{{ translate('SKU') }}</label>
+                                <div class="col-md-6">
+                                    <input type="text" placeholder="{{ translate('SKU') }}"
+                                        value="{{ $product->sku }}" name="sku" class="form-control">
                                 </div>
-
                             </div>
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">{{ translate('Product Spare Parts') }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group row gutters-5">
-                                <div class="col-lg-3">
-                                    <input type="text" class="form-control" value="{{ translate('Addons') }}"
-                                        disabled>
-                                    <p>{{ translate('Choose the spare parts of this product and then input values of each part') }}
-                                    </p>
-                                </div>
-                                <div class="col-lg-8" id="update_sku">
-                                    <x-treeview :nodes="$topLevelNodes" treeview-id="addons" :selectedCategories="$selected_addons"
-                                        :selectedCategoryNames="$selected_addon_names" treeview-type="addon" />
-
-
-                                    {{-- <select name="addons[]" id="" data-selected-text-format="count"
-                                        data-actions-box="true" data-live-search="true"
-                                        class="form-control aiz-selectpicker" multiple
-                                        data-placeholder="{{ translate('Choose Addons') }}" id="addons"
-                                        data-selected="{{ json_encode($selected_addons) }}" onchange=" update_sku()">
-                                        @foreach (\App\ProductAddon::all() as $key => $addon)
-                                            <option value="{{ $addon->id }}"
-                                                @if ($product->addons != null && in_array($addon->id, json_decode($product->addons, true))) selected @endif>
-                                                {{ $addon->name }} - {{ $addon->sku }}</option>
-                                        @endforeach
-                                    </select> --}}
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0 h6">{{ translate('Product price + stock') }}</h5>
-                        </div>
-                        <div class="card-body">
-
-
-                            <div id="show-hide-div">
-                                <div class="form-group row">
-                                    <label class="col-lg-3 col-from-label">{{ translate('Unit price') }}</label>
-                                    <div class="col-lg-6">
-                                        <input type="text" placeholder="{{ translate('Unit price') }}"
-                                            name="unit_price" class="form-control" value="{{ $product->unit_price }}">
-                                    </div>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-lg-3 col-from-label">{{ translate('Fake price') }}</label>
-                                    <div class="col-lg-6">
-                                        <input type="text" placeholder="{{ translate('Fake price') }}"
-                                            name="fake_price" class="form-control" value="{{ $product->fake_price }}">
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group row" id="quantity">
-                                    <label class="col-lg-3 col-from-label">{{ translate('Quantity') }}</label>
-                                    <div class="col-lg-6">
-                                        <input type="number" lang="en" value="{{ $product->current_stock }}"
-                                            step="1" placeholder="{{ translate('Quantity') }}"
-                                            name="current_stock" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-md-3 col-from-label">
-                                        {{ translate('SKU') }}
-                                    </label>
-                                    <div class="col-md-6">
-                                        <input type="text" placeholder="{{ translate('SKU') }}"
-                                            value="{{ $product->sku }}" name="sku" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br>
-                            <div class="sku_combination" id="sku_combination">
-
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Product Description -->
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0 h6">{{ translate('Product Description') }}</h5>
                         </div>
                         <div class="card-body">
                             <div class="form-group row">
-                                <label class="col-lg-3 col-from-label">{{ translate('Description') }} <i
-                                        class="las la-language text-danger"
-                                        title="{{ translate('Translatable') }}"></i></label>
+                                <label class="col-lg-3 col-from-label">{{ translate('Description') }}</label>
                                 <div class="col-lg-9">
-                                    <textarea class="form-control" name="description">{{ $product->description }}</textarea>
+                                    <textarea class="form-control" name="description" rows="5" placeholder="{{ translate('Product Description') }}">{{ $product->description }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0 h6">{{ translate('SEO Settings') }}</h5>
+                        </div>
+                        <div class="card-body">
+                                <div class="form-group row">
+                                <label class="col-lg-3 col-from-label">{{ translate('Meta Title') }}</label>
+                                <div class="col-lg-8">
+                                    <input type="text" class="form-control" name="meta_title"
+                                        placeholder="{{ translate('Meta Title') }}" value="{{ $product->meta_title ?? '' }}">
+                                    <small class="text-muted">{{ translate('Recommended: 50-60 characters') }}</small>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                <label class="col-lg-3 col-from-label">{{ translate('Meta Description') }}</label>
+                                <div class="col-lg-8">
+                                    <textarea class="form-control" name="meta_description" rows="3"
+                                        placeholder="{{ translate('Meta Description') }}">{{ $product->meta_description ?? '' }}</textarea>
+                                    <small class="text-muted">{{ translate('Recommended: 150-160 characters') }}</small>
+                                </div>
+                                    </div>
+
+                                <div class="form-group row">
+                                <label class="col-lg-3 col-from-label">{{ translate('Meta Keywords') }}</label>
+                                <div class="col-lg-8">
+                                    <textarea class="form-control" name="meta_keywords" rows="2"
+                                        placeholder="{{ translate('Keyword, Keyword') }}">{{ $product->meta_keywords ?? '' }}</textarea>
+                                    <small class="text-muted">{{ translate('Separate with comma') }}</small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-from-label">{{ translate('Slug') }}</label>
+                                <div class="col-lg-8">
+                                    <input type="text" class="form-control" name="slug"
+                                        placeholder="{{ translate('Product Slug (URL)') }}" value="{{ $product->slug ?? '' }}">
+                                    <small class="text-muted">{{ translate('Leave empty to auto-generate from product name') }}</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
 
                 <div class="col-12">
                     <div class="mb-3 text-right">
@@ -300,29 +202,5 @@
 @endsection
 
 @section('script')
-    <script type="text/javascript">
-        $(document).ready(function() {
-            update_sku();
-        });
-
-
-        function update_sku() {
-            $.ajax({
-                type: "POST",
-                url: '{{ route('products.addon_combination_edit') }}',
-                data: $('#choice_form').serialize(),
-                success: function(data) {
-                    $('#sku_combination').html(data);
-                    AIZ.uploader.previewGenerate();
-                    AIZ.plugins.fooTable();
-                    if (data.length > 1) {
-                        $('#show-hide-div').hide();
-                    } else {
-                        $('#show-hide-div').show();
-                    }
-                }
-            });
-        }
-    </script>
     @include('backend.product.products.script')
 @endsection

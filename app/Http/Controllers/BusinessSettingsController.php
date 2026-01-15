@@ -532,6 +532,9 @@ class BusinessSettingsController extends Controller
                 if ($business_settings != null) {
                     if (gettype($request[$type]) == 'array') {
                         $business_settings->value = json_encode($request[$type]);
+                    } elseif (in_array($type, ['footer_navigation', 'header_menu_items']) && !empty($request[$type])) {
+                        // Handle JSON string settings
+                        $business_settings->value = $request[$type];
                     } else {
                         $business_settings->value = $request[$type];
                     }
@@ -542,6 +545,9 @@ class BusinessSettingsController extends Controller
                     $business_settings->type = $type;
                     if (gettype($request[$type]) == 'array') {
                         $business_settings->value = json_encode($request[$type]);
+                    } elseif (in_array($type, ['footer_navigation', 'header_menu_items']) && !empty($request[$type])) {
+                        // Handle JSON string settings
+                        $business_settings->value = $request[$type];
                     } else {
                         $business_settings->value = $request[$type];
                     }
@@ -554,6 +560,137 @@ class BusinessSettingsController extends Controller
         Artisan::call('cache:clear');
 
         flash(translate("Settings updated successfully"))->success();
+        return back();
+    }
+
+    public function loadHomePageDummyData()
+    {
+        // Hero Slider Dummy Data
+        $heroSliderImages = [
+            'uploads/all/banner-1.jpg',
+            'uploads/all/banner-2.jpg',
+            'uploads/all/banner-3.jpg'
+        ];
+        $heroSliderTopHeadings = [
+            'New Arrivals',
+            'Special Offer',
+            'Best Deals'
+        ];
+        $heroSliderMainHeadings = [
+            'Fresh Vegetables & Fruits',
+            'Premium Quality Products',
+            'Shop Now & Save More'
+        ];
+        $heroSliderButtonTexts = [
+            'Shop Now',
+            'Explore Shop',
+            'Buy Now'
+        ];
+        $heroSliderButtonLinks = [
+            route('products.listing'),
+            route('products.listing'),
+            route('products.listing')
+        ];
+        $heroSliderStartingPrices = [
+            'Starting from $9.99',
+            'Starting from $14.99',
+            'Starting from $19.99'
+        ];
+
+        // Marketing Banners Dummy Data
+        $marketingBannerImages = [
+            'uploads/all/marketing-banner-1.jpg',
+            'uploads/all/marketing-banner-2.jpg'
+        ];
+        $marketingBannerLabels = [
+            'Summer Sale',
+            'Winter Collection'
+        ];
+        $marketingBannerButtonTexts = [
+            'Shop Now',
+            'Explore'
+        ];
+        $marketingBannerButtonUrls = [
+            route('products.listing'),
+            route('products.listing')
+        ];
+        $marketingBannerStartingPrices = [
+            'From $29.99',
+            'From $39.99'
+        ];
+
+        // Bottom Banners Dummy Data
+        $bottomBannerImages = [
+            'uploads/all/bottom-banner-1.jpg',
+            'uploads/all/bottom-banner-2.jpg',
+            'uploads/all/bottom-banner-3.jpg'
+        ];
+        $bottomBannerLinks = [
+            route('products.listing'),
+            route('products.listing'),
+            route('products.listing')
+        ];
+
+        // Promotional Banner Dummy Data
+        $promotionalImages = [
+            'uploads/all/promo-1.jpg',
+            'uploads/all/promo-2.jpg',
+            'uploads/all/promo-3.jpg',
+            'uploads/all/promo-4.jpg'
+        ];
+        $promotionalTitles = [
+            'Everyday Fresh Meat',
+            'Daily Fresh Vegetables',
+            'Everyday Fresh Milk',
+            'Everyday Fresh Fruits'
+        ];
+        $promotionalPrices = [
+            '$60.99',
+            '$45.99',
+            '$35.99',
+            '$55.99'
+        ];
+        $promotionalLinks = [
+            route('products.listing'),
+            route('products.listing'),
+            route('products.listing'),
+            route('products.listing')
+        ];
+
+        // Newsletter Dummy Data
+        $newsletterImage = 'uploads/all/newsletter.jpg';
+        $newsletterTitle = 'Subscribe to Our Newsletter';
+        $newsletterSubtitle = 'Get the latest updates on new products and upcoming sales';
+
+        // Save all settings
+        $this->saveSetting('hero_slider_images', json_encode($heroSliderImages));
+        $this->saveSetting('hero_slider_top_heading', json_encode($heroSliderTopHeadings));
+        $this->saveSetting('hero_slider_main_heading', json_encode($heroSliderMainHeadings));
+        $this->saveSetting('hero_slider_button_text', json_encode($heroSliderButtonTexts));
+        $this->saveSetting('hero_slider_button_link', json_encode($heroSliderButtonLinks));
+        $this->saveSetting('hero_slider_starting_price', json_encode($heroSliderStartingPrices));
+
+        $this->saveSetting('marketing_banner_images', json_encode($marketingBannerImages));
+        $this->saveSetting('marketing_banner_labels', json_encode($marketingBannerLabels));
+        $this->saveSetting('marketing_banner_button_text', json_encode($marketingBannerButtonTexts));
+        $this->saveSetting('marketing_banner_button_url', json_encode($marketingBannerButtonUrls));
+        $this->saveSetting('marketing_banner_starting_price', json_encode($marketingBannerStartingPrices));
+
+        $this->saveSetting('bottom_banner_images', json_encode($bottomBannerImages));
+        $this->saveSetting('bottom_banner_links', json_encode($bottomBannerLinks));
+
+        $this->saveSetting('home_promotional_images', json_encode($promotionalImages));
+        $this->saveSetting('home_promotional_titles', json_encode($promotionalTitles));
+        $this->saveSetting('home_promotional_prices', json_encode($promotionalPrices));
+        $this->saveSetting('home_promotional_links', json_encode($promotionalLinks));
+
+        $this->saveSetting('home_newsletter_image', $newsletterImage);
+        $this->saveSetting('home_newsletter_title', $newsletterTitle);
+        $this->saveSetting('home_newsletter_subtitle', $newsletterSubtitle);
+
+        Artisan::call('cache:clear');
+
+        flash(translate("Dummy data loaded successfully"))->success();
         return back();
     }
 

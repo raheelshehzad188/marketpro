@@ -500,6 +500,11 @@
                                 </a>
                             </li>
                             <li class="aiz-side-nav-item">
+                                <a href="{{ route('custom-pages.edit', ['id' => 1, 'lang' => env('DEFAULT_LANGUAGE', 'en'), 'page' => 'home']) }}" class="aiz-side-nav-link {{ areActiveRoutes(['custom-pages.edit']) && request('page') == 'home' ? 'active' : '' }}">
+                                    <span class="aiz-side-nav-text">{{translate('Home Page Settings')}}</span>
+                                </a>
+                            </li>
+                            <li class="aiz-side-nav-item">
                                 <a href="{{ route('website.appearance') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('Appearance')}}</span>
                                 </a>

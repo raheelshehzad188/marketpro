@@ -318,7 +318,7 @@
                         <div class="col-12 col-sm-6 col-lg-3">
                             <div class="product mb-0">
                                 <div class="product-thumb-info border-0 mb-3">
-                                    <a href="{{ route('products.details', $product->id) }}">
+                                    <a href="{{ route('products.details', $product->slug ?? $product->id) }}">
                                         <div class="product-thumb-info-image">
                                             <img alt="{{ $product->name }}" class="img-fluid"
                                                 src="{{ $product->knobby_thumbnail_img }}">
@@ -327,7 +327,7 @@
                                 </div>
                                 <div class="d-flex justify-content-center">
                                     <h3 class="text-3-5 font-weight-medium text-transform-none text-center mb-0">
-                                        <a href="{{ route('products.details', $product->id) }}"
+                                        <a href="{{ route('products.details', $product->slug ?? $product->id) }}"
                                             class="text-color-dark product-title">{{ $product->name }}</a>
                                     </h3>
                                 </div>
