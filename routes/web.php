@@ -300,6 +300,9 @@ Route::get('/bulk-upload/product-knobby', 'ProductBulkUploadController@knobby_pr
 
 
 Route::post('/bulk-product-upload', 'ProductBulkUploadController@bulk_upload')->name('bulk_product_upload');
+Route::post('/bulk-product-upload-with-images', 'ProductBulkUploadController@bulk_upload_with_images')->name('bulk_product_upload_with_images');
+Route::get('/product-bulk-upload/download-sample', 'ProductBulkUploadController@download_sample')->name('product_bulk_upload.download_sample');
+Route::post('/product-bulk-upload/delete-old-products', 'ProductBulkUploadController@delete_old_products')->name('product_bulk_upload.delete_old_products');
 
 Route::post('/categories/import', [CategoryController::class, 'importCategories'])->name('categories.import');
 Route::post('bike-fitment-data-upload', [BikeFitmentDataController::class, 'uploadBikeFitmentData'])->name('bike_fitment_data_upload');
